@@ -1,0 +1,12 @@
+name: shiny_test
+title:
+username:
+account: ebaken
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2447476
+bundleId: 3272962
+url: https://ebaken.shinyapps.io/shiny_test/
+when: 1592239160.64839
+asMultiple: FALSE
+asStatic: FALSE

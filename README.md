@@ -1,2 +1,2 @@
-# gmShiny
-Shiny App for geomorph
+# ShinyMorph
+Shiny App Interface for geomorph
