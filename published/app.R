@@ -11,6 +11,7 @@ library(RColorBrewer); library(reactlog); library(StereoMorph); library(shinybus
 
 source("support.functions.R")
 rm(list = ls())
+
 # defining elements upon startup
 data(plethspecies) 
 example_mat <- cbind(plethspecies$phy$tip.label, 
@@ -30,23 +31,6 @@ old_independent_vars <- NULL
 drop_these <- NULL
 symmetry_landpairs_manual_matrix <- matrix(NA, ncol = 2, nrow = 1) 
 colnames(symmetry_landpairs_manual_matrix) <- c("Side 1", "Side 2")
-#questions <- list(
-#  list(id = "name", type = "text", title = "Name"),
-#  list(id = "email", type = "text", title = "Email (if you'd like to be contacted directly)"),
-#  list(id = "feedback_type", type = "text", title = "Favourite R package"),
-#  list(id = "terms", type = "checkbox", title = "I agree to the terms")
-#)
-#
-#formInfo <- list(
-#  id = "basicinfo",
-#  questions = questions,
-#  storage = list(
-#    # Right now, only flat file storage is supported
-#    type = STORAGE_TYPES$FLATFILE,
-#    # The path where responses are stored
-#    path = "responses"
-#  )
-#)
 
 options(shiny.maxRequestSize = 30*1024^2)
 options(shiny.suppressMissingContextError = TRUE)
@@ -590,16 +574,16 @@ ui <- function(request) {
             input.show_convex_hull_1 || input.show_convex_hull_2 || input.show_convex_hull_3", 
             fluidRow(
               column(1, colorSelectorDrop.ekb(inputId = "trait_colors_lev1", label = NULL, selected = all_color_options[1])),
-              column(1, colorSelectorDrop.ekb(inputId = "trait_colors_lev2", label = NULL, selected = all_color_options[4])),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 2", colorSelectorDrop.ekb(inputId = "trait_colors_lev3", label = NULL, selected = all_color_options[7]))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 3", colorSelectorDrop.ekb(inputId = "trait_colors_lev4", label = NULL, selected = all_color_options[10]))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 4", colorSelectorDrop.ekb(inputId = "trait_colors_lev5", label = NULL, selected = all_color_options[13]))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 5", colorSelectorDrop.ekb(inputId = "trait_colors_lev6", label = NULL, selected = all_color_options[54]))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 6", colorSelectorDrop.ekb(inputId = "trait_colors_lev7", label = NULL, selected = all_color_options[50], dropdownside = "right"))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 7", colorSelectorDrop.ekb(inputId = "trait_colors_lev8", label = NULL, selected = all_color_options[44], dropdownside = "right"))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 8", colorSelectorDrop.ekb(inputId = "trait_colors_lev9", label = NULL, selected = all_color_options[63], dropdownside = "right"))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 9", colorSelectorDrop.ekb(inputId = "trait_colors_lev10", label = NULL, selected = all_color_options[39], dropdownside = "right"))), 
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 10", colorSelectorDrop.ekb(inputId = "trait_colors_lev11", label = NULL, selected = all_color_options[31], dropdownside = "right"))), br(), br())), 
+              column(1, colorSelectorDrop.ekb(inputId = "trait_colors_lev2", label = NULL, selected = all_color_options[5])),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 2", colorSelectorDrop.ekb(inputId = "trait_colors_lev3", label = NULL, selected = all_color_options[6]))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 3", colorSelectorDrop.ekb(inputId = "trait_colors_lev4", label = NULL, selected = all_color_options[8]))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 4", colorSelectorDrop.ekb(inputId = "trait_colors_lev5", label = NULL, selected = all_color_options[52]))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 5", colorSelectorDrop.ekb(inputId = "trait_colors_lev6", label = NULL, selected = all_color_options[9]))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 6", colorSelectorDrop.ekb(inputId = "trait_colors_lev7", label = NULL, selected = all_color_options[48], dropdownside = "right"))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 7", colorSelectorDrop.ekb(inputId = "trait_colors_lev8", label = NULL, selected = all_color_options[40], dropdownside = "right"))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 8", colorSelectorDrop.ekb(inputId = "trait_colors_lev9", label = NULL, selected = all_color_options[60], dropdownside = "right"))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 9", colorSelectorDrop.ekb(inputId = "trait_colors_lev10", label = NULL, selected = all_color_options[23], dropdownside = "right"))), 
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 10", colorSelectorDrop.ekb(inputId = "trait_colors_lev11", label = NULL, selected = all_color_options[35], dropdownside = "right"))), br(), br())), 
           
           conditionalPanel(condition = "input.show_tip_label", # this option only shows up when the user chooses to display the names of each point
                            sliderInput(inputId = "tip_txt_cex", label = "Point Label Size", # adjusts the size of those name labels
@@ -1349,19 +1333,19 @@ ui <- function(request) {
                           column(2, align = "center", textOutput("allometry_lev_6", container = h6))))))),
                 fluidRow(
                   column(2, align = "center", colorSelectorDrop.ekb("allom_color_1", "Lev 1", selected = all_color_options[1])),
-                  column(2, align = "center",colorSelectorDrop.ekb("allom_color_2", "Lev 2", selected = all_color_options[4])),
+                  column(2, align = "center",colorSelectorDrop.ekb("allom_color_2", "Lev 2", selected = all_color_options[5])),
                   conditionalPanel(
                     "output.allometry_color_nlev > 2",
-                    column(2, align = "center",colorSelectorDrop.ekb("allom_color_3", "Lev 3", selected = all_color_options[8])),
+                    column(2, align = "center",colorSelectorDrop.ekb("allom_color_3", "Lev 3", selected = all_color_options[6])),
                     conditionalPanel(
                       "output.allometry_color_nlev > 3",
-                      column(2, align = "center",colorSelectorDrop.ekb("allom_color_4", "Lev 4", selected = all_color_options[11])),
+                      column(2, align = "center",colorSelectorDrop.ekb("allom_color_4", "Lev 4", selected = all_color_options[8], dropdownside = "right")),
                       conditionalPanel(
                         "output.allometry_color_nlev > 4",
-                        column(2, align = "center",colorSelectorDrop.ekb("allom_color_5", "Lev 5", selected = all_color_options[15])),
+                        column(2, align = "center",colorSelectorDrop.ekb("allom_color_5", "Lev 5", selected = all_color_options[52], dropdownside = "right")),
                         conditionalPanel(
                           "output.allometry_color_nlev > 5",
-                          column(2, align = "center",colorSelectorDrop.ekb("allom_color_6", "Lev 6", selected = all_color_options[19])))
+                          column(2, align = "center",colorSelectorDrop.ekb("allom_color_6", "Lev 6", selected = all_color_options[9], dropdownside = "right")))
                       )
                     ))
                 ), br()
@@ -1536,30 +1520,65 @@ ui <- function(request) {
         id = "tab_extras",
         tabPanel(
           "Tutorials", br(),
-          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 1: Data Input"))),hr()#,
-                    #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=822b0e7b-cba8-4643-b407-ac3d01546f19" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
+          wellPanel(
+            style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+            fluidRow(column(9, offset = 1, h4("Part 1: Data Input"))),hr(),
+            fluidRow(
+              column(
+                11, offset = 1,
+                HTML('<iframe src="https://player.vimeo.com/video/530589702?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                     width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                     title="Data Input"></iframe>')))
+          ),
+          wellPanel(
+            style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+            fluidRow(column(9, offset = 1, h4("Part 2: Data Prep"))),hr(),
+            fluidRow(
+              column(
+                11, offset = 1,
+                HTML('<iframe src="https://player.vimeo.com/video/530590526?title=0&amp;byline=0&amp;portrait=0&amp;speed=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                     width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                     title="Data Prep"></iframe>')))
+          ),
+          wellPanel(
+            style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+            fluidRow(column(9, offset = 1, h4("Part 3: Morphospace and Warp Grids"))),hr(),
+            fluidRow(
+              column(
+                11, offset = 1,
+                HTML('<iframe src="https://player.vimeo.com/video/530951457?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                             width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                             title="Morphospace_and_Warp_Grids.mp4"></iframe>')))
+            
           ),
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 2: Data Prep"))),hr()#,
-                    #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=e78d9298-1ba8-416a-a2a1-ac3d0154855e" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
+                    fluidRow(column(9, offset = 1, h4("Part 4: Shape Patterns"))),hr(),
+                    fluidRow(
+                      column(
+                        11, offset = 1,
+                        HTML('<iframe src="https://player.vimeo.com/video/530974819?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                             width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                             title="Shape_Patterns.mov"></iframe>')) )
           ),
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 3: Morphospace and Warp Grids"))),hr()#,
-                    #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=aadff764-3960-4a35-86ad-ac3d01588c71" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          ),
+                    fluidRow(column(9, offset = 1, h4("Part 5: Linear Models"))),hr(),
+                    fluidRow(
+                      column(
+                        11, offset = 1,
+                        HTML('<iframe src="https://player.vimeo.com/video/530980333?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                             width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                             title="Linear_Models.mov"></iframe>')))
+          ), 
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 4: Morphospace and Warp Grids Continued"))),hr()#,
-                    #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=f4556ad4-d5e0-4313-a06e-ac3d015c4db5" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          ),
-          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 5: Shape Patterns"))),hr()#,
-                    #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=cc5483f4-2adb-4c3e-9a46-ac40016a62dd" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          ),
-          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 6: Linear Models"))),hr()#,
-                    #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=3cd14240-ce64-4475-9b59-ac40016c1ae3" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'))
-          ), br()
+                    fluidRow(column(9, offset = 1, h4("Part 6: Extras"))),hr(),
+                    fluidRow(
+                      column(
+                        11, offset = 1,
+                        HTML('<iframe src="https://player.vimeo.com/video/530960448?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                             width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                             title="Extras.mp4"></iframe>')))
+          ), 
+          br()
         ),
         tabPanel(
           "News",
@@ -1611,32 +1630,32 @@ server <- function(input, output, session) {
   
   
   #### Instructions ####
-  tryObserveEvent(input$navbar, {
-    if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
-      shinyalert(
-        title = "Welcome!",
-        inputId = "keep_alerts_on_tf",
-        text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
-         
-         Would you like to keep these Instructions on?",
-        size = "s", 
-        closeOnEsc = F,
-        closeOnClickOutside = F,
-        html = FALSE,
-        type = "success",
-        showConfirmButton = TRUE,
-        showCancelButton = TRUE,
-        confirmButtonText = "Yes",
-        confirmButtonCol = "#AEDEF4",
-        cancelButtonText = "No",
-        timer = 0,
-        imageUrl = "",
-        animation = TRUE
-      )
-      alert_vals$navbar_datainput_welcomealertdone <- "yes"
+    tryObserveEvent(input$navbar, {
+      if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
+        shinyalert(
+          title = "Welcome!",
+          inputId = "keep_alerts_on_tf",
+          text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
+           
+           Would you like to keep these Instructions on?",
+          size = "s", 
+          closeOnEsc = F,
+          closeOnClickOutside = F,
+          html = FALSE,
+          type = "success",
+          showConfirmButton = TRUE,
+          showCancelButton = TRUE,
+          confirmButtonText = "Yes",
+          confirmButtonCol = "#AEDEF4",
+          cancelButtonText = "No",
+          timer = 0,
+          imageUrl = "",
+          animation = TRUE
+        )
+        alert_vals$navbar_datainput_welcomealertdone <- "yes"
+      }
     }
-  }
-  )
+    )
   
   tryObserveEvent(input$alert_on_off, ignoreInit = T, priority = -10,  {
     if(input$alert_on_off == F) { 
@@ -3173,7 +3192,6 @@ server <- function(input, output, session) {
     }
   })
   
-  
   trait_rx <- reactive({
     trait_table <- NULL
     dd <- input$go_remove_outlier_specimen_reset #trigger dddd
@@ -3246,8 +3264,7 @@ server <- function(input, output, session) {
     }
   })
   
-  prune_both_ways <- reactive({list(vals$outlier_removed_names, vals$go_pruning,
-                                    vals$unprune)})
+  prune_both_ways <- reactive({list(vals$outlier_removed_names, vals$go_pruning, vals$unprune)})
   
   tryObserveEvent(eventExpr = prune_both_ways(), ignoreInit = T, {
     
@@ -3439,7 +3456,7 @@ server <- function(input, output, session) {
   }) 
   
   run_gpa_reset_listen <- reactive({ list(gpa_coords_rx(), vals$curves_final_anyNAs)})
-  tryObserveEvent(eventExpr =run_gpa_reset_listen(), ignoreInit = T, { # making the Run GPA button reset if you change anything that might affect it
+  tryObserveEvent(run_gpa_reset_listen(), ignoreInit = T, { # making the Run GPA button reset if you change anything that might affect it
     updateActionButton(session, "go_run_gpa")
   })
   
@@ -3454,6 +3471,11 @@ server <- function(input, output, session) {
     req(gpa_coords_rx()) # dont run until gpa_coords defined
     metaExpr({
       if(..(datasets_dont_match()) == FALSE) {
+        #shape <- ..(gpa_coords_rx())
+        
+        # data(plethspecies) 
+        # Y.gpa <- gpagen(plethspecies$land) 
+        # shape <- Y.gpa$coords
         geomorph:::gm.prcomp(..(gpa_coords_rx()), vals$phy_rx, GLS = ..(input$gls_center_tf),
                              align.to.phy = ..(input$align_to_phy_tf), 
                              transform = as.logical(..(input$transform_resid_tf))) # gm.prcomp for phylomorphospace
@@ -3488,6 +3510,11 @@ server <- function(input, output, session) {
   
   
   # Morphospace Tip Color
+  
+  tryObserveEvent(input$tip_col_category, ignoreInit = T, { # when the point tip col category is changed, uncheck "other" box
+    reset("tip_col_other_tf")
+  })
+  
   tryObserve({
     if (input$tip_col_category == "by_trait_1" | input$tip_col_category == "by_trait_2" | input$tip_col_category == "by_trait_3" | input$tip_col_category == "csize") {
       if (input$tip_col_category == "by_trait_1" & input$trait_1_treatment == "disc") {i <- 1} 
@@ -3583,7 +3610,7 @@ server <- function(input, output, session) {
   output$file_trait_selected <- reactive({return(!is.null(vals$trait_rx))})
   outputOptions(output, 'file_trait_selected', suspendWhenHidden=FALSE)
   
-  output$any_traits_selected <- reactive({return(!is.null(trait_rx()))})
+  output$any_traits_selected <- reactive({return(!is.null(trait_rx()))}) # here we go. 
   outputOptions(output, 'any_traits_selected', suspendWhenHidden=FALSE)
   
   output$two_traits_selected <- reactive({return(length(input$trait_column) > 1)})
@@ -4966,7 +4993,9 @@ server <- function(input, output, session) {
         
         
         choice_list_shape <- c(19, 1, 18, choice_list_disc)
-        names(choice_list_shape) <- c("Filled Circle", "Hollow Circle", "Filled Diamond", names(choice_list_disc))
+        new_names <- names(choice_list_disc)
+        if(length(choice_list_shape)>3) new_names <- paste("By", new_names, sep = " ") # labeling the choices
+        names(choice_list_shape) <- c("Filled Circle", "Hollow Circle", "Filled Diamond", new_names)
         
         
         
@@ -5550,12 +5579,6 @@ server <- function(input, output, session) {
     }
   })
   
-  tryObserveEvent(trigger_model_disc_listen(), ignoreInit = F, priority = -100, {
-    
-    
-    
-  })
-  
   tryObserveEvent(gpa_coords_rx(), ignoreInit = T, priority = 10000, {
     req(gpa_coords_rx())
     specimen_options <- dimnames(gpa_coords_rx())[[3]]
@@ -5598,7 +5621,7 @@ server <- function(input, output, session) {
     if(is.null(update_vals$warp_axes_selected_selected)) {
       selected_item <- c(1,2)
     } else { selected_item <- update_vals$warp_axes_selected_selected } 
-    print(selected_item)
+    
     updateCheckboxGroupInput(session, "warp_axes_selected", label = "Visualize Variation Across PC:",
                              choices = pc_axes_temp, selected = selected_item, inline = T)
     
@@ -6504,12 +6527,11 @@ names(vals$csize) <- dimnames(gpa_coords)[[3]]'
   )
   
   #### Morphospace Outputs ####
-  tryObserve({
+  tryObserve({ 
     req(pca_rx())
     if(is.null(vals$phy_rx) | !is.null(vals$go_example_1)) {
       match <- TRUE
-    }
-    
+    } 
     if(!is.null(vals$phy_rx) & !is.null(gpa_coords_rx())) {
       match <- identical(vals$phy_rx$tip.label, dimnames(gpa_coords_rx())[[3]]) 
     } 
@@ -8619,7 +8641,7 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   })
   
   output$email_me <- renderUI({
-    url <- a("Write Email", href="mailto:erica.baken@gmail.com")
+    url <- a("Write Email", href="mailto:gmShiny.baken@gmail.com")
     tagList("Contact Dr. Erica Baken:", url)
   })
   
@@ -8636,7 +8658,7 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   output$citation_info <- renderText({
     "Baken, EK, ML Collyer, A Kaliontzopoulou, and DC Adams. 2021. gmShiny and geomorph 4.0: new 
     graphical interface and enhanced analytics for a comprehensive morphometric experience. [citation to be edited
-    after manuscript acceptance]"
+    upon manuscript acceptance]"
   })
   
   output$github_link <- renderText({
@@ -8903,6 +8925,16 @@ print(text) } # This function turns the pop up messages available in gmShiny int
 }
 
 shinyApp(ui= ui, server = server, enableBookmarking = "server")
+
+
+
+
+
+
+
+
+
+
 
 
 

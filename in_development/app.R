@@ -39,23 +39,6 @@ old_independent_vars <- NULL
 drop_these <- NULL
 symmetry_landpairs_manual_matrix <- matrix(NA, ncol = 2, nrow = 1) 
 colnames(symmetry_landpairs_manual_matrix) <- c("Side 1", "Side 2")
-#questions <- list(
-#  list(id = "name", type = "text", title = "Name"),
-#  list(id = "email", type = "text", title = "Email (if you'd like to be contacted directly)"),
-#  list(id = "feedback_type", type = "text", title = "Favourite R package"),
-#  list(id = "terms", type = "checkbox", title = "I agree to the terms")
-#)
-#
-#formInfo <- list(
-#  id = "basicinfo",
-#  questions = questions,
-#  storage = list(
-#    # Right now, only flat file storage is supported
-#    type = STORAGE_TYPES$FLATFILE,
-#    # The path where responses are stored
-#    path = "responses"
-#  )
-#)
 
 options(shiny.maxRequestSize = 30*1024^2)
 options(shiny.suppressMissingContextError = TRUE)
@@ -1545,37 +1528,72 @@ ui <- function(request) {
         id = "tab_extras",
         tabPanel(
           "Tutorials", br(),
-          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 1: Data Input"))),hr()#,
-                    #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=822b0e7b-cba8-4643-b407-ac3d01546f19" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
+          wellPanel(
+            style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+            fluidRow(column(9, offset = 1, h4("Part 1: Data Input"))),hr(),
+            fluidRow(
+              column(
+                11, offset = 1,
+                HTML('<iframe src="https://player.vimeo.com/video/530589702?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                     width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                     title="Data Input"></iframe>')))
+          ),
+          wellPanel(
+            style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+            fluidRow(column(9, offset = 1, h4("Part 2: Data Prep"))),hr(),
+            fluidRow(
+              column(
+                11, offset = 1,
+                HTML('<iframe src="https://player.vimeo.com/video/530590526?title=0&amp;byline=0&amp;portrait=0&amp;speed=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                     width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                     title="Data Prep"></iframe>')))
+          ),
+          wellPanel(
+            style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("Part 3: Morphospace and Warp Grids"))),hr(),
+                    fluidRow(
+                      column(
+                        11, offset = 1,
+                        HTML('<iframe src="https://player.vimeo.com/video/530951457?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                             width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                             title="Morphospace_and_Warp_Grids.mp4"></iframe>')))
+                    
           ),
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 2: Data Prep"))),hr()#,
-          #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=e78d9298-1ba8-416a-a2a1-ac3d0154855e" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
+                    fluidRow(column(9, offset = 1, h4("Part 4: Shape Patterns"))),hr(),
+                    fluidRow(
+                      column(
+                        11, offset = 1,
+                        HTML('<iframe src="https://player.vimeo.com/video/530974819?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                             width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                             title="Shape_Patterns.mov"></iframe>')) )
           ),
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 3: Morphospace and Warp Grids"))),hr()#,
-          #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=aadff764-3960-4a35-86ad-ac3d01588c71" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          ),
+                    fluidRow(column(9, offset = 1, h4("Part 5: Linear Models"))),hr(),
+                    fluidRow(
+                      column(
+                        11, offset = 1,
+                        HTML('<iframe src="https://player.vimeo.com/video/530980333?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                             width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                             title="Linear_Models.mov"></iframe>')))
+          ), 
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 4: Morphospace and Warp Grids Continued"))),hr()#,
-          #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=f4556ad4-d5e0-4313-a06e-ac3d015c4db5" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          ),
-          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 5: Shape Patterns"))),hr()#,
-          #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=cc5483f4-2adb-4c3e-9a46-ac40016a62dd" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          ),
-          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 6: Linear Models"))),hr()#,
-          #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=3cd14240-ce64-4475-9b59-ac40016c1ae3" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'))
-          ), br()
-          ),
+                    fluidRow(column(9, offset = 1, h4("Part 6: Extras"))),hr(),
+                    fluidRow(
+                      column(
+                        11, offset = 1,
+                        HTML('<iframe src="https://player.vimeo.com/video/530960448?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+                             width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
+                             title="Extras.mp4"></iframe>')))
+          ), 
+          br()
+        ),
         tabPanel(
           "News",
           br(),
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
                     fluidRow(column(9, offset = 1, h4("News"))), hr(),
-          fluidRow(column(11, offset = .5, textOutput("news")))),
+                    fluidRow(column(11, offset = .5, textOutput("news")))),
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
                     fluidRow(column(9, offset = 1, h4("Upcoming Features"))),hr(),
                     fluidRow(column(11, offset = .5, textOutput("upcoming_features")))),
@@ -1592,7 +1610,7 @@ ui <- function(request) {
                     fluidRow(column(11, offset = .5, textOutput("citation_info"))),
                     hr(),
                     fluidRow(column(11, offset = .5, textOutput("github_link"))),
-                    )
+          )
         )
       )), 
     tags$style(type = "text/css", "a{color: #ceecf0;}"),
@@ -1620,32 +1638,32 @@ server <- function(input, output, session) {
   
   
   #### Instructions ####
-#  tryObserveEvent(input$navbar, {
-#    if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
-#      shinyalert(
-#        title = "Welcome!",
-#        inputId = "keep_alerts_on_tf",
-#        text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
-#         
-#         Would you like to keep these Instructions on?",
-#        size = "s", 
-#        closeOnEsc = F,
-#        closeOnClickOutside = F,
-#        html = FALSE,
-#        type = "success",
-#        showConfirmButton = TRUE,
-#        showCancelButton = TRUE,
-#        confirmButtonText = "Yes",
-#        confirmButtonCol = "#AEDEF4",
-#        cancelButtonText = "No",
-#        timer = 0,
-#        imageUrl = "",
-#        animation = TRUE
-#      )
-#      alert_vals$navbar_datainput_welcomealertdone <- "yes"
-#    }
-#  }
-#  )
+    tryObserveEvent(input$navbar, {
+      if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
+        shinyalert(
+          title = "Welcome!",
+          inputId = "keep_alerts_on_tf",
+          text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
+           
+           Would you like to keep these Instructions on?",
+          size = "s", 
+          closeOnEsc = F,
+          closeOnClickOutside = F,
+          html = FALSE,
+          type = "success",
+          showConfirmButton = TRUE,
+          showCancelButton = TRUE,
+          confirmButtonText = "Yes",
+          confirmButtonCol = "#AEDEF4",
+          cancelButtonText = "No",
+          timer = 0,
+          imageUrl = "",
+          animation = TRUE
+        )
+        alert_vals$navbar_datainput_welcomealertdone <- "yes"
+      }
+    }
+    )
   
   tryObserveEvent(input$alert_on_off, ignoreInit = T, priority = -10,  {
     if(input$alert_on_off == F) { 
@@ -2653,7 +2671,7 @@ server <- function(input, output, session) {
     
     
   })
- 
+  
   tryObserveEvent(input$go_symmetry_no_replicates, ignoreInit = F, {
     
     if(input$go_symmetry_no_replicates > 0) {
@@ -2855,7 +2873,7 @@ server <- function(input, output, session) {
   tryObserveEvent(input$run_symmetry_go, ignoreInit = T, {
     vals$run_symmetry_go <- input$run_symmetry_go
   })
- 
+  
   bilat_metaO2 <- tryMetaObserve2({
     if(!is.null(vals$run_symmetry_go)) {
       req(gpa_coords_rx())
@@ -3463,9 +3481,9 @@ server <- function(input, output, session) {
       if(..(datasets_dont_match()) == FALSE) {
         #shape <- ..(gpa_coords_rx())
         
-       # data(plethspecies) 
-       # Y.gpa <- gpagen(plethspecies$land) 
-       # shape <- Y.gpa$coords
+        # data(plethspecies) 
+        # Y.gpa <- gpagen(plethspecies$land) 
+        # shape <- Y.gpa$coords
         geomorph:::gm.prcomp(..(gpa_coords_rx()), vals$phy_rx, GLS = ..(input$gls_center_tf),
                              align.to.phy = ..(input$align_to_phy_tf), 
                              transform = as.logical(..(input$transform_resid_tf))) # gm.prcomp for phylomorphospace
@@ -3500,6 +3518,11 @@ server <- function(input, output, session) {
   
   
   # Morphospace Tip Color
+  
+  tryObserveEvent(input$tip_col_category, ignoreInit = T, { # when the point tip col category is changed, uncheck "other" box
+    reset("tip_col_other_tf")
+  })
+  
   tryObserve({
     if (input$tip_col_category == "by_trait_1" | input$tip_col_category == "by_trait_2" | input$tip_col_category == "by_trait_3" | input$tip_col_category == "csize") {
       if (input$tip_col_category == "by_trait_1" & input$trait_1_treatment == "disc") {i <- 1} 
@@ -4978,7 +5001,9 @@ server <- function(input, output, session) {
         
         
         choice_list_shape <- c(19, 1, 18, choice_list_disc)
-        names(choice_list_shape) <- c("Filled Circle", "Hollow Circle", "Filled Diamond", names(choice_list_disc))
+        new_names <- names(choice_list_disc)
+        if(length(choice_list_shape)>3) new_names <- paste("By", new_names, sep = " ") # labeling the choices
+        names(choice_list_shape) <- c("Filled Circle", "Hollow Circle", "Filled Diamond", new_names)
         
         
         
@@ -5561,7 +5586,7 @@ server <- function(input, output, session) {
       
     }
   })
-
+  
   tryObserveEvent(gpa_coords_rx(), ignoreInit = T, priority = 10000, {
     req(gpa_coords_rx())
     specimen_options <- dimnames(gpa_coords_rx())[[3]]
@@ -6682,7 +6707,7 @@ names(vals$csize) <- dimnames(gpa_coords)[[3]]'
       }
     })
   }, width = "auto", height = "auto")
-
+  
   output$export_morphospace <- downloadHandler(
     filename = function() { paste("morphospace_plot.pdf") },
     content = function(file) { 
@@ -7002,7 +7027,7 @@ names(vals$csize) <- dimnames(gpa_coords)[[3]]'
       dev.off()
     }
   )
- 
+  
   output$export_morphospace_code <- downloadHandler(
     filename = function() { paste('morphospace_code.R') },
     content = function(file){
@@ -8615,7 +8640,7 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   #### Extras Outputs ####
   
   output$news <- renderText({
-"xx.xx.2021 - gmShiny v0.0 launch!
+    "xx.xx.2021 - gmShiny v0.0 launch!
 "
   })
   
@@ -8624,7 +8649,7 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   })
   
   output$email_me <- renderUI({
-    url <- a("Write Email", href="mailto:erica.baken@gmail.com")
+    url <- a("Write Email", href="mailto:gmShiny.baken@gmail.com")
     tagList("Contact Dr. Erica Baken:", url)
   })
   
@@ -8641,7 +8666,7 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   output$citation_info <- renderText({
     "Baken, EK, ML Collyer, A Kaliontzopoulou, and DC Adams. 2021. gmShiny and geomorph 4.0: new 
     graphical interface and enhanced analytics for a comprehensive morphometric experience. [citation to be edited
-    after manuscript acceptance]"
+    upon manuscript acceptance]"
   })
   
   output$github_link <- renderText({
