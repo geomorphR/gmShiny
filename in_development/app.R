@@ -1,13 +1,12 @@
-# Geomorph Test App
+# gmShiny - in development
 
-# DEVELOPMENT #
 if(!require(geomorph)) {install.packages("remotes")
   remotes::install_github("geomorphR/geomorph", ref = "Develop", build_vignettes = F)
 }
 
 library(shiny); library(shinyjs); library(shinyWidgets); library(shinydashboard); library(shinythemes) 
 library(shinyalert); library(shinyMatrix); library(shinyjqui); library(shinymeta); library(prettycode)
-library(geomorph); library(ape); library(stringr); library(stringi)
+library(geomorph); library(ape); library(stringr); library(stringi); library(shinyforms)
 library(RColorBrewer); library(reactlog); library(StereoMorph); library(shinybusy)
 
 # elements with !!! in the comments indicate changes that should be made in the future
@@ -40,6 +39,23 @@ old_independent_vars <- NULL
 drop_these <- NULL
 symmetry_landpairs_manual_matrix <- matrix(NA, ncol = 2, nrow = 1) 
 colnames(symmetry_landpairs_manual_matrix) <- c("Side 1", "Side 2")
+#questions <- list(
+#  list(id = "name", type = "text", title = "Name"),
+#  list(id = "email", type = "text", title = "Email (if you'd like to be contacted directly)"),
+#  list(id = "feedback_type", type = "text", title = "Favourite R package"),
+#  list(id = "terms", type = "checkbox", title = "I agree to the terms")
+#)
+#
+#formInfo <- list(
+#  id = "basicinfo",
+#  questions = questions,
+#  storage = list(
+#    # Right now, only flat file storage is supported
+#    type = STORAGE_TYPES$FLATFILE,
+#    # The path where responses are stored
+#    path = "responses"
+#  )
+#)
 
 options(shiny.maxRequestSize = 30*1024^2)
 options(shiny.suppressMissingContextError = TRUE)
@@ -48,7 +64,7 @@ options(shiny.reactlog = TRUE) # this allows for the reaction log to be generate
 ui <- function(request) {
   
   navbarPage(
-    title = "Geomorph Shiny App",
+    title = "gmShiny v0.0",
     id = "navbar",
     theme = shinytheme("flatly"),
     footer = div(style = "position: fixed; bottom:0; padding: 12px; height: 50px;
@@ -305,6 +321,12 @@ ui <- function(request) {
                   actionButton(inputId = "link_reset", label = "Reset Landmark Links", 
                                width = 200, style='padding:6px; font-size:80%'))),
               hr(),
+              fluidRow(
+                align = "center",
+                column(12,
+                       fileInput("semilms_upload_file_input", "Upload Semilandmark Matrix", 
+                                 accept = c("text/csv",".csv", "text/xls", ".xls", "text/xlsx", ".xlsx"),
+                                 placeholder = "Select a CSV or excel file"))),
               fluidRow(align = "center", h5(strong("Semilandmark Matrix"))),
               fluidRow(
                 column(8, offset = 2, 
@@ -321,11 +343,6 @@ ui <- function(request) {
                                         style='width: 200px; padding:6px; font-size:80%; 
                              background-color: #337ab7; border-color: #337ab7;')
                 ),br()),
-              fluidRow(
-                align = "center",
-                column(12,
-                       fileInput("semilms_upload_file_input", "Upload Semilandmark Matrix", accept = c("text/csv",".csv", "text/xls", ".xls", "text/xlsx", ".xlsx"),
-                                 placeholder = "Select a CSV or excel file"))),
               conditionalPanel(
                 condition = "output.semis_initiated",
                 fluidRow(
@@ -578,19 +595,20 @@ ui <- function(request) {
           conditionalPanel(condition = "input.tip_col_other_tf", fluidRow( 
             column(12, selectizeInput(inputId = "tip_col_other", label = NULL, choices = colors(), selected = "gray")))),
           conditionalPanel(
-            condition = "input.tip_col_category == 'by_trait_1' || input.tip_col_category == 'by_trait_2' || input.tip_col_category == 'by_trait_3' || input.show_convex_hull_1 || input.show_convex_hull_2 || input.show_convex_hull_3", 
+            condition = "input.tip_col_category == 'by_trait_1' || input.tip_col_category == 'by_trait_2' || input.tip_col_category == 'by_trait_3' || input.tip_col_category == 'csize' ||
+            input.show_convex_hull_1 || input.show_convex_hull_2 || input.show_convex_hull_3", 
             fluidRow(
               column(1, colorSelectorDrop.ekb(inputId = "trait_colors_lev1", label = NULL, selected = all_color_options[1])),
-              column(1, colorSelectorDrop.ekb(inputId = "trait_colors_lev2", label = NULL, selected = all_color_options[4])),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 2", colorSelectorDrop.ekb(inputId = "trait_colors_lev3", label = NULL, selected = all_color_options[7]))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 3", colorSelectorDrop.ekb(inputId = "trait_colors_lev4", label = NULL, selected = all_color_options[10]))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 4", colorSelectorDrop.ekb(inputId = "trait_colors_lev5", label = NULL, selected = all_color_options[13]))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 5", colorSelectorDrop.ekb(inputId = "trait_colors_lev6", label = NULL, selected = all_color_options[54]))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 6", colorSelectorDrop.ekb(inputId = "trait_colors_lev7", label = NULL, selected = all_color_options[50], dropdownside = "right"))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 7", colorSelectorDrop.ekb(inputId = "trait_colors_lev8", label = NULL, selected = all_color_options[44], dropdownside = "right"))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 8", colorSelectorDrop.ekb(inputId = "trait_colors_lev9", label = NULL, selected = all_color_options[63], dropdownside = "right"))),
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 9", colorSelectorDrop.ekb(inputId = "trait_colors_lev10", label = NULL, selected = all_color_options[39], dropdownside = "right"))), 
-              column(1, conditionalPanel(condition = "output.col_n_levels  > 10", colorSelectorDrop.ekb(inputId = "trait_colors_lev11", label = NULL, selected = all_color_options[31], dropdownside = "right"))), br(), br())), 
+              column(1, colorSelectorDrop.ekb(inputId = "trait_colors_lev2", label = NULL, selected = all_color_options[5])),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 2", colorSelectorDrop.ekb(inputId = "trait_colors_lev3", label = NULL, selected = all_color_options[6]))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 3", colorSelectorDrop.ekb(inputId = "trait_colors_lev4", label = NULL, selected = all_color_options[8]))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 4", colorSelectorDrop.ekb(inputId = "trait_colors_lev5", label = NULL, selected = all_color_options[52]))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 5", colorSelectorDrop.ekb(inputId = "trait_colors_lev6", label = NULL, selected = all_color_options[9]))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 6", colorSelectorDrop.ekb(inputId = "trait_colors_lev7", label = NULL, selected = all_color_options[48], dropdownside = "right"))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 7", colorSelectorDrop.ekb(inputId = "trait_colors_lev8", label = NULL, selected = all_color_options[40], dropdownside = "right"))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 8", colorSelectorDrop.ekb(inputId = "trait_colors_lev9", label = NULL, selected = all_color_options[60], dropdownside = "right"))),
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 9", colorSelectorDrop.ekb(inputId = "trait_colors_lev10", label = NULL, selected = all_color_options[23], dropdownside = "right"))), 
+              column(1, conditionalPanel(condition = "output.col_n_levels  > 10", colorSelectorDrop.ekb(inputId = "trait_colors_lev11", label = NULL, selected = all_color_options[35], dropdownside = "right"))), br(), br())), 
           
           conditionalPanel(condition = "input.show_tip_label", # this option only shows up when the user chooses to display the names of each point
                            sliderInput(inputId = "tip_txt_cex", label = "Point Label Size", # adjusts the size of those name labels
@@ -1090,7 +1108,10 @@ ui <- function(request) {
                 fluidRow(
                   column(6, align = "center", offset = 3, 
                          actionButton("go_symmetry_no_replicates", 
-                                      "No Replicates", width = "100%", style='padding:6px;margin:0px; font-size:80%')))
+                                      "No Replicates", width = "100%", style='padding:6px;margin:0px; font-size:80%'))), br(),
+                conditionalPanel(
+                  "output.show_no_replicates_text", h6(em("The user has indicated that there are no replicates in the data."))
+                )
               ),         
               conditionalPanel(
                 "output.show_symmetry_file",
@@ -1337,19 +1358,19 @@ ui <- function(request) {
                           column(2, align = "center", textOutput("allometry_lev_6", container = h6))))))),
                 fluidRow(
                   column(2, align = "center", colorSelectorDrop.ekb("allom_color_1", "Lev 1", selected = all_color_options[1])),
-                  column(2, align = "center",colorSelectorDrop.ekb("allom_color_2", "Lev 2", selected = all_color_options[4])),
+                  column(2, align = "center",colorSelectorDrop.ekb("allom_color_2", "Lev 2", selected = all_color_options[5])),
                   conditionalPanel(
                     "output.allometry_color_nlev > 2",
-                    column(2, align = "center",colorSelectorDrop.ekb("allom_color_3", "Lev 3", selected = all_color_options[8])),
+                    column(2, align = "center",colorSelectorDrop.ekb("allom_color_3", "Lev 3", selected = all_color_options[6])),
                     conditionalPanel(
                       "output.allometry_color_nlev > 3",
-                      column(2, align = "center",colorSelectorDrop.ekb("allom_color_4", "Lev 4", selected = all_color_options[11])),
+                      column(2, align = "center",colorSelectorDrop.ekb("allom_color_4", "Lev 4", selected = all_color_options[8], dropdownside = "right")),
                       conditionalPanel(
                         "output.allometry_color_nlev > 4",
-                        column(2, align = "center",colorSelectorDrop.ekb("allom_color_5", "Lev 5", selected = all_color_options[15])),
+                        column(2, align = "center",colorSelectorDrop.ekb("allom_color_5", "Lev 5", selected = all_color_options[52], dropdownside = "right")),
                         conditionalPanel(
                           "output.allometry_color_nlev > 5",
-                          column(2, align = "center",colorSelectorDrop.ekb("allom_color_6", "Lev 6", selected = all_color_options[19])))
+                          column(2, align = "center",colorSelectorDrop.ekb("allom_color_6", "Lev 6", selected = all_color_options[9], dropdownside = "right")))
                       )
                     ))
                 ), br()
@@ -1473,36 +1494,38 @@ ui <- function(request) {
               actionButton("go_trajectory_run", "Calculate", width = '100%', 
                            style='padding:6px; font-size:85%; background-color: #003366; border-color: #003366;'),
               hr(),
-              fluidRow(column(12,h5(strong("Trait Level Colors:")))),
               conditionalPanel(
-                "output.traj_trait_selected",
-                fluidRow(div(style = "margin: 0px; padding: 0px; vertical-align: bottom;",
-                             column(2, align = "center", textOutput("traj_trait_level_1", container = h6)),
-                             column(2, align = "center", textOutput("traj_trait_level_2", container = h6)),
-                             column(2, align = "center", textOutput("traj_trait_level_3", container = h6)),
-                             column(2, align = "center", textOutput("traj_trait_level_4", container = h6)),
-                             column(2, align = "center", textOutput("traj_trait_level_5", container = h6)),
-                             column(2, align = "center", textOutput("traj_trait_level_6", container = h6)))
-                ),
-                fluidRow(div(style = "margin: 0px; padding: 0px; vertical-align: bottom;",
-                             column(2, align = "center", colorSelectorDrop.ekb("traj_trait_1_col", "Level 1", selected = all_color_options[44])),
-                             column(2, align = "center", colorSelectorDrop.ekb("traj_trait_2_col", "Level 2", selected = all_color_options[1])),
-                             conditionalPanel(
-                               "output.traj_trait_nlevels > 2",
-                               column(2, align = "center", colorSelectorDrop.ekb("traj_trait_3_col", "Level 3", selected = all_color_options[3]))),
-                             conditionalPanel(
-                               "output.traj_trait_nlevels > 3", 
-                               column(2, align = "center", colorSelectorDrop.ekb("traj_trait_4_col", "Level 4", selected = all_color_options[5], 
-                                                                                 dropdownside = "right"))),
-                             conditionalPanel(
-                               "output.traj_trait_nlevels > 4", 
-                               column(2, align = "center", colorSelectorDrop.ekb("traj_trait_5_col", "Level 5", selected = all_color_options[7], 
-                                                                                 dropdownside = "right"))),
-                             conditionalPanel(
-                               "output.traj_trait_nlevels > 5", 
-                               column(2, align = "center", colorSelectorDrop.ekb("traj_trait_6_col", "Level 6", selected = all_color_options[9], 
-                                                                                 dropdownside = "right"))))
-                ), br()),
+                "output.traj_trait_nlevels > 0",
+                fluidRow(column(12,h5(strong("Trait Level Colors:")))),
+                conditionalPanel(
+                  "output.traj_trait_selected",
+                  fluidRow(div(style = "margin: 0px; padding: 0px; vertical-align: bottom;",
+                               column(2, align = "center", textOutput("traj_trait_level_1", container = h6)),
+                               column(2, align = "center", textOutput("traj_trait_level_2", container = h6)),
+                               column(2, align = "center", textOutput("traj_trait_level_3", container = h6)),
+                               column(2, align = "center", textOutput("traj_trait_level_4", container = h6)),
+                               column(2, align = "center", textOutput("traj_trait_level_5", container = h6)),
+                               column(2, align = "center", textOutput("traj_trait_level_6", container = h6)))
+                  ),
+                  fluidRow(div(style = "margin: 0px; padding: 0px; vertical-align: bottom;",
+                               column(2, align = "center", colorSelectorDrop.ekb("traj_trait_1_col", "Level 1", selected = all_color_options[44])),
+                               column(2, align = "center", colorSelectorDrop.ekb("traj_trait_2_col", "Level 2", selected = all_color_options[1])),
+                               conditionalPanel(
+                                 "output.traj_trait_nlevels > 2",
+                                 column(2, align = "center", colorSelectorDrop.ekb("traj_trait_3_col", "Level 3", selected = all_color_options[3]))),
+                               conditionalPanel(
+                                 "output.traj_trait_nlevels > 3", 
+                                 column(2, align = "center", colorSelectorDrop.ekb("traj_trait_4_col", "Level 4", selected = all_color_options[5], 
+                                                                                   dropdownside = "right"))),
+                               conditionalPanel(
+                                 "output.traj_trait_nlevels > 4", 
+                                 column(2, align = "center", colorSelectorDrop.ekb("traj_trait_5_col", "Level 5", selected = all_color_options[7], 
+                                                                                   dropdownside = "right"))),
+                               conditionalPanel(
+                                 "output.traj_trait_nlevels > 5", 
+                                 column(2, align = "center", colorSelectorDrop.ekb("traj_trait_6_col", "Level 6", selected = all_color_options[9], 
+                                                                                   dropdownside = "right"))))
+                  )), br()),
               fluidRow(
                 column(12,
                        sliderInput("trajectory_specimen_cex", "Specimen Point Size:", min = 0, max = 5, value = 0.8, step = 0.1))),
@@ -1521,33 +1544,55 @@ ui <- function(request) {
       tabsetPanel(
         id = "tab_extras",
         tabPanel(
-          "Tutorials",
-          fluidRow(h4("Part 1: Data Input Tab")),
-          #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=822b0e7b-cba8-4643-b407-ac3d01546f19" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          fluidRow(h4("Part 2: Links and SemiLandmarks")), 
+          "Tutorials", br(),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("Part 1: Data Input"))),hr()#,
+                    #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=822b0e7b-cba8-4643-b407-ac3d01546f19" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
+          ),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("Part 2: Data Prep"))),hr()#,
           #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=e78d9298-1ba8-416a-a2a1-ac3d0154855e" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          fluidRow(h4("Part 3: Visualize Outliers")), 
+          ),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("Part 3: Morphospace and Warp Grids"))),hr()#,
           #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=aadff764-3960-4a35-86ad-ac3d01588c71" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          fluidRow(h4("Part 4: Morphospace Tab")), 
-          #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=c5ec117a-b048-4835-87fe-ac3d01595d05" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          fluidRow(h4("Part 5: Morphospace Tab Continued")), 
+          ),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("Part 4: Morphospace and Warp Grids Continued"))),hr()#,
           #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=f4556ad4-d5e0-4313-a06e-ac3d015c4db5" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          fluidRow(h4("Part 6: Statistical Analyses Tab")), 
+          ),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("Part 5: Shape Patterns"))),hr()#,
           #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=cc5483f4-2adb-4c3e-9a46-ac40016a62dd" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')),
-          fluidRow(h4("Part 7: Real Data Example"))
+          ),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("Part 6: Linear Models"))),hr()#,
           #fluidRow(HTML('<iframe width="900" height="500" src="https://iastate.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=3cd14240-ce64-4475-9b59-ac40016c1ae3" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'))
+          ), br()
+          ),
+        tabPanel(
+          "News",
+          br(),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("News"))), hr(),
+          fluidRow(column(11, offset = .5, textOutput("news")))),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("Upcoming Features"))),hr(),
+                    fluidRow(column(11, offset = .5, textOutput("upcoming_features")))),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("Contact the Developers"))),hr(),
+                    fluidRow(column(11, offset = .5, uiOutput("report"))), br(),
+                    fluidRow(column(11, offset = .5, uiOutput("geomorph_list"))), br(),
+                    fluidRow(column(11, offset = .5, uiOutput("email_me"))))
         ),
         tabPanel(
-          "News and Upcoming Features",
-          fluidRow(textOutput("news")),
-          hr(),
-          fluidRow(textOutput("upcoming_features"))
-        ),
-        tabPanel(
-          "Citation Information"
-        ),
-        tabPanel(
-          "Leave Feedback"
+          "Citation Information",
+          br(),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(11, offset = .5, textOutput("citation_info"))),
+                    hr(),
+                    fluidRow(column(11, offset = .5, textOutput("github_link"))),
+                    )
         )
       )), 
     tags$style(type = "text/css", "a{color: #ceecf0;}"),
@@ -1575,32 +1620,32 @@ server <- function(input, output, session) {
   
   
   #### Instructions ####
-  # tryObserveEvent(input$navbar, {
-  #   if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
-  #     shinyalert(
-  #       title = "Welcome!",
-  #       inputId = "keep_alerts_on_tf",
-  #       text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
-  #       
-  #       Would you like to keep these Instructions on?",
-  #       size = "s", 
-  #       closeOnEsc = F,
-  #       closeOnClickOutside = F,
-  #       html = FALSE,
-  #       type = "success",
-  #       showConfirmButton = TRUE,
-  #       showCancelButton = TRUE,
-  #       confirmButtonText = "Yes",
-  #       confirmButtonCol = "#AEDEF4",
-  #       cancelButtonText = "No",
-  #       timer = 0,
-  #       imageUrl = "",
-  #       animation = TRUE
-  #     )
-  #     alert_vals$navbar_datainput_welcomealertdone <- "yes"
-  #   }
-  # }
-  # )
+#  tryObserveEvent(input$navbar, {
+#    if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
+#      shinyalert(
+#        title = "Welcome!",
+#        inputId = "keep_alerts_on_tf",
+#        text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
+#         
+#         Would you like to keep these Instructions on?",
+#        size = "s", 
+#        closeOnEsc = F,
+#        closeOnClickOutside = F,
+#        html = FALSE,
+#        type = "success",
+#        showConfirmButton = TRUE,
+#        showCancelButton = TRUE,
+#        confirmButtonText = "Yes",
+#        confirmButtonCol = "#AEDEF4",
+#        cancelButtonText = "No",
+#        timer = 0,
+#        imageUrl = "",
+#        animation = TRUE
+#      )
+#      alert_vals$navbar_datainput_welcomealertdone <- "yes"
+#    }
+#  }
+#  )
   
   tryObserveEvent(input$alert_on_off, ignoreInit = T, priority = -10,  {
     if(input$alert_on_off == F) { 
@@ -1608,8 +1653,8 @@ server <- function(input, output, session) {
         title = "Instructions Have Been Turned Off",
         text = "If at any time you would like to turn the instructions back on, 
        or if you'd like to view the instructions for a particular page, you can do
-        so using the 'Instructions' toggle in the bottom left-hand corner, currently 
-       labeled 'Instructions Off'.",
+        so using the <strong>'Instructions'</strong> toggle in the bottom left-hand corner, currently 
+       labeled <strong>'Instructions Off'</strong>.",
         html = T,
         closeOnClickOutside = T,
         closeOnEsc = T,
@@ -1628,17 +1673,12 @@ server <- function(input, output, session) {
         title = "Instructions Have Been Turned Off",
         text = "If at any time you would like to turn the instructions back on, 
         or if you'd like to view the instructions for a particular page, you can do
-         so using the 'Instructions' toggle in the bottom left-hand corner, currently 
-        labeled 'Instructions Off'. 
-        <br><br>
-        If you'd like to save your progress in the App at any point,
-                you can do so using the 'Bookmark...' button in the bottom right-hand corner. 
-                This will provide you a link, with which you can return to that point in the App in a new session.
-                This link can also be shared among users.",
+         so using the <strong>'Instructions'</strong> toggle in the bottom left-hand corner, currently 
+        labeled <strong>'Instructions Off'</strong>.",
         html = T,
         closeOnClickOutside = T,
         closeOnEsc = T,
-        size = "m"
+        size = "s"
       )
     }
     
@@ -1661,11 +1701,6 @@ server <- function(input, output, session) {
       alert_vals$navbar_dataprep_gpa <- NULL
       alert_vals$navbar_dataprep_links_semialertdone <- NULL
       alert_vals$navbar_dataprep_links_linkalertdone <- NULL
-      alert_vals$navbar_shapepatterns <- NULL
-      alert_vals$navbar_shapepatterns_signal <- NULL
-      alert_vals$navbar_shapepatterns_modularity <- NULL
-      alert_vals$navbar_shapepatterns_integration <- NULL
-      alert_vals$navbar_shapepatterns_symmetry <- NULL
       alert_vals$navbar_morphospaceplot <- NULL
       alert_vals$navbar_morphospaceplot_tipcol <- NULL
       alert_vals$navbar_morphospaceplot_tipcolalertdone <- NULL
@@ -1674,6 +1709,13 @@ server <- function(input, output, session) {
       alert_vals$navbar_morphospaceplot_phylo <- NULL
       alert_vals$navbar_morphospaceplot_warp <- NULL
       alert_vals$navbar_morphospaceplot_warpalertdone <- NULL
+      alert_vals$navbar_shapepatterns <- NULL
+      alert_vals$navbar_shapepatterns_signal <- NULL
+      alert_vals$navbar_shapepatterns_modularity <- NULL
+      alert_vals$navbar_shapepatterns_integration <- NULL
+      alert_vals$navbar_shapepatterns_symmetry <- NULL
+      alert_vals$navbar_shapepatterns_symmetry_startalertdone <- NULL
+      alert_vals$navbar_shapepatterns_symmetry_typealertdone <- NULL
       alert_vals$navbar_linearmodels <- NULL
       alert_vals$navbar_linearmodels_modeldesign <- NULL
       alert_vals$navbar_linearmodels_modeldesignalertdone <- NULL
@@ -1681,6 +1723,8 @@ server <- function(input, output, session) {
       alert_vals$navbar_linearmodels_allometryalertdone <- NULL
       alert_vals$navbar_linearmodels_modelcomparison <- NULL
       alert_vals$navbar_linearmodels_modelcomparisonalertdone <- NULL
+      alert_vals$navbar_linearmodels_trajectoryanalysis <- NULL
+      alert_vals$navbar_linearmodels_trajectoryanalysisalertdone <- NULL
       
     }
   }) # update to include all relevant alert_vals 
@@ -1692,13 +1736,14 @@ server <- function(input, output, session) {
           title = "Getting Started",
           text = "To practice using this App, you can load the 
         salamander head example dataset from geomorph (<span style='font-family: Courier New'>plethspecies</span>) by
-        pressing the 'Use Example Plethodon Data' button in the top right corner.
+        pressing the <strong>'Use Example Plethodon Data'</strong> button in the top right corner.
           <br></br>
-          Otherwise, upload your own shape, phylogenetic, and/or trait data using the appropriate 'Browse' buttons.
+          Otherwise, upload your own shape, phylogenetic, and/or trait data using the appropriate <strong>'Browse'</strong> buttons.
           <br><br>
-          If at any point you'd like to save your progress, you can do so by pressing the 'Bookmark...' button in the bottom
-          right-hand corner. This will provide you a link, with which you can return to that point in the App in a new session.
-                This link can also be shared among users.",
+          Throughout the App, some analyses or settings might take a few seconds to run. If the wheel in the top right corner
+          of the screen is visible and spinning, that means things are being calculated, so we kindly ask for your patience. If your dataset 
+          requires extreme computational efficiency, we advise learning to use geomorph directly in R. The machinery 
+          behind gmShiny requires quite a few more interdependent processes, which may slow down computations of large datasets.",
           size = "m",
           html = T
         )
@@ -1715,21 +1760,21 @@ server <- function(input, output, session) {
                 text = "Now that you've loaded the example dataset, you can see some of the options available on this page.
           <br></br>
           Previews of each dataset are made visible to confirm the accuracy of the upload. 
-          A button appears in the top right corner ('Clear All Inputs') that can clear the uploaded data if you'd like to choose different datasets.
+          A button appears in the top right corner (<strong>'Clear All Inputs'</strong>) that can clear the uploaded data if you'd like to choose different datasets.
            <br></br>
-           In the left-most column, you will see options for how to upload, in this case, a TPS shape file. This is where 
+           In the left-most column, you will see options for how to upload, for illustrative purposes, a TPS shape file. This is where 
            you can specify whether the shape data have already been aligned or not, from where to extract the specimen IDs, and whether negative landmarks 
            should be read in as missing data. 
            <br><br>
-           The center column displays the uploaded phylogeny.<br><br>
+           The center column displays the uploaded phylogeny.
+           <br><br>
            In the right-most column, you can select which columns of your uploaded trait file you wish to use downstream. 
-          <em>This functionality is limited to 3 columns of data at a time</em>. 
-          
+          This functionality is limited to 3 columns of data at a time. 
           As you select the columns of interest,
           you can also specify whether each trait is discrete or continuous. If you select a continuous trait, you can apply a transformation 
           to the data before moving forward. 
           <br></br>
-          When you're happy with your data input, move on to the Data Prep page.",
+          When you're happy with your data, move on to the <strong>Data Prep</strong> page.",
                 size = "m",
                 html = T
               )
@@ -1752,7 +1797,7 @@ server <- function(input, output, session) {
           <br></br>
                 The preview of the shape data allows you to double check that the landmarks loaded appropriately. 
                 Semilandmarks can be defined and the Generalized Procrustes Alignment can
-                be run on the Data Prep page, but we recommend uploading any phylogenetic and/or trait data before moving forward.
+                be run on the <strong>Data Prep</strong> page, but we recommend uploading any phylogenetic and/or trait data before moving forward.
                 ",
                 size = "m",
                 type = "success",
@@ -1774,7 +1819,7 @@ server <- function(input, output, session) {
           the data must be in wide-format (1 trait per column).
           Make sure your file follows this format before moving forward.
           <br></br>
-          In the right-most section, under the Choose Trait File option,
+          In the right-most section, under the <strong>Choose Trait File</strong> option,
           you can select which columns of your uploaded trait file you wish to use downstream. 
           <em>This functionality is limited to the use of up to 3 columns at a time</em>. 
           <br></br>
@@ -1782,7 +1827,7 @@ server <- function(input, output, session) {
           you can also specify whether each trait is discrete or continuous. If you select a continuous trait, you can apply a transformation 
           to the data before moving forward. 
           <br></br>
-          Upload all shape and phylogenetic data before moving on to the Data Prep page.
+          Upload all shape and phylogenetic data before moving on to the <strong>Data Prep</strong> page.
                 ",
                 size = "m",
                 type = "success",
@@ -1813,22 +1858,6 @@ server <- function(input, output, session) {
         }
       }
       
-      if(req(input$navbar) == "Shape Patterns"){
-        alert_vals$navbar_shapepatterns <- "Here" 
-        if(req(input$tab_shapepatterns) == "Phylogenetic Signal"){
-          alert_vals$navbar_shapepatterns_signal  <- "Here" 
-        }
-        if(req(input$tab_shapepatterns) == "Modularity"){
-          alert_vals$navbar_shapepatterns_modularity  <- "Here" 
-        }
-        if(req(input$tab_shapepatterns) == "Integration"){
-          alert_vals$navbar_shapepatterns_integration  <- "Here"
-        }
-        if(req(input$tab_shapepatterns) == "Symmetry"){
-          alert_vals$navbar_shapepatterns_symmetry <- "Here"
-        }
-      }
-      
       if(req(input$navbar) == "Morphospace and Warp Grids"){
         alert_vals$navbar_morphospaceplot <- "Here"
         if(req(input$tip_col_category) != "all_1_col"){
@@ -1846,6 +1875,22 @@ server <- function(input, output, session) {
         }
       }
       
+      if(req(input$navbar) == "Shape Patterns"){
+        alert_vals$navbar_shapepatterns <- "Here" 
+        if(req(input$tab_shapepatterns) == "Modularity"){
+          alert_vals$navbar_shapepatterns_modularity  <- "Here" 
+        }
+        if(req(input$tab_shapepatterns) == "Integration"){
+          alert_vals$navbar_shapepatterns_integration  <- "Here"
+        }
+        if(req(input$tab_shapepatterns) == "Symmetry"){
+          alert_vals$navbar_shapepatterns_symmetry <- "Here"
+        }
+        if(req(input$tab_shapepatterns) == "Phylogenetic Signal"){
+          alert_vals$navbar_shapepatterns_signal  <- "Here" 
+        }
+      }
+      
       if(req(input$navbar) == "Linear Models"){
         alert_vals$navbar_linearmodels <- "Here"
         if(req(input$tab_linearmodels) == "Model Design"){
@@ -1856,6 +1901,9 @@ server <- function(input, output, session) {
         }
         if(req(input$tab_linearmodels) == "Model Comparison"){
           alert_vals$navbar_linearmodels_modelcomparison <- "Here"  
+        }
+        if(req(input$tab_linearmodels) == "Trajectory Analysis"){
+          alert_vals$navbar_linearmodels_trajectoryanalysis <- "Here"  
         }
       }
       
@@ -1868,12 +1916,23 @@ server <- function(input, output, session) {
     if(!is.null(alert_vals$navbar_dataprep)){
       shinyalert(
         title = "Data Prep",
-        text = "This page has tabs for: <br> (1) defining landmark links and semilandmarks <br>
-      (2) visualizing outliers or particular specimens of interest <br>
+        text = "This page has tabs for: <br> (1) defining landmark links and semilandmarks 
+      (2) visualizing outliers or particular specimens of interest  
       & (3) performing the Generalized Procrustes Alignment. <br></br>
       If on the previous page you indicated that your landmarks are not yet aligned, 
-      you are required to run the GPA before moving forward.",
-        size = "s",
+      you are required to run the GPA before moving forward.
+        <br><br>
+        Now that you have progressed from the <strong>Data Input</strong> page, you will see buttons appear
+        under every plot and analytical output allowing you to export the plot/results or the associated code. Pressing the 
+        <strong>Export Plot</strong> or <strong>Export Results</strong> buttons will produce a .pdf or .csv file
+        of the selected plot or results. Pressing the <strong>Export Code</strong> button will produce an .R file which 
+        you can use to reproduce the plot or results in R or R Studio.
+        <br><br>
+        <em>If you choose to export the code, you must also
+        export the data in its current state by pressing the <strong>Export Current Data</strong> button in the 
+        bottom-right hand corner.</em> This button must be pushed after all appropriate settings have 
+        been finalized in order for the plot or results replication to match what is seen here in the App.",
+        size = "l",
         html = T
       )
     }
@@ -1884,18 +1943,19 @@ server <- function(input, output, session) {
       shinyalert(
         title = "Define Links and Semi-Landmarks",
         text = "On this tab, you will see a plot similar to one generated from the function 
-        <span style='font-family: Courier New'>plotAllSpecimens</span>.  
+        <span style='font-family: Courier New'>plotAllSpecimens</span>. <br> Use the <strong>'Flip LMs'</strong> buttons
+        in the <strong>Settings</strong> panel to reorient the landmarks as is appropriate for your data.
       <br></br>
       To define links between landmarks, <strong style='color:#08a89e'>single-click</strong> 
       the landmarks you wish to connect in order, 
-      ending the string with a <strong style='color:#3691d1'>double-click</strong>.
+      ending the string by <strong style='color:#3691d1'>double-clicking</strong> the final linked landmark.
       <br></br>
       To assign semilandmarks, <strong style=color:#9560d1>click-and-drag</strong> to highlight the desired semilandmark(s). 
       If the selected semilandmark is linked to other landmarks, these linked landmarks will be automatically assigned as the 
       bracketing landmarks between which the semilandmark will slide during the GPA. 
        <br></br>
-       The semilandmark matrix in the Settings panel is auto-filled by defining links and semilandmarks on the plot.
-       However, you can also define or edit them directly in the matrix or by uploading a file ('Upload Semilandmark Matrix'). 
+       The <strong>Semilandmark Matrix</strong> in the <strong>Settings</strong> panel is auto-filled by defining links and semilandmarks on the plot.
+       However, you can also define or edit them directly in the matrix or by uploading a file (<strong>'Upload Semilandmark Matrix'</strong>). 
        Duplicate semilandmark rows will be automatically deleted, prioritizing the most recently defined brackets.
       ",
         html = T,
@@ -1912,10 +1972,10 @@ server <- function(input, output, session) {
             title = "You've defined links!",
             text = "
       These links are applied to specimen visualizations throughout the App and 
-      can be reset at any time using the 'Reset Landmark Links' button in the Settings panel on this tab. 
+      can be reset at any time using the <strong>'Reset Landmark Links'</strong> button in the <strong>Settings</strong> panel on this tab. 
       <br></br>
       Links are also used to define the bracketing landmarks around semilandmarks. 
-          More related Instructions appear if you select a semilandmark (<strong style=color:#9560d1>click-and-drag</strong>).",
+          More related instructions appear if you select a semilandmark (<strong style=color:#9560d1>click-and-drag</strong>).",
             html = T,
             type = "success",
             size = "s"
@@ -1931,13 +1991,15 @@ server <- function(input, output, session) {
       if(is.null(alert_vals$navbar_dataprep_links_semialertdone)) {
         shinyalert(
           title = "You've selected semilandmarks!",
-          text = "The semilandmark selection has been recorded in the Semilandmark Matrix in the Settings panel.<br></br> 
+          text = "The semilandmark selection has been recorded in the <strong>Semilandmark Matrix</strong> in the <strong>Settings</strong> panel.<br></br> 
       Before performing the GPA, you will need to assign the bracketing landmarks along which each semilandmark 
       will slide. This may have been filled in automatically if you have already defined links through the selected semilandmark(s). 
       <br><br>
-      These 'Before' and 'After' landmarks can be overwritten manually or by defining new links through the desired semilandmark(s).
+      These <strong>'Before'</strong> and <strong>'After'</strong> landmarks can be overwritten manually or by defining new links through the desired semilandmark(s).
           
-          The Semilandmark Matrix can be reset using the 'Reset Semilandmark Selection' button.",
+          The <strong>Semilandmark Matrix</strong> can be reset using the <strong>'Reset Semilandmark Selection'</strong> button.
+          Once your semilandmarks are finalized, press the <strong>'Apply Semilandmark Matrix'</strong>. This will initate a checking procedure
+          to make sure the matrix is in the right format, and this must be done before running the GPA.",
           html = T,
           type = "success",
           size = "m"
@@ -1954,7 +2016,7 @@ server <- function(input, output, session) {
       Files must have 3 columns, one for the beginning landmark, one for the semilandmark, and one for the ending landmark between which the semilandmark slides.
       <br></br>
       As a reminder, you can enter your semilandmarks in three ways: <br>
-      (1) manually entering landmark values into the matrix in the Settings panel, <br>
+      (1) manually entering landmark values into the matrix in the <strong>Settings</strong> panel, <br>
       (2) <strong style=color:#9560d1>click-and-dragging</strong> over the desired semilandmarks on the plot, <br> then defining
       the bracket landmarks via manual entry or using the links (<strong style='color:#08a89e'>clicks</strong> and <strong style='color:#3691d1'>double-clicks</strong>), or <br>
       (3) uploading an appropriately formatted file. Such a file can be generated 
@@ -1974,15 +2036,15 @@ server <- function(input, output, session) {
       To inspect a single specimen of interest, 
       <strong style='color:#08a89e'>single-click</strong> the desired point on the plot, and it's landmarks will appear below the outliers plot.
        <br></br>
-      If any of the traits uploaded on the Data Input page is discrete, 
-      an option to 'Visualize Outliers by Trait Group' will appear in the Settings panel, 
+      If any of the traits uploaded on the <strong>Data Input</strong> page is discrete, 
+      an option to <strong>'Visualize Outliers by Trait Group'</strong> will appear in the <strong>Settings</strong> panel, 
       with options to toggle between traits and levels used to generate the plot. This option is only available for 
       levels with more than 1 specimen in it.
       <br></br>
         This tab also allows you to remove specimens from all your datasets. If one of the specimens in your sample appears to be an outlier, 
-        you can select said specimen from the 'Exclude Specimen from Dataset' dropdown menu and press the 'Remove' button. 
+        you can select said specimen from the <strong>'Exclude Specimen from Dataset'</strong> dropdown menu and press the <strong>'Remove'</strong> button. 
         All corresponding data will be excluded from subsequent analyses. 
-        This action can be undone by pressing the 'Undo Removal' button that appears after removal.",
+        This action can be undone by pressing the <strong>'Undo Removal'</strong> button that appears after removal.",
         size = "m",
         html = T
       )
@@ -1994,13 +2056,14 @@ server <- function(input, output, session) {
       shinyalert(
         title = "Generalized Procrustes Alignment",
         text = "This tab serves as a checkpoint to verify all the pre-alignment data prep done so far.
-        Before pressing the 'Run GPA' button in the right-most column to perform the GPA, make sure that the adjustments from
-        raw LMs to the desired dataset is correct (middle column). <br><br>
-        This step must be completed before moving forward unless the uploaded shape data were previously aligned and 
-        the corresponding option was selected on the Data Input page. <br><br>
+        Before pressing the <strong>'Run GPA'</strong> button, make sure that the data treatments listed
+        in the center column are correct. <br><br>
+        This step must be completed before moving forward unless the uploaded shape data were previously aligned  
+        (specified on the <strong>Data Input</strong> page). <br><br>
         Once the GPA is performed (function <span style='font-family: Courier New'>gpagen</span>), 
-        the specimens' centroid sizes will be passed on as a trait and can be used in various parts of the App (e.g., measuring phylogenetic
-        signal on the Shape Patterns page, coloring data points on the Morphospace and Warp Grids page, etc.). ",
+        the specimens' centroid sizes will be passed on as a trait that can be used throughout the App (e.g.,
+        coloring data points on the <strong>Morphospace and Warp Grids</strong> page, 
+        measuring phylogenetic signal on the <strong>Shape Patterns</strong> page, etc.). ",
         size  = "m",
         html = T
       )
@@ -2019,7 +2082,7 @@ server <- function(input, output, session) {
       (4) one of the semilandmarks is bracketed by itself (e.g., semilandmark 5 is set to slide between LMs 3 and 5), or
       (5) one of the semilandmarks is bracketed between 1 landmark on both sides (e.g., semilandmark 5 is set to slide between LMs 3 and 3). 
       <br></br>
-      Fix the error(s) and press 'Apply Semilandmark Matrix' again before moving forward.",
+      Fix the error(s) and press <strong>'Apply Semilandmark Matrix'</strong> again before moving forward.",
         type = "error",
         html = T,
         size = "m"
@@ -2032,10 +2095,11 @@ server <- function(input, output, session) {
       if(!is.null(vals$go_semilms_apply)) {
         if(vals$go_semilms_apply == 0) {
           if(nrow(input$semilms_manual_input) > 1) {
+            updateTabsetPanel(session, "tab_dataprep", selected = "Define Links and Semi-Landmarks")
             shinyalert(
               title = "Apply Semilandmark Matrix",
               text = "Before moving to the next page, you must apply the semilandmark matrix using the 
-        'Apply Semilandmark Matrix' button in the Settings panel. This will initiate a check to 
+        <strong>'Apply Semilandmark Matrix'</strong> button in the <strong>Settings</strong> panel. This will initiate a check to 
         ensure that the matrix is in the right format without errors.",
               type = "error",
               inputId = "alert_semis_not_applied",
@@ -2046,10 +2110,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(nrow(input$semilms_manual_input) > 1) {
+          updateTabsetPanel(session, "tab_dataprep", selected = "Define Links and Semi-Landmarks")
           shinyalert(
             title = "Apply Semilandmark Matrix",
             text = "Before moving to the next page, you must apply the semilandmark matrix using the 
-        'Apply Semilandmark Matrix' button in the Settings panel. This will initiate a check to 
+        <strong>'Apply Semilandmark Matrix'</strong> button in the <strong>Settings</strong> panel. This will initiate a check to 
         ensure that the matrix is in the right format without errors.",
             type = "error",
             inputId = "alert_semis_not_applied",
@@ -2061,115 +2126,6 @@ server <- function(input, output, session) {
     }
   })
   
-  tryObserveEvent(input$alert_semis_not_applied, {
-    if(input$alert_semis_not_applied){
-      updateTabsetPanel(session, "tab_dataprep", selected = "Define Links and Semi-Landmarks") # doesnt need a bookmarking workaround
-    }
-  })
-  
-  tryObserveEvent(alert_vals$navbar_shapepatterns, {
-    if(input$alert_on_off == TRUE){
-      shinyalert(
-        title = "Shape Patterns",
-        text = "This page allows you to explore various shape patterns, including Modularity and Integration. 
-        If a phylogeny has been uploaded, Phylogenetic Signal can also be quantified.",
-        size = "s",
-        html = T
-      )
-    }
-  })
-  
-  
-  tryObserveEvent(alert_vals$navbar_shapepatterns_signal, {
-    if(input$alert_on_off == TRUE) {
-      shinyalert(
-        title = "Phylogenetic Signal",
-        text = "Here you will find the output from the function <span style='font-family: Courier New'>physignal</span>. 
-      <br></br>
-      The plot displays the null K distribution, with which the p value and effect size of the observed value are determined.
-      <br></br>
-      You can choose to investigate the degree of phylogenetic signal in the shape data or in any uploaded continuous trait 
-        in the Settings panel.",
-        size  = "s",
-        html = T
-      )
-    }
-  })
-  
-  tryObserveEvent(alert_vals$navbar_shapepatterns_modularity, {
-    if(input$alert_on_off == TRUE) {
-      shinyalert(
-        title = "Modularity",
-        text = "Here you will find options to test degree of modularity and, if a phylogeny is uploaded, evolutionary rate
-        variation between modules. 
-      <br></br>
-      The first step is to define the number of modules and to specify which landmarks belong
-      to each module by dragging the landmark number to the appropriate heading in the Settings panel. Once all landmarks are assigned, 
-      press the 'Assign LMs to Modules' button to finalize the module definitions. Double check the assignments with the Module Visualization plot
-        in the main panel.",
-        size  = "m",
-        html = T
-      )
-    }
-  })
-  
-  tryObserveEvent(input$apply_modular_groups_go, {
-    if(input$alert_on_off == TRUE & input$apply_modular_groups_go > 0& is.null(alert_vals$navbar_shapepatterns_modularitygoalertdone)) {
-      shinyalert(
-        title = "Modules Assigned!",
-        text = "Now that your modules have been assigned, scroll down on the main panel to see output from the function 
-        <span style='font-family: Courier New'>modularity.test</span> or <span style='font-family: Courier New'>phylo.modularity</span>,
-        depending on the option selected for 'Evaluate Modularity in a Phylogenetic Context' in the Settings Panel 
-        (only available if a phylogeny is uploaded). This plot displays the null CR Coefficient distribution, with which the 
-        p value and effect size of the observed value are determined.
-      <br></br>
-      The bottom plot is generated using the function <span style='font-family: Courier New'>compare.multi.evol.rates</span>. 
-        Similar to the CR plot, this displays the null distribution of the rate ratio between the modules. If more than
-        2 modules have been defined, the observed rate ratio corresponds to the rate ratio between the most disparate group rates 
-        (i.e., fastest evolving module:slowest evolving module).",
-        size  = "m",
-        html = T,
-        type = "success"
-      )
-      alert_vals$navbar_shapepatterns_modularitygoalertdone <- 'yes' ##dd newww
-    }
-  })
-  
-  tryObserveEvent(alert_vals$navbar_shapepatterns_integration, {
-    if(input$alert_on_off == TRUE) {
-      shinyalert(
-        title = "Integration",
-        text = "Here you can calculate various measures of integration. The first plot in this tab is of the global integration 
-        generated from the function <span style='font-family: Courier New'>globalIntegration</span>. 
-      <br></br>
-      The below plot displays the level of integration between modules, which must be defined in the 'Modularity' tab.
-      The plot is generated using the <span style='font-family: Courier New'>integration.test</span> or 
-      <span style='font-family: Courier New'>phylo.integration</span> function, 
-      depending on the option selected for 'Evaluate Integration in a Phylogenetic Context' in the Settings Panel 
-        (only available if a phylogeny is uploaded). The plot visualizing PLS Block 1 vs Block 2 can only be generated
-        when there are only 2 modules.
-        <br><br>
-         Integration between modules can also be calculated on a subset of specimens as defined by any uploaded discrete trait 
-       data and is specified in the Settings Panel. Only traits for which 3 or more specimens belong to each level can be visualized.",
-        size  = "m",
-        html = T
-      )
-    }
-  })
-  
-  tryObserveEvent(alert_vals$navbar_shapepatterns_symmetry, {
-    if(input$alert_on_off == TRUE) {
-      shinyalert(
-        title = "Upload a Landmark Side File",
-        text = "A button to upload your Landmark Side File should now be visible in the Settings.
-        
-        This can be either a CSV or an Excel file, and the data must be organized into two columns (one for each side). Not all landmarks must be assigned a side, but none can be repeated. Do not include column headers.
-        
-        See geomorph help file for the function 'bilat.symmetry' for examples of these matrices.",
-        inputId = "symmetry_land_pairs_file_input"
-      )
-    } # edit and add things
-  })
   
   tryObserveEvent(alert_vals$navbar_morphospaceplot, {  
     if(input$alert_on_off == TRUE){
@@ -2178,17 +2134,18 @@ server <- function(input, output, session) {
         text = "This page shows the shape data PCA plot generated from the functions 
       <span style='font-family: Courier New'>gm.prcomp</span> and <span style='font-family: Courier New'>plot</span>.
     <br></br>
-    There are many ways to modify this plot in the Settings panel, including aspects of the alignment,
-    which PC axes are displayed,
-    the color, size, shape, and labels of the points, convex hulls,
+    There are many ways to modify this plot in the <strong>Settings</strong> panel, including aspects of the alignment,
+    which PC axes are displayed, the color, size, shape, and labels of the points, convex hulls,
     and whether to calculate and plot ancestral states along the phylogeny (if uploaded).
     <br></br> 
-    If 'Point Color' is set to 'All One Color' (default), you may select from one of the displayed color options below that drop down menu,
-    or check the 'Other' box, which allows you to select an R-defined color name. Alternatively, the points could be
+    If <strong>Point Color</strong> is set to <strong>'All One Color'</strong> (default), 
+    you may select from one of the displayed color options below that drop down menu,
+    or check the <strong>'Other'</strong> box, which allows you to select any R-defined color name. 
+    Alternatively, the points could be
     colored by any uploaded trait data or, if applicable, centroid size. 
     <br></br>
-    <strong>Warp grids</strong> can also be displayed on this page. <br>
-    Initiate these options by <strong style='color:#08a89e'>single-clicking</strong> any point or <strong style='color:#3691d1'>double-clicking</strong> any region on the morphospace plot.",
+    <strong>Warp Grids</strong> can also be displayed on this page.
+    Initiate the warp grid options by <strong style='color:#08a89e'>single-clicking</strong> any point or <strong style='color:#3691d1'>double-clicking</strong> any region on the morphospace plot.",
         size = "m",
         html = T
       )
@@ -2198,19 +2155,21 @@ server <- function(input, output, session) {
   tryObserveEvent(alert_vals$navbar_morphospaceplot_tipcol, {
     if(input$alert_on_off == TRUE & is.null(alert_vals$navbar_morphospaceplot_tipcolalertdone)) {
       shinyalert(
-        title = "You've selected to color points by one of your traits!",
+        title = "You've selected to color the points by one of your traits!",
         text = " 
-      Below the 'Point Color' drop down menu has appeared several colored boxes that allow you to define the group color of each level. 
-      If the trait selected is continuous, the two boxes represent the start and end of a color spectrum, 
+      Below the <strong>'Point Color'</strong> drop down menu, several colored boxes have appeared that allow you to 
+      define the group color of each level. 
+      If the selected trait is continuous, the two boxes represent the <strong>start</strong> 
+      and <strong>end</strong> of a color spectrum, 
       along which the points are colored according to their value. If the trait is discrete, the boxes correspond to the levels of said trait.
       <br></br>
-      A legend appeared on the left side of the morphospace plot, indicating  which colors 
+      A legend appeared on the left side of the morphospace plot, indicating which colors 
       belong to which trait levels.
       
       This legend can be repositioned with a <strong style=color:#9560d1>click-and-drag</strong>.",
         html = T,
         type = "success",
-        size = "s"
+        size = "m"
       )
       alert_vals$navbar_morphospaceplot_tipcolalertdone <- "yes"
     }
@@ -2221,7 +2180,7 @@ server <- function(input, output, session) {
       shinyalert(
         title = "You've opted to display a phylomorphospace!",
         text = "Additional options for adjusting visual components of the phylogeny are available
-        by checking the 'More Phylogeny Style Options' box that has appeared in the Settings panel.",
+        by checking the <strong>'More Phylogeny Style Options'</strong> box that has appeared in the <strong>Settings</strong> panel.",
         html = T,
         type = "success",
         size = "s"
@@ -2233,7 +2192,7 @@ server <- function(input, output, session) {
   tryObserveEvent(alert_vals$navbar_morphospaceplot_tippch, {
     if(input$alert_on_off == TRUE & is.null(alert_vals$navbar_morphospaceplot_tippchalertdone)) {
       shinyalert(
-        title = "You've selected to define point shapes by one of your traits!",
+        title = "You've selected to define the point shapes by one of your traits!",
         text = "This is only an option for discrete traits.
       <br></br>
       A legend appeared on the left side of the morphospace plot, indicating which shapes 
@@ -2253,29 +2212,30 @@ server <- function(input, output, session) {
         text = "This warp grid was produced with the function 
         <span style='font-family: Courier New'>plotRefToTarget</span>, and 
         the page has been scrolled down to view the plot. The associated settings are now available at the bottom of the
-        Settings panel.
+        <strong>Settings</strong> panel.
         <br></br>
-        Options for Warp Grid Magnitude and Warp Type correspond to the arguments in the <span style='font-family: Courier New'>plotRefToTarget</span> function,
-        'mag' and 'method'.
-        You can also choose to display the variation along particular PC axes (Variation Displayed).
+        Options for <strong>Warp Grid Magnitude</strong> and <strong>Warp Type</strong> correspond to the arguments in the 
+        <span style='font-family: Courier New'>plotRefToTarget</span> function, 'mag' and 'method'.
+        You can also choose to display the variation along particular PC axes (<strong>Variation Displayed</strong>).
         <br><br>
-        The <strong>Warp Comparison Start (Reference)</strong> and <strong>Warp Comparison End (Target)</strong> options correspond to the 
-        two points of comparison for the warp grid. An Observed Point (Clicked) for either 
+        The <strong>Warp Comparison Start (Reference)</strong> and <strong>Warp Comparison End (Target)</strong> 
+        options correspond to the 
+        two points of comparison for the warp grid. An <strong>Observed Point (Clicked)</strong> for either 
         the Reference or Target points can be selected by <strong style='color:#08a89e'>single-clicking</strong> 
         a point on the morphospace above. 
-        Alternatively, a particular specimen can be selected using the Observed Point (By Name) option 
+        Alternatively, a particular specimen can be selected using the <strong>Observed Point (By Name)</strong> option 
         for which a drop down menu will appear. 
         <br></br>
         You can also select a theoretical part of morphospace by <strong style='color:#3691d1'>double-clicking</strong>, 
         which can be assigned to either the Reference or Target points of the comparison. This option 
-        will appear in the Warp Comparison options once said theoretical space is selected. 
+        will appear in the <strong>Warp Comparison</strong> options once said theoretical space is selected. 
         <br><br>
         To clarify exactly 
         which shapes, observed or projected, are involved in the warp grid, an arrow has been added to the morphospace above
         showing the directionality between the selected Reference and Target points.
-        This can be removed by unchecking the box 'Show Comparison Trajectory',
+        This can be removed by unchecking the box <strong>'Show Comparison Trajectory'</strong>,
         <br></br>
-        Even more stylistic options for the warp grid are available by checking 'Show More Warp Grid Style Options.'",
+        Even more stylistic options for the warp grid are available by checking <strong>'Show More Warp Grid Style Options'</strong>.",
         html = T,
         type = "success",
         size = "m"
@@ -2284,12 +2244,177 @@ server <- function(input, output, session) {
     }
   })
   
+  
+  tryObserveEvent(alert_vals$navbar_shapepatterns, {
+    if(input$alert_on_off == TRUE){
+      shinyalert(
+        title = "Shape Patterns",
+        text = "This page allows you to explore various shape patterns, 
+        including <strong>Modularity</strong>, <strong>Integration</strong>, and <strong>Symmetry</strong>. 
+        If a phylogeny has been uploaded, <strong>Phylogenetic Signal</strong> can also be quantified.",
+        size = "s",
+        html = T
+      )
+    }
+  })
+  
+  tryObserveEvent(alert_vals$navbar_shapepatterns_modularity, {
+    if(input$alert_on_off == TRUE) {
+      shinyalert(
+        title = "Modularity",
+        text = "Here you will find options to test degree of modularity 
+        (function <span style='font-family: Courier New'>modularity.test</span>) and, if a phylogeny is uploaded, evolutionary rate
+        variation between modules <span style='font-family: Courier New'>compare.multi.evol.rates</span>. 
+      <br></br>
+      The first step is to define the number of modules and to specify which landmarks belong
+      to each module by dragging the landmark number to the appropriate heading in the <strong>Settings</strong> panel. 
+      Once all landmarks are assigned, double check the assignments with the <strong>Module Visualization</strong> plot
+        in the main panel, then 
+      press the <strong>'Assign LMs to Modules'</strong> button to finalize the module definitions. 
+      ",
+        size  = "m",
+        html = T
+      )
+    }
+  })
+  
+  tryObserveEvent(input$apply_modular_groups_go, {
+    if(input$alert_on_off == TRUE & input$apply_modular_groups_go > 0& is.null(alert_vals$navbar_shapepatterns_modularitygoalertdone)) {
+      shinyalert(
+        title = "Modules Assigned!",
+        text = "Now that your modules have been assigned, scroll down on the main panel to see the results.
+        Under the heading <strong>Degree of Modularity</strong> is output from the function 
+        <span style='font-family: Courier New'>modularity.test</span> or <span style='font-family: Courier New'>phylo.modularity</span>,
+        depending on the option selected for <strong>'Evaluate Modularity in a Phylogenetic Context'</strong> in the <strong>Settings</strong> panel 
+        (only available if a phylogeny is uploaded). This plot displays the null CR Coefficient distribution, with which the 
+        p value and effect size of the observed value are determined.
+      <br></br>
+      The plot under the heading <strong>Evolutionary Rate Variation Between Modules</strong> 
+      was generated using the function <span style='font-family: Courier New'>compare.multi.evol.rates</span>. 
+        Similar to the CR plot, this displays the null distribution of the rate ratio between the modules. If more than
+        2 modules have been defined, the observed rate ratio corresponds to the rate ratio between the most disparate group rates 
+        (i.e., fastest evolving module:slowest evolving module).",
+        size  = "m",
+        html = T,
+        type = "success"
+      )
+      alert_vals$navbar_shapepatterns_modularitygoalertdone <- 'yes'
+    }
+  })
+  
+  tryObserveEvent(alert_vals$navbar_shapepatterns_integration, {
+    if(input$alert_on_off == TRUE & is.null(alert_vals$navbar_shapepatterns_integrationgoalertdone)) {
+      shinyalert(
+        title = "Integration",
+        text = "Here you can calculate various measures of integration. The first plot in this tab is of the global integration 
+        generated from the function <span style='font-family: Courier New'>globalIntegration</span>. 
+      <br></br>
+      The results under the heading, <strong>Integration Between Modules</strong> displays the level of 
+      integration between modules, which must be defined in the <strong>'Modularity'</strong> tab.
+      The plot is generated using the <span style='font-family: Courier New'>integration.test</span> or 
+      <span style='font-family: Courier New'>phylo.integration</span> function, 
+      depending on the option selected for <strong>'Evaluate Integration in a Phylogenetic Context'</strong> 
+      in the <strong>Settings</strong> panel 
+        (only available if a phylogeny is uploaded). The plot visualizing PLS Block 1 vs Block 2 can only be generated
+        when there are only 2 modules.
+        <br><br>
+         Integration between modules can also be calculated on a subset of 
+         specimens as defined by any uploaded discrete trait 
+       data and is specified in the <strong>Settings</strong> panel. Only traits for which 3 
+        or more specimens belong to each level can be visualized.",
+        size  = "m",
+        html = T
+      )
+      alert_vals$navbar_shapepatterns_integrationgoalertdone <- 'yes'
+    }
+  })
+  
+  tryObserveEvent(alert_vals$navbar_shapepatterns_symmetry, {
+    if(input$alert_on_off == TRUE & is.null(alert_vals$navbar_shapepatterns_symmetry_startalertdone)) {
+      shinyalert(
+        title = "Symmetry",
+        text = "Here you can calculate levels of symmetry and asymmetry in your shape data. These analyses
+        are produced from the function <span style='font-family: Courier New'>bilat.symmetry</span>. 
+        <br><br>
+        This tab 
+        can also enable you to pass on either the symmetry or asymmetric components of your shape variation
+        after the symmetry parameters have been defined and the analyses have been run ('<strong>Use Symmetric 
+        Component of Shape Variation</strong>' and <strong>Use Asymmetric 
+        Component of Shape Variation</strong>' buttons in the <strong>Settings</strong> panel, respectively). Pressing
+        either of these buttons will replace the shape data with the corresponding output throughout the App.
+        <br><br>
+        The first step is defining whether your shape files should be treated as <strong>Object</strong> or <strong>Matching</strong> 
+        symmetry (<strong>Symmetry Type</strong> in the <strong>Settings</strong> panel). If each distinct specimen displays both
+        sides of the symmetrical specimen, choose <strong>Object</strong> symmetry. If each distinct specimen represents only one side
+        of the symmetrical specimen, choose <strong>Matching</strong>.
+      <br></br>
+      For <strong>Object</strong> symmetry (default), you must define which, if any, specimens represent replicates of single individual specimens. 
+      This can be done manually or with a file upload (press associated buttons under <strong>Define Specimen Assignments</strong>). If 
+      each specimen represents a new individual, press the <strong>No Replicates</strong> button.
+      <br><br>
+      You must also define which landmarks represent opposite sides of the symmetrical object. This is done under <strong>Assign Landmarks to Sides</strong>
+      and can be manually entered or defined with a file upload. The appropriate file format has 2 columns, where each row represents the landmark numbers that are mirrored 
+      across the plane of symmetry. Not all landmarks must be specified to a side, but none can be repeated, and all landmarks in a single column must correspond to a single side.
+      <br><br>
+      Once these symmetry parameters are defined, you should be able to visualize your definitions in the main panel under the
+      <strong>Landmark Side Assignment Visualization</strong> heading. Once things look correct, press the <strong>Calculate</strong> to
+      run these analyses.
+        ",
+        size  = "l",
+        html = T
+      )
+      alert_vals$navbar_shapepatterns_symmetry_startalertdone <- 'yes'
+    }
+  })
+  
+  tryObserveEvent(input$symmetry_obj_sym, ignoreInit = T, {
+    if(input$alert_on_off == TRUE & is.null(alert_vals$navbar_shapepatterns_symmetry_typealertdone)) {
+      shinyalert(
+        title = "Matching Symmetry", 
+        text = "You've now selected <strong>Matching</strong> symmetry for your data.
+        <br><br>
+        This type of symmetry analyses requires you to define three components of each specimen: individual, replicate, and side.
+        These can be specified with a file upload or manually entered (press corresponding button under <strong>Define Specimen Assignments</strong>).
+        <br><br>
+        If your dataset does not have any replicates, each specimen row should have an independent identifier in the <strong>'Indiv'</strong>
+        column, and a '1' in the <strong>'Rep'</strong> column. The side column should contain only '1's and '2's corresponding to the side 
+        that specimen represents. See the video tutorials or the help file for 
+        <span style='font-family: Courier New'>bilat.symmetry</span> for more details on this formating.
+        <br><br>
+        As with the <strong>Object</strong> symmetry analyses, you must press <strong>Calculate</strong> to initiate these analyses.",
+        html = T,
+        size = "m",
+        inputId = "symmetry_land_pairs_file_input"
+      )
+      alert_vals$navbar_shapepatterns_symmetry_typealertdone <- 'yes'
+    } 
+  })
+  
+  tryObserveEvent(alert_vals$navbar_shapepatterns_signal, {
+    if(input$alert_on_off == TRUE) {
+      shinyalert(
+        title = "Phylogenetic Signal",
+        text = "Here you will find the output from the function <span style='font-family: Courier New'>physignal</span>. 
+      <br></br>
+      The plot displays the null K distribution, with which the p value and effect size of the observed value are determined.
+      <br></br>
+      You can choose to investigate the degree of phylogenetic signal in the shape data or in any uploaded continuous trait 
+        in the <strong>Settings</strong> panel.",
+        size  = "s",
+        html = T
+      )
+    }
+  })
+  
   tryObserveEvent(alert_vals$navbar_linearmodels, {  
     if(input$alert_on_off == TRUE){
       shinyalert(
         title = "Linear Models",
-        text = "This page shows a select few ways to evaluate linear models with geomorph. For greater flexibility
-        with these (and all) App operations, we advise learning to use geomorph in R.",
+        text = "This page shows several ways to evaluate linear models with <span style='font-family: Courier New'>geomorph</span>. 
+        All analyses are generated from the functions <span style='font-family: Courier New'>procD.pgls</span> or 
+      <span style='font-family: Courier New'>procD.lm</span>. <br><br>
+        For greater flexibility
+        with these (and all) App operations, we advise learning to use <span style='font-family: Courier New'>geomorph</span> in R.",
         size = "s",
         html = T
       )
@@ -2301,22 +2426,25 @@ server <- function(input, output, session) {
       shinyalert(
         title = "Model Design",
         text = "With this tab, you can investigate how shape varies with respect to 
-        your uploaded trait and/or centroid size (if applicable). Tests can also be run 
-        to evaluate pairwise comparisons of means, morphological disparity, and evolutionary rates.
-        All analyses are generated from the functions <span style='font-family: Courier New'>procD.pgls</span> or 
-      <span style='font-family: Courier New'>procD.lm</span> corresponding to the 'Analysis Type' option in the Settings
-        panel.
+        your uploaded trait and/or centroid size (if applicable). 
+        
         <br><br>
-        The first step is defining which independent variables you would like to include in the model ('Independent Variables Tested'). 
+        The first step is defining which independent variables you would like to include in the model (<strong>Independent Variables Tested</strong>). 
         If more than one trait is selected, an option will appear to change the order of the traits by dragging and dropping. 
-        As you select traits and change their order, the defined model will be explicated at the top of the main panel ('Model Tested').
-        <strong>Once you are happy with your model and all remaining tests have been specified, press the 'Calculate' button at the bottom
-        of the Settings Panel.</strong> If any Settings are subsequently changed, you will need to press 'Calculate' again to get the updated results.
-        <br><br>If the model is complex, the number of permutations is high, or you have a lot of specimens, the model 
-        fit might take a few seconds to generate. Once this model is defined and calculated, you can visualize the allometry plot in the 
-        'Allometry' tab. The 'Model Comparison' tab, on the other hand, does not require this model to be run.",
+        As you select traits and change their order, the defined model will be explicated at the top of the main panel (<strong>Model Tested:...</strong>).
+        If you have uploaded any discrete trait data, you can also choose to run related analyses, such as pairwise comparisons, morphological disparity, and 
+        evolutionary rate (functions <span style='font-family: Courier New'>pairwise</span>, <span style='font-family: Courier New'>morphol.disparity</span>, and 
+        <span style='font-family: Courier New'>compare.evol.rates</span>, respectively;
+        all options in the <strong>Settings</strong> panel).
+        <br><br>Once you are happy with your model and all remaining analyses have been specified, press the <strong>'Calculate'</strong> button at the bottom
+        of the <strong>Settings</strong> panel. If any settings are subsequently changed, 
+        you will need to press <strong>'Calculate'</strong> again to rerun the analyses.
+        Once this model is defined and calculated, you can visualize the allometry plot in the 
+        <strong>Allometry</strong> tab. 
+        <br><br>Once again, the flexibility of these model designs is limited compared to what is possible in geomorph. For 
+        models that include interactions, for example, we advise learning to use <span style='font-family: Courier New'>geomorph</span> in R.",
         html = T,
-        size = "m"
+        size = "l"
       )
       alert_vals$navbar_linearmodels_modeldesignalertdone <- "yes" 
     }
@@ -2326,14 +2454,20 @@ server <- function(input, output, session) {
     if(input$alert_on_off == TRUE & is.null(alert_vals$navbar_linearmodels_allometryalertdone)) {
       shinyalert(
         title = "Allometry",
-        text = "Using the model defined in the 'Model Design' tab, here you will find the associated Allometry plot.
-        <br><br> The settings for 'Allometry Type',
-        'Regression Type', 'Predictor Variable', and 'Color Points' correspond to the arguments 
+        text = "Using the model defined in the <strong>'Model Design'</strong> tab, here you will find the associated Allometry plot.
+        If the <strong>'Calculate'</strong> button has not been pressed in the <strong>Model Design</strong> tab, no plot will appear, and 
+        the settings will not have updated to include the appropriate options.
+        <br><br> The settings <strong>Allometry Type</strong>,
+        <strong>Regression Type</strong>, <strong>Predictor Variable</strong>, and <strong>Color Points</strong> correspond to the arguments 
         'type', 'reg.type', 'predictor', and 'col' in the <span style='font-family: Courier New'>procD.lm</span>
-        function, respectively. The Predictor Variable can be any uploaded continuous variable or centroid size (if applicable).
-        If 'Centroid Size' is selected, you can choose whether or not to log transform the centroid sizes in the Settings panel.",
+        function, respectively. 
+        <br><br> 
+        The <strong>Predictor Variable</strong> can be any uploaded continuous variable or centroid size (if applicable).
+        If <strong>'Centroid Size'</strong> is selected, you can choose whether or not to log transform the centroid sizes 
+        in the <strong>Settings</strong> panel. Finally, if you choose a <strong>Color Points</strong> option other than
+        <strong>'All One Color'</strong>, boxes will appear, allowing you to specify the coloring scheme.",
         html = T,
-        size = "s"
+        size = "m"
       )
       alert_vals$navbar_linearmodels_allometryalertdone <- "yes"
     }
@@ -2343,12 +2477,39 @@ server <- function(input, output, session) {
     if(input$alert_on_off == TRUE & is.null(alert_vals$navbar_linearmodels_modelcomparisonalertdone)) {
       shinyalert(
         title = "Model Comparison",
-        text = "This tab is similar to the 'Model Design' tab in how each model is defined. 
-        Up to three models can be compared.",
+        text = "This tab is similar to the <strong>Model Design</strong> tab in how each model is defined. 
+        How you define each model is reflected at the top of the main panel (<strong>Model 1:...</strong>).
+        Up to three models can be compared (check box '<strong>Add a Third Model</strong>' will open up the appropriate options. 
+        <br><br>
+        Some analyses may run even if they are not statistically sound. For instance, an ANOVA table will be exported 
+        even if two of your models are identical. Be sure to know and understand the statistical theory behind the models you are comparing,
+        and their order, before interpreting these analyses..",
         html = T,
         size = "s"
       )
       alert_vals$navbar_linearmodels_modelcomparisonalertdone <- "yes"
+    }
+  })
+  
+  
+  tryObserveEvent(alert_vals$navbar_linearmodels_trajectoryanalysis, {
+    if(input$alert_on_off == TRUE & is.null(alert_vals$navbar_linearmodels_trajectoryanalysisalertdone)) {
+      shinyalert(
+        title = "Trajectory Analysis",
+        text = "This tab is similar to the other tabs on this page in that the model being tested 
+        can be found at the top of the main panel (<strong>'Model Tested:...'</strong>). 
+        These analyses require a <strong>Trajectory Group</strong> and a <strong>Trajectory Trait</strong> and 
+        are generated with the functions <span style='font-family: Courier New'>trajectory.analysis</span>,
+        <span style='font-family: Courier New'>add.trajectories</span>, and 
+        <span style='font-family: Courier New'>plot</span>.
+        <br><br>
+        Several components of this analysis must be specified before pressing <strong>'Calculate'</strong> in the 
+        <strong>Settings</strong> panel, 
+        and plotting options are available below that button.",
+        html = T,
+        size = "m"
+      )
+      alert_vals$navbar_linearmodels_trajectoryanalysisalertdone <- "yes"
     }
   })
   
@@ -2365,12 +2526,11 @@ server <- function(input, output, session) {
                 text = "Some or all of the datasets you've uploaded have mismatching specimen/species names. 
           <br></br>
           <em>This must be addressed before moving forward</em> 
-          by pressing the 'Prune Datasets to Match' button
+          by pressing the <strong>'Prune Datasets to Match'</strong> button
           that has appeared near the top of the page. 
-          Once pressed, any new uploaded datasets might also need to be pruned. 
           <br></br>
           Note: this mismatch might simply be the result of inconsistent ordering of the specimens/species. 
-          Even if this is the case, you must press the Prune button, which will reorder the data to match.
+          Even if this is the case, you must press the prune button, which will reorder the data to match.
                 ",
                 size = "m",
                 type = "warning",
@@ -2473,6 +2633,7 @@ server <- function(input, output, session) {
       vals$go_symmetry_landpairs_file <- NULL
       vals$go_show_specimen_assignments <- NULL
       vals$go_show_landmark_assignments <- NULL
+      vals$show_no_replicates_text <- NULL
       vals$run_symmetry_go <- NULL
       vals$bilat_symmetry <- NULL
       reset("symmetry_file_upload")
@@ -2492,18 +2653,20 @@ server <- function(input, output, session) {
     
     
   })
-  
+ 
   tryObserveEvent(input$go_symmetry_no_replicates, ignoreInit = F, {
     
     if(input$go_symmetry_no_replicates > 0) {
       vals$go_symmetry_file <- NULL
       vals$go_show_specimen_assignments <- NULL
       
+      
       reset("symmetry_file_upload")
       if(input$symmetry_obj_sym) {
         symmetry_manual_matrix_indrep1s <- matrix(1, ncol = 2, nrow = dim(gpa_coords_rx())[3])
         symmetry_manual_matrix_indrep1s[,1] <- 1:nrow(symmetry_manual_matrix_indrep1s)
         colnames(symmetry_manual_matrix_indrep1s) <- c("Indiv", "Rep")
+        vals$show_no_replicates_text <- "go"
       } else {
         symmetry_manual_matrix_indrep1s <- matrix(1, ncol = 2, nrow = dim(gpa_coords_rx())[3])
         symmetry_manual_matrix_indrep1s[,1] <- 1:nrow(symmetry_manual_matrix_indrep1s)
@@ -2524,6 +2687,7 @@ server <- function(input, output, session) {
   tryObserveEvent(input$go_symmetry_file, ignoreInit = F,  priority = 10, {
     if(!is.null(input$go_symmetry_file)) {
       vals$go_symmetry_file <- input$go_symmetry_file
+      vals$show_no_replicates_text <- NULL
     }
   })
   
@@ -2606,8 +2770,9 @@ server <- function(input, output, session) {
     }
   })
   
-  tryObserveEvent(input$go_symmetry_manual, ignoreInit = T,{ # priority = 10, 
+  tryObserveEvent(input$go_symmetry_manual, ignoreInit = T,{
     vals$go_symmetry_file <- NULL
+    vals$show_no_replicates_text <- NULL
     vals$go_show_specimen_assignments <- "go"
     if(input$symmetry_obj_sym){
       symmetry_manual_matrix_expanded <- matrix(NA, nrow = dim(gpa_coords_rx())[3], ncol = 2)
@@ -2690,11 +2855,11 @@ server <- function(input, output, session) {
   tryObserveEvent(input$run_symmetry_go, ignoreInit = T, {
     vals$run_symmetry_go <- input$run_symmetry_go
   })
-  
-  bilat_metaO2 <- metaObserve2({
+ 
+  bilat_metaO2 <- tryMetaObserve2({
     if(!is.null(vals$run_symmetry_go)) {
       req(gpa_coords_rx())
-      gpa_coords_rx <- gpa_coords_rx()
+      gpa_coords <- gpa_coords_rx()
       vals$sym_def_df <- as.data.frame(input$symmetry_definitions)
       vals$symmetry_land_pairs <- input$symmetry_landpairs_definitions
       metaExpr({
@@ -2706,7 +2871,7 @@ server <- function(input, output, session) {
         if(isolate(vals$sym_def_df)[nrow(isolate(vals$sym_def_df)),1] == "") { 
           vals$sym_def_df <- isolate(vals$sym_def_df)[-nrow(isolate(vals$sym_def_df)),]}
         
-        error1 <- length(symmetry_ind)/dim(gpa_coords_rx)[3] != round(length(symmetry_ind)/dim(gpa_coords_rx)[3])
+        error1 <- length(symmetry_ind)/dim(gpa_coords)[3] != round(length(symmetry_ind)/dim(gpa_coords)[3])
         if(..(input$symmetry_obj_sym)) {
           error2_df <- paste(isolate(vals$sym_def_df$Indiv), isolate(vals$sym_def_df$Rep))
           error2 <- length(unique(error2_df)) != length(error2_df)
@@ -2714,8 +2879,8 @@ server <- function(input, output, session) {
           error2_df <- paste(isolate(vals$sym_def_df$Indiv), isolate(vals$sym_def_df$Rep), isolate(vals$sym_def_df$Side))
           error2 <- length(unique(error2_df)) != length(error2_df)
         }
-        error3 <- anyNA(match(dimnames(gpa_coords_rx)[[3]], rownames(isolate(vals$sym_def_df))))
-        error4 <- anyNA(match(rownames(isolate(vals$sym_def_df)), dimnames(gpa_coords_rx)[[3]]))
+        error3 <- anyNA(match(dimnames(gpa_coords)[[3]], rownames(isolate(vals$sym_def_df))))
+        error4 <- anyNA(match(rownames(isolate(vals$sym_def_df)), dimnames(gpa_coords)[[3]]))
         
         if(any(error1, error2, error3, error4)) {
           shinyalert(
@@ -2732,14 +2897,14 @@ server <- function(input, output, session) {
           if(..(input$symmetry_obj_sym) == F) {
             symmetry_side <- isolate(vals$sym_def_df$Side)
             
-            gdf <- geomorph.data.frame(shape = gpa_coords_rx, 
+            gdf <- geomorph.data.frame(shape = gpa_coords, 
                                        ind = symmetry_ind, 
                                        side = symmetry_side,
                                        replicate = symmetry_replicate)
           } else { 
             side <- NULL
             
-            gdf <- geomorph.data.frame(shape = gpa_coords_rx,
+            gdf <- geomorph.data.frame(shape = gpa_coords,
                                        ind = symmetry_ind, 
                                        replicate = symmetry_replicate)
             
@@ -2773,7 +2938,7 @@ server <- function(input, output, session) {
                                                       replicate = replicate, 
                                                       land.pairs = symmetry_land_pairs,
                                                       object.sym = as.logical(..(input$symmetry_obj_sym)), 
-                                                      iter = as.numeric(isolate(..(input$symmetry_perm))), 
+                                                      iter = isolate(..(input$symmetry_perm)), 
                                                       data = gdf,
                                                       print.progress = F)
               } else { vals$bilat_symmetry <- bilat.symmetry(A = shape, 
@@ -2782,7 +2947,7 @@ server <- function(input, output, session) {
                                                              replicate = replicate, 
                                                              land.pairs = symmetry_land_pairs,
                                                              object.sym = as.logical(..(input$symmetry_obj_sym)), 
-                                                             iter = as.numeric(isolate(..(input$symmetry_perm))), 
+                                                             iter = isolate(..(input$symmetry_perm)), 
                                                              data = gdf,
                                                              print.progress = F) }
               
@@ -2790,7 +2955,7 @@ server <- function(input, output, session) {
           } else {
             symmetry_land_pairs_fac <- as.factor(symmetry_land_pairs)
             error1 <- length(symmetry_land_pairs_fac)/2 != round(length(symmetry_land_pairs_fac)/2)
-            error2 <- any(!(symmetry_land_pairs_fac %in% 1:dim(gpa_coords_rx)[1]))
+            error2 <- any(!(symmetry_land_pairs_fac %in% 1:dim(gpa_coords)[1]))
             error3 <- length(symmetry_land_pairs_fac) != length(unique(symmetry_land_pairs_fac))
             if(any(error1, error2, error3)) {
               shinyalert(
@@ -2811,7 +2976,7 @@ server <- function(input, output, session) {
                                                       replicate = replicate, 
                                                       land.pairs = symmetry_land_pairs,
                                                       object.sym = as.logical(..(input$symmetry_obj_sym)), 
-                                                      iter = as.numeric(isolate(..(input$symmetry_perm))), 
+                                                      iter = isolate(..(input$symmetry_perm)), 
                                                       data = gdf,
                                                       print.progress = F)
               } else {
@@ -2821,7 +2986,7 @@ server <- function(input, output, session) {
                                                       replicate = replicate, 
                                                       land.pairs = symmetry_land_pairs,
                                                       object.sym = as.logical(..(input$symmetry_obj_sym)), 
-                                                      iter = as.numeric(isolate(..(input$symmetry_perm))), 
+                                                      iter = isolate(..(input$symmetry_perm)), 
                                                       data = gdf,
                                                       print.progress = F)
               }
@@ -3017,7 +3182,6 @@ server <- function(input, output, session) {
     }
   })
   
-  
   trait_rx <- reactive({
     trait_table <- NULL
     dd <- input$go_remove_outlier_specimen_reset #trigger dddd
@@ -3090,8 +3254,7 @@ server <- function(input, output, session) {
     }
   })
   
-  prune_both_ways <- reactive({list(vals$outlier_removed_names, vals$go_pruning,
-                                    vals$unprune)})
+  prune_both_ways <- reactive({list(vals$outlier_removed_names, vals$go_pruning, vals$unprune)})
   
   tryObserveEvent(eventExpr = prune_both_ways(), ignoreInit = T, {
     
@@ -3283,7 +3446,7 @@ server <- function(input, output, session) {
   }) 
   
   run_gpa_reset_listen <- reactive({ list(gpa_coords_rx(), vals$curves_final_anyNAs)})
-  tryObserveEvent(eventExpr =run_gpa_reset_listen(), ignoreInit = T, { # making the Run GPA button reset if you change anything that might affect it
+  tryObserveEvent(run_gpa_reset_listen(), ignoreInit = T, { # making the Run GPA button reset if you change anything that might affect it
     updateActionButton(session, "go_run_gpa")
   })
   
@@ -3298,6 +3461,11 @@ server <- function(input, output, session) {
     req(gpa_coords_rx()) # dont run until gpa_coords defined
     metaExpr({
       if(..(datasets_dont_match()) == FALSE) {
+        #shape <- ..(gpa_coords_rx())
+        
+       # data(plethspecies) 
+       # Y.gpa <- gpagen(plethspecies$land) 
+       # shape <- Y.gpa$coords
         geomorph:::gm.prcomp(..(gpa_coords_rx()), vals$phy_rx, GLS = ..(input$gls_center_tf),
                              align.to.phy = ..(input$align_to_phy_tf), 
                              transform = as.logical(..(input$transform_resid_tf))) # gm.prcomp for phylomorphospace
@@ -3399,14 +3567,14 @@ server <- function(input, output, session) {
   #### Adjusting Reactive Values for Conditional Paneling (T/F) ####
   
   gridPar_vals <- reactive({
-    x <- gridPar(pt.bg = input$warp_pt_bg, pt.size = as.numeric(input$warp_pt_size), 
-                 link.col = input$warp_link_col, link.lwd = as.numeric(input$warp_link_lwd), link.lty = as.numeric(input$warp_link_lty), 
+    x <- gridPar(pt.bg = input$warp_pt_bg, pt.size = input$warp_pt_size, 
+                 link.col = input$warp_link_col, link.lwd = input$warp_link_lwd, link.lty = as.numeric(input$warp_link_lty), 
                  #out.col = input$warp_out_col, out.cex = as.numeric(input$warp_out_cex),  # Needs shape outline, functionality to come
-                 tar.pt.bg = input$warp_tar_pt_bg,  tar.pt.size = as.numeric(input$warp_tar_pt_size), 
-                 tar.link.col = input$warp_tar_link_col, tar.link.lwd = as.numeric(input$warp_tar_link_lwd), tar.link.lty = as.numeric(input$warp_tar_link_lty), 
+                 tar.pt.bg = input$warp_tar_pt_bg,  tar.pt.size = input$warp_tar_pt_size, 
+                 tar.link.col = input$warp_tar_link_col, tar.link.lwd = input$warp_tar_link_lwd, tar.link.lty = as.numeric(input$warp_tar_link_lty), 
                  #tar.out.col = input$warp_tar_out_col, tar.out.cex = as.numeric(input$warp_tar_out_cex), # Needs shape outline, functionality to come 
-                 n.col.cell = as.numeric(input$warp_n_col_cell), 
-                 grid.col = input$warp_grid_col, grid.lwd = as.numeric(input$warp_grid_lwd), grid.lty = as.numeric(input$warp_grid_lty), 
+                 n.col.cell = input$warp_n_col_cell, 
+                 grid.col = input$warp_grid_col, grid.lwd = input$warp_grid_lwd, grid.lty = as.numeric(input$warp_grid_lty), 
                  #txt.adj = as.numeric(input$warp_txt_adj), # non-functional
                  txt.pos = as.numeric(input$warp_txt_pos), txt.cex = input$warp_txt_cex, txt.col = input$warp_txt_col)
     return(x)
@@ -3427,7 +3595,7 @@ server <- function(input, output, session) {
   output$file_trait_selected <- reactive({return(!is.null(vals$trait_rx))})
   outputOptions(output, 'file_trait_selected', suspendWhenHidden=FALSE)
   
-  output$any_traits_selected <- reactive({return(!is.null(trait_rx()))})
+  output$any_traits_selected <- reactive({return(!is.null(trait_rx()))}) # here we go. 
   outputOptions(output, 'any_traits_selected', suspendWhenHidden=FALSE)
   
   output$two_traits_selected <- reactive({return(length(input$trait_column) > 1)})
@@ -3450,6 +3618,9 @@ server <- function(input, output, session) {
   
   output$outlier_removed <- reactive({return(!is.null(vals$outlier_removed_names) | !is.null(isolate(update_vals$remove_outlier_specimen_unselected)))})
   outputOptions(output, "outlier_removed", suspendWhenHidden = F)
+  
+  output$show_no_replicates_text <- reactive({return(!is.null(vals$show_no_replicates_text))})
+  outputOptions(output, "show_no_replicates_text", suspendWhenHidden = F)
   
   output$show_symmetry_file <- reactive({return(!is.null(vals$go_symmetry_file))})
   outputOptions(output, "show_symmetry_file", suspendWhenHidden = F)
@@ -3583,7 +3754,7 @@ server <- function(input, output, session) {
   output$traj_trait_selected <- reactive({ return(input$trajectory_trait != "none")})
   outputOptions(output, 'traj_trait_selected', suspendWhenHidden=FALSE)
   
-  output$traj_trait_nlevels <- reactive({return(as.numeric(vals$traj_trait_nlevels))})
+  output$traj_trait_nlevels <- reactive({ return(length(vals$traj_trait_levels)) })
   outputOptions(output, 'traj_trait_nlevels', suspendWhenHidden=FALSE)
   
   #### tryObserveEvents for Example Data, Prune Datasets, and Clear Inputs Buttons #### 
@@ -3858,7 +4029,7 @@ server <- function(input, output, session) {
     
     hideTab(inputId = "tab_shapepatterns", "Phylogenetic Signal")
     hideTab(inputId = "navbar", target = "Linear Models")
-    
+    hideTab(inputId = "tab_linearmodels", "Trajectory Analysis")
   })
   
   tryObserveEvent(eventExpr =vals$go_pruning, ignoreInit = F, { 
@@ -4508,6 +4679,11 @@ server <- function(input, output, session) {
   tryObserve({ # only showing the Linear Models page if there is a trait or csize to analyze
     if(!is.null(vals$trait_rx) | !is.null(vals$csize)){
       showTab(inputId = "navbar", target = "Linear Models")
+      if(!is.null(vals$two_disc_traits)) {
+        showTab(inputId = "tab_linearmodels", "Trajectory Analysis")
+      } else {
+        hideTab(inputId = "tab_linearmodels", "Trajectory Analysis")
+      }
     }
   })
   
@@ -4810,7 +4986,7 @@ server <- function(input, output, session) {
           selected_item <- choice_list_shape[1]
         } else { selected_item <- isolate(update_vals$tip_pch_selected) }
         
-        updateSelectInput(session, inputId = "tip_pch", label = "Point Shape", 
+        updateSelectInput(session, inputId = "tip_pch", label = "Point Shape:", 
                           choices = choice_list_shape, selected = selected_item)
         
         if(is.null(isolate(update_vals$show_convex_hull_1_selected))) {
@@ -5082,11 +5258,11 @@ server <- function(input, output, session) {
   })
   
   # tryObserveEvent(input$go_trajectory_run, ignoreInit = T, {
-  trajectory_metaO <- metaObserve2({
+  trajectory_metaO <- tryMetaObserve2({
     if(input$go_trajectory_run>0){
       req(isolate(gpa_coords_rx()))
       req(isolate(input$trajectory_trait))
-      gpa_coords_rx <- isolate(gpa_coords_rx())
+      gpa_coords <- isolate(gpa_coords_rx())
       metaExpr({
         if(isolate(..(input$trajectory_trait)) != "none") {
           this_group <- (2:4)[c(isolate(..(input$trajectory_group)) == "by_trait_1", 
@@ -5110,15 +5286,15 @@ server <- function(input, output, session) {
           enough_inds_per_group <- min(table(paste(group,trait))) > 1
           
           if(enough_inds_per_group) {
-            coords_mat <- two.d.array(gpa_coords_rx)
+            coords_mat <- two.d.array(gpa_coords)
             if(isolate(..(input$trajectory_independent_var)) == "none1") {
               
               rrppdf <- rrpp.data.frame(coords = coords_mat, trait = trait, group = group)
               vals$trajectory_fit <- lm.rrpp(coords ~ group*trait, data = rrppdf, 
                                              iter = isolate(..(input$traj_perm)), print.progress = F)
               vals$traj_trait_levels <- levels(trait)
-              print(vals$trajectory_fit)
-              vals$TA <- trajectory.analysis(isolate(vals$trajectory_fit), groups = group, traj.pts = trait, print.progress = FALSE)
+              fit <- isolate(vals$trajectory_fit)
+              vals$TA <- trajectory.analysis(fit, groups = group, traj.pts = trait, print.progress = FALSE)
             } else {
               this_independent_var <- (2:5)[c(isolate(..(input$trajectory_independent_var)) == "by_trait_1", 
                                               isolate(..(input$trajectory_independent_var)) == "by_trait_2", 
@@ -5134,9 +5310,9 @@ server <- function(input, output, session) {
               rrppdf <- rrpp.data.frame(coords = coords_mat, independent_var = independent_var, 
                                         group = group, trait = trait)
               
-              vals$trajectory_fit <- lm.rrpp(coords ~ independent_var + group*trait, data = rrppdf, 
-                                             iter = isolate(..(input$traj_perm)), print.progress = F)
-              vals$TA <- trajectory.analysis(isolate(vals$trajectory_fit), 
+              vals$trajectory_fit <- fit <- lm.rrpp(coords ~ independent_var + group*trait, data = rrppdf, 
+                                                    iter = isolate(..(input$traj_perm)), print.progress = F)
+              vals$TA <- trajectory.analysis(fit, 
                                              groups = group, 
                                              traj.pts = trait, 
                                              print.progress = FALSE)
@@ -5385,13 +5561,7 @@ server <- function(input, output, session) {
       
     }
   })
-  
-  tryObserveEvent(trigger_model_disc_listen(), ignoreInit = F, priority = -100, {
-    
-    
-    
-  })
-  
+
   tryObserveEvent(gpa_coords_rx(), ignoreInit = T, priority = 10000, {
     req(gpa_coords_rx())
     specimen_options <- dimnames(gpa_coords_rx())[[3]]
@@ -5432,7 +5602,7 @@ server <- function(input, output, session) {
     } else { pc_axes_temp <- 1:8 } # example data have 9 pc axes
     
     if(is.null(update_vals$warp_axes_selected_selected)) {
-      selected_item <- 1
+      selected_item <- c(1,2)
     } else { selected_item <- update_vals$warp_axes_selected_selected } 
     
     updateCheckboxGroupInput(session, "warp_axes_selected", label = "Visualize Variation Across PC:",
@@ -5528,15 +5698,16 @@ server <- function(input, output, session) {
   
   #### Updating Statistical Outputs ####
   
-  physig_meta0 <- metaObserve2({
-    req(vals$phy_rx)
+  physig_meta0 <- tryMetaObserve2({
+    vals$filler_d <- input$navbar
+    req(isolate(vals$phy_rx))
     req(input$phy_signal_input)
-    gpa_coords_rx <- gpa_coords_rx()
+    if(!is.null(gpa_coords_rx())) { gpa_coords <- gpa_coords_rx() }
     metaExpr({
       if(..(datasets_dont_match()) == FALSE) {
         if(..(input$phy_signal_input) == "shape") {
-          if(!is.null(gpa_coords_rx)){
-            vals$PS_shape <- physignal(A=gpa_coords_rx,phy=vals$phy_rx,iter=..(input$signal_perm))
+          if(!is.null(gpa_coords)){
+            vals$PS_shape <- physignal(A=gpa_coords,phy=isolate(vals$phy_rx),iter=..(input$signal_perm))
           }
         }
         if(..(input$phy_signal_input) == "by_trait_1" | 
@@ -5548,16 +5719,16 @@ server <- function(input, output, session) {
                                  ..(input$phy_signal_input == "by_trait_3"), 
                                  ..(input$phy_signal_input == "csize"))]
           if(which_trait == 5) {
-            trait_vector <- vals$csize
+            trait_vector <- isolate(vals$csize)
           } else {
-            if(!is.null(vals$trait_rx)){
-              trait_vector <- as.numeric(vals$trait_rx[,which_trait])
-              names(trait_vector) <- vals$trait_rx[,1]
+            if(!is.null(isolate(vals$trait_rx))){
+              trait_vector <- as.numeric(isolate(vals$trait_rx)[,which_trait])
+              names(trait_vector) <- isolate(vals$trait_rx)[,1]
             }
           }
           
           if(!anyNA(trait_vector)) {
-            vals$PS_shape <- physignal(A=trait_vector,phy=vals$phy_rx,iter=..(input$signal_perm))
+            vals$PS_shape <- physignal(A=trait_vector, phy=isolate(vals$phy_rx),iter= ..(input$signal_perm))
           } else {
             shinyalert(
               title = "Error in Trait Input",
@@ -5584,13 +5755,14 @@ server <- function(input, output, session) {
   #go_run_anova_listen <- reactive({list(input$go_run_anova, update_vals$independent_variables_order_selected)})
   
   #tryObserveEvent(go_run_anova_listen(), ignoreInit = F, priority = -10, { # suspend necessary because for some reason, (even when using priority) trait_1_treatment was not updated before this ran, causing a problem at the pairwise function
-  anova_table_metaO <- metaObserve2({
+  anova_table_metaO <- tryMetaObserve2({
     vals$trigger <- input$go_run_anova
     req(isolate(input$independent_variables)) # keeps things from crashing if all are unselected
+    req(isolate(gpa_coords_rx()))
     #if(is.null(update_vals$independent_variables_selected)) {
     vals$independent_variables <- isolate(input$independent_variables)    
     #} else { independent_variables <- update_vals$independent_variables_selected }
-    gpa_coords_rx <- isolate(gpa_coords_rx())
+    gpa_coords <- isolate(gpa_coords_rx())
     vals$input.pgls_ols <- isolate(input$pgls_ols)
     vals$input.anova_perm <- isolate(input$anova_perm)
     vals$input.ss_type <- isolate(input$ss_type)
@@ -5615,7 +5787,7 @@ server <- function(input, output, session) {
                                           vals.trait_3_treatment = isolate(vals$trait_3_treatment), 
                                           vals.trait_names = isolate(vals$trait_names), 
                                           vals.phy_rx = isolate(vals$phy_rx),
-                                          gpa_coords_rx_reactive = gpa_coords_rx, 
+                                          gpa_coords_rx_reactive = gpa_coords, 
                                           input.independent_variables_order = model_order,
                                           input.pgls_ols = vals$input.pgls_ols, 
                                           input.anova_perm = vals$input.anova_perm, 
@@ -5700,7 +5872,7 @@ server <- function(input, output, session) {
               if(isolate(..(input$evol_rate_groups)) != "no_run" & !is.null(isolate(vals$trait_rx))){
                 group_selected <- list(trait_1, trait_2, trait_3)[[as.numeric(isolate(..(input$evol_rate_groups)))]]
                 names(group_selected) <- isolate(vals$phy_rx$tip.label)
-                out <- compare.evol.rates(gpa_coords_rx, phy = isolate(vals$phy_rx), gp = group_selected, print.progress = F, iter = isolate(..(input$anova_perm)))
+                out <- compare.evol.rates(gpa_coords, phy = isolate(vals$phy_rx), gp = group_selected, print.progress = F, iter = isolate(..(input$anova_perm)))
                 out_mat <- c(out$sigma.d.gp, out$sigma.d.all, out$Z, out$P.value)
                 names(out_mat)[(out$Ngroups+1):(out$Ngroups+3)] <- c("Overall Rate" , "Effect Size", "Overall P")
                 vals$evol_rates <- out_mat
@@ -5744,7 +5916,7 @@ server <- function(input, output, session) {
   
   
   #tryObserveEvent(model_comparison_listen(), ignoreInit = F, priority = -10, {
-  model_comparison_metaO <- metaObserve2({
+  model_comparison_metaO <- tryMetaObserve2({
     if(input$go_run_model_comparison > 0) {
       input$go_run_model_comparison # here to trigger this
       req(isolate(input$independent_variables_model_1)) # keeps things from crashing if all are unselected
@@ -5759,7 +5931,7 @@ server <- function(input, output, session) {
       #independent_variables_model_1 <- update_vals$independent_variables_model_1_selected
       #independent_variables_model_2 <- update_vals$independent_variables_model_2_selected
       #independent_variables_model_3 <- update_vals$independent_variables_model_3_selected }
-      gpa_coords_rx <- isolate(gpa_coords_rx())
+      gpa_coords <- isolate(gpa_coords_rx())
       metaExpr({
         independent_variables_model_1 <- isolate(..(input$independent_variables_model_1))
         independent_variables_model_2 <- isolate(..(input$independent_variables_model_2))
@@ -5791,7 +5963,7 @@ server <- function(input, output, session) {
                                             vals.trait_3_treatment = isolate(vals$trait_3_treatment), 
                                             vals.trait_names = isolate(vals$trait_names), 
                                             vals.phy_rx = isolate(vals$phy_rx),
-                                            gpa_coords_rx_reactive = gpa_coords_rx, 
+                                            gpa_coords_rx_reactive = gpa_coords, 
                                             input.independent_variables_order = model_order_1,
                                             input.pgls_ols = isolate(..(input$pgls_ols_model_comparison)), 
                                             input.anova_perm = isolate(..(input$anova_perm_model_comparison)), 
@@ -5805,7 +5977,7 @@ server <- function(input, output, session) {
                                             vals.trait_3_treatment = isolate(vals$trait_3_treatment), 
                                             vals.trait_names = isolate(vals$trait_names), 
                                             vals.phy_rx = isolate(vals$phy_rx),
-                                            gpa_coords_rx_reactive = gpa_coords_rx, 
+                                            gpa_coords_rx_reactive = gpa_coords, 
                                             input.independent_variables_order = model_order_2,
                                             input.pgls_ols = isolate(..(input$pgls_ols_model_comparison)), 
                                             input.anova_perm = isolate(..(input$anova_perm_model_comparison)), 
@@ -5827,7 +5999,7 @@ server <- function(input, output, session) {
                                             vals.trait_3_treatment = isolate(vals$trait_3_treatment), 
                                             vals.trait_names = isolate(vals$trait_names), 
                                             vals.phy_rx = isolate(vals$phy_rx),
-                                            gpa_coords_rx_reactive = gpa_coords_rx, 
+                                            gpa_coords_rx_reactive = gpa_coords, 
                                             input.independent_variables_order = model_order_3,
                                             input.pgls_ols = isolate(..(input$pgls_ols_model_comparison)), 
                                             input.anova_perm = isolate(..(input$anova_perm_model_comparison)), 
@@ -5862,8 +6034,8 @@ server <- function(input, output, session) {
     content = function(file) {
       phy_rx <- phy_rx() # !!! is this right??
       if(!is.null(vals$go_run_gpa)) {
-        gpa_coords_rx <- gpa_coords_rx()
-      } else {  gpa_coords_rx <- vals$lms_rx}
+        gpa_coords <- gpa_coords_rx()
+      } else {  gpa_coords <- vals$lms_rx}
       trait_rx <- trait_rx() # !!! is this right??
       
       pca_rx <- pca_rx() 
@@ -5885,7 +6057,7 @@ server <- function(input, output, session) {
       vals2 <- list()
       for(i in names(vals)) vals2[[i]] <- vals[[i]]
       
-      save(gpa_coords_rx, phy_rx, trait_rx, 
+      save(gpa_coords, phy_rx, trait_rx, 
            pca_rx,  
            #ref_rx, 
            #targ_rx,
@@ -5942,11 +6114,11 @@ server <- function(input, output, session) {
   
   #### Data Prep Outputs ####
   
-  output$all_specimens <- metaRender2(renderPlot, bg = "transparent", {  
+  output$all_specimens <- metaRender2(renderPlot, bg = "transparent", {
     req(gpa_coords_rx())
-    gpa_coords_rx <- gpa_coords_rx()
+    gpa_coords <- gpa_coords_rx()
     metaExpr({
-      lm_col <- rep(..(input$semilms_color_other), dim(gpa_coords_rx)[1])
+      lm_col <- rep(..(input$semilms_color_other), dim(gpa_coords)[1])
       if(!is.null(vals$curves_final)) {
         if(nrow(vals$curves_final)>0) {
           curves_temp <- matrix(unlist(vals$curves_final), ncol = 3)
@@ -5958,12 +6130,12 @@ server <- function(input, output, session) {
       }
       
       if(is.null(vals$links_df)) { go <- T } else { # making it stop before plotting when stereomorph curves havent yet been applied
-        if(any(!(vals$links_df %in% 1:dim(gpa_coords_rx)[1]))){ go <- F } else {go <- T}
+        if(any(!(vals$links_df %in% 1:dim(gpa_coords)[1]))){ go <- F } else {go <- T}
       } 
       
       if(go) {
         par(mar = c(2,3,2,2))
-        plotAllSpecimens(gpa_coords_rx, 
+        plotAllSpecimens(gpa_coords, 
                          label = T, links = vals$links_df,  
                          plot.param = list(txt.cex = 1.5, 
                                            txt.col = ..(input$semilms_color_labels),
@@ -6014,8 +6186,8 @@ if(!is.null(vals$curves)) {
        colnames(curve.mat) <- c("before", "slide", "after")
      }else { curve.mat <- NULL}
    }else { curve.mat <- NULL} 
-gpa_coords_rx <- gpagen(gpa_coords_rx, curves = curve.mat) # ***
-gpa_coords_rx <- gpa_coords_rx$coords # ***
+gpa_coords <- gpagen(gpa_coords, curves = curve.mat) # ***
+gpa_coords <- gpa_coords$coords # ***
         ', code)
       
       code <- c(
@@ -6034,7 +6206,7 @@ gpa_coords_rx <- gpa_coords_rx$coords # ***
   
   output$visualize_outliers_all <- metaRender2(renderPlot, bg = "transparent", { 
     req(gpa_coords_rx())
-    gpa_coords_rx <- gpa_coords_rx()
+    gpa_coords <- gpa_coords_rx()
     metaExpr({
       grouping <- NULL
       column <- (2:4)[c("by_trait_1", "by_trait_2", "by_trait_3") %in% ..(input$outlier_group)]
@@ -6044,14 +6216,14 @@ gpa_coords_rx <- gpa_coords_rx$coords # ***
       
       if(length(column) > 0 & outlier_group_tf) { 
         grouping <- as.factor(vals$trait_rx[,column]) 
-        grouping <- grouping[match(dimnames(gpa_coords_rx)[[3]], vals$trait_rx[,1])]
+        grouping <- grouping[match(dimnames(gpa_coords)[[3]], vals$trait_rx[,1])]
       } else {grouping <- NULL}
       if(outlier_group_tf) {
         which_group_new <- as.numeric(..(input$outlier_group_level_plotted))
       } else { which_group_new <- 1 }
-      x <- plotOutliers.ekb1(gpa_coords_rx, groups = grouping)
+      x <- plotOutliers.ekb1(gpa_coords, groups = grouping)
       
-      plotOutliers.ekb2(x, gpa_coords_rx, groups = grouping, 
+      plotOutliers.ekb2(x, gpa_coords, groups = grouping, 
                         which_group = which_group_new, pt_cex = as.numeric(..(input$outlier_plot_pt_cex)),
                         txt_cex = as.numeric(..(input$outlier_plot_txt_cex)), 
                         show_point_names = ..(input$outlier_plot_show_point_names_tf)) 
@@ -6109,8 +6281,8 @@ if(!is.null(vals$curves)) {
        colnames(curve.mat) <- c("before", "slide", "after")
      }else { curve.mat <- NULL}
    }else { curve.mat <- NULL} 
-gpa_coords_rx <- gpagen(gpa_coords_rx, curves = curve.mat) # ***
-gpa_coords_rx <- gpa_coords_rx$coords # ***
+gpa_coords <- gpagen(gpa_coords, curves = curve.mat) # ***
+gpa_coords <- gpa_coords$coords # ***
         ', code)
       
       code <- c(
@@ -6123,21 +6295,21 @@ gpa_coords_rx <- gpa_coords_rx$coords # ***
   
   output$outlier_selected_lms <- metaRender2(renderPlot, bg = "transparent", {
     req(vals$outlier_row)
-    gpa_coords_rx <- gpa_coords_rx()
+    gpa_coords <- gpa_coords_rx()
     
     
     grouping <- NULL
     column <- (2:4)[c("by_trait_1", "by_trait_2", "by_trait_3") %in% input$outlier_group]
     if(length(column) > 0 & input$outlier_group_tf) { 
       grouping <- as.factor(vals$trait_rx[,column]) 
-      grouping <- grouping[match(dimnames(gpa_coords_rx)[[3]], vals$trait_rx[,1])]
+      grouping <- grouping[match(dimnames(gpa_coords)[[3]], vals$trait_rx[,1])]
     } else {grouping <- NULL}
     if(input$outlier_group_tf) {
       which_group_new <- as.numeric(input$outlier_group_level_plotted)
     } else { which_group_new <- 1 }
     
-    x1 <- plotOutliers.ekb1(gpa_coords_rx, groups = grouping)
-    vals$x <- plotOutliers.ekb2(x1, gpa_coords_rx, groups = grouping, 
+    x1 <- plotOutliers.ekb1(gpa_coords, groups = grouping)
+    vals$x <- plotOutliers.ekb2(x1, gpa_coords, groups = grouping, 
                                 which_group = which_group_new, pt_cex = as.numeric(input$outlier_plot_pt_cex),
                                 produce_plot = F, txt_cex = as.numeric(input$outlier_plot_txt_cex), 
                                 show_point_names = input$outlier_plot_show_point_names_tf)
@@ -6147,7 +6319,7 @@ gpa_coords_rx <- gpa_coords_rx$coords # ***
     metaExpr({
       
       selected_outlier <- match(row.names(vals$outlier_row), names(vals$x))
-      lm_col <- rep(..(input$vis_outliers_color_other), dim(gpa_coords_rx)[1])
+      lm_col <- rep(..(input$vis_outliers_color_other), dim(gpa_coords)[1])
       if(!is.null(vals$curves_final)) {
         temp_mat <- matrix(vals$curves_final, ncol = 3, byrow = T)
         if(!anyNA(temp_mat[,2])){ 
@@ -6158,14 +6330,14 @@ gpa_coords_rx <- gpa_coords_rx$coords # ***
       }
       
       par(mar = c(0,2,4,0))
-      plot(gpa_coords_rx[,,selected_outlier], col = lm_col, pch = 19, cex = 2,
+      plot(gpa_coords[,,selected_outlier], col = lm_col, pch = 19, cex = 2,
            main = paste("Selected Specimen: ", row.names(vals$outlier_row), sep = ""), 
            asp = 1, axes = F) # displays the selected specimen landmark placement
-      text(x = gpa_coords_rx[,,selected_outlier][,1]-0.01, y = gpa_coords_rx[,,selected_outlier][,2] - 0.01, 
-           labels = 1:(nrow(gpa_coords_rx[,,selected_outlier])), col = ..(input$vis_outliers_color_labels)) # adds labels to the landmarks
+      text(x = gpa_coords[,,selected_outlier][,1]-0.01, y = gpa_coords[,,selected_outlier][,2] - 0.01, 
+           labels = 1:(nrow(gpa_coords[,,selected_outlier])), col = ..(input$vis_outliers_color_labels)) # adds labels to the landmarks
       if(!is.null(vals$links_df)){
         for (i in 1:nrow(vals$links_df)) {
-          seg_df <- gpa_coords_rx[,,selected_outlier]
+          seg_df <- gpa_coords[,,selected_outlier]
           xys <- seg_df[vals$links_df[i,],]
           segments(x0 = xys[1], y0 = xys[3],x1 = xys[2], y1 = xys[4], col = ..(input$vis_outliers_color_links))
         }
@@ -6328,9 +6500,9 @@ vals$Data_gpa <- gpagen(lms_estimated, curves = curve.mat, ')
         paste('ProcD = F,', sep = '') }
       code_p4 <- 'print.progress = F)
 
-gpa_coords_rx <- vals$Data_gpa$coords
+gpa_coords <- vals$Data_gpa$coords
 vals$csize <- vals$Data_gpa$Csize
-names(vals$csize) <- dimnames(gpa_coords_rx)[[3]]'
+names(vals$csize) <- dimnames(gpa_coords)[[3]]'
       code <- c(code_p1, code_p2, code_p3, code_p4)
       
       writeLines(as.character(code), file)
@@ -6338,12 +6510,11 @@ names(vals$csize) <- dimnames(gpa_coords_rx)[[3]]'
   )
   
   #### Morphospace Outputs ####
-  tryObserve({
+  tryObserve({ 
     req(pca_rx())
     if(is.null(vals$phy_rx) | !is.null(vals$go_example_1)) {
       match <- TRUE
-    }
-    
+    } 
     if(!is.null(vals$phy_rx) & !is.null(gpa_coords_rx())) {
       match <- identical(vals$phy_rx$tip.label, dimnames(gpa_coords_rx())[[3]]) 
     } 
@@ -6378,7 +6549,7 @@ names(vals$csize) <- dimnames(gpa_coords_rx)[[3]]'
       input.flip_axis  <- c(input.flip_axis, 2) } 
     vals$input.flip_axis <- as.numeric(input.flip_axis)
     
-    gpa_coords_rx <- gpa_coords_rx()
+    gpa_coords <- gpa_coords_rx()
     
     metaExpr({
       
@@ -6494,7 +6665,7 @@ names(vals$csize) <- dimnames(gpa_coords_rx)[[3]]'
         
         for (i in 1:length(selected_trait)) {
           this_col <- selected_trait[i]
-          tip_col_fac <- as.character(vals$trait_rx[match(dimnames(gpa_coords_rx)[[3]], vals$trait_rx[,1]),this_col])
+          tip_col_fac <- as.character(vals$trait_rx[match(dimnames(gpa_coords)[[3]], vals$trait_rx[,1]),this_col])
           lev <- length(unique(tip_col_fac))
           lev_options <- unique(tip_col_fac)
           col_mat <- unlist(col_list_modified[[i]]) 
@@ -6511,7 +6682,7 @@ names(vals$csize) <- dimnames(gpa_coords_rx)[[3]]'
       }
     })
   }, width = "auto", height = "auto")
-  
+
   output$export_morphospace <- downloadHandler(
     filename = function() { paste("morphospace_plot.pdf") },
     content = function(file) { 
@@ -6831,7 +7002,7 @@ names(vals$csize) <- dimnames(gpa_coords_rx)[[3]]'
       dev.off()
     }
   )
-  
+ 
   output$export_morphospace_code <- downloadHandler(
     filename = function() { paste('morphospace_code.R') },
     content = function(file){
@@ -7180,16 +7351,16 @@ names(vals$csize) <- dimnames(gpa_coords_rx)[[3]]'
   
   output$stats_modularity_test <- metaRender2(renderPrint, {
     req(gpa_coords_rx())
-    gpa_coords_rx <- gpa_coords_rx()
+    gpa_coords <- gpa_coords_rx()
     metaExpr({
       if(..(input$modularity_phylo_tf) == F) {
-        vals$modularity_test <- modularity.test(A = gpa_coords_rx, partition = vals$modularity_groups, 
-                                                iter = as.numeric(..(input$modularity_perm)),
+        vals$modularity_test <- modularity.test(A = gpa_coords, partition = vals$modularity_groups, 
+                                                iter = ..(input$modularity_perm),
                                                 print.progress = F)
       } else {
         if(!is.null(vals$phy_rx)) {
-          vals$modularity_test <- phylo.modularity(A = gpa_coords_rx, partition.gp = vals$modularity_groups, 
-                                                   phy = vals$phy_rx, iter = as.numeric(..(input$modularity_perm)),
+          vals$modularity_test <- phylo.modularity(A = gpa_coords, partition.gp = vals$modularity_groups, 
+                                                   phy = vals$phy_rx, iter = ..(input$modularity_perm),
                                                    print.progress = F)
         }
       }
@@ -7304,12 +7475,12 @@ names(vals$csize) <- dimnames(gpa_coords_rx)[[3]]'
     req(gpa_coords_rx())
     req(vals$phy_rx)
     req(vals$modularity_groups)
-    gpa_coords_rx <- gpa_coords_rx()
+    gpa_coords <- gpa_coords_rx()
     metaExpr({
       modularity_groups <- droplevels(as.factor(vals$modularity_groups))
-      vals$compare_multi_evol_rates <- try(compare.multi.evol.rates(A = gpa_coords_rx, 
+      vals$compare_multi_evol_rates <- try(compare.multi.evol.rates(A = gpa_coords, 
                                                                     phy = vals$phy_rx, gp = modularity_groups, 
-                                                                    iter = as.numeric(..(input$modularity_perm)),
+                                                                    iter = ..(input$modularity_perm),
                                                                     print.progress = F), silent = T)
       if(inherits(vals$compare_multi_evol_rates, "try-error")) { vals$compare_multi_evol_rates <- NULL } else {
         summary(vals$compare_multi_evol_rates)
@@ -7362,7 +7533,7 @@ names(vals$csize) <- dimnames(gpa_coords_rx)[[3]]'
         'rm(list = ls())
 load("data_current_state.RData") # replace with your data_current_state file (you must press the Export Current Data button AFTER all settings and inputs have been finalized for the desired plot/results)  
 library(geomorph)
-globalIntegration(A = gpa_coords_rx, ShowPlot = T)')
+globalIntegration(A = gpa_coords, ShowPlot = T)')
       writeLines(as.character(code), file)
     }
   )
@@ -7371,18 +7542,18 @@ globalIntegration(A = gpa_coords_rx, ShowPlot = T)')
     req(input$integration_group_by)
     req(vals$modularity_groups)
     req(gpa_coords_rx())
-    gpa_coords_rx <- gpa_coords_rx()
+    gpa_coords <- gpa_coords_rx()
     
     metaExpr({
       if(..(input$integration_group_by) == "none"){
         if(..(input$integration_phylo_tf)) {
           if(!is.null(vals$phy_rx)){
-            vals$IT <- phylo.integration(gpa_coords_rx, phy = vals$phy_rx, 
+            vals$IT <- phylo.integration(gpa_coords, phy = vals$phy_rx, 
                                          partition.gp = vals$modularity_groups, 
                                          iter = ..(input$integration_test_perm), 
                                          print.progress = F)
           }
-        } else vals$IT <- integration.test(gpa_coords_rx, partition.gp = vals$modularity_groups, 
+        } else vals$IT <- integration.test(gpa_coords, partition.gp = vals$modularity_groups, 
                                            iter = ..(input$integration_test_perm), print.progress = F)
         if(!is.null(vals$IT$XScores)) {
           plot(vals$IT)
@@ -7397,7 +7568,7 @@ globalIntegration(A = gpa_coords_rx, ShowPlot = T)')
           if(..(input$integration_phylo_tf)) {
             if(!is.null(vals$phy_rx)){
               for(i in 1:nlevels(groupings)){
-                coords_subset <- gpa_coords_rx[,,which(groupings == levels(groupings)[i])]
+                coords_subset <- gpa_coords[,,which(groupings == levels(groupings)[i])]
                 phy_subset <- keep.tip(vals$phy_rx, dimnames(coords_subset)[[3]])
                 integ.test.new <- phylo.integration(coords_subset, phy = phy_subset, partition.gp = vals$modularity_groups,
                                                     iter = ..(input$integration_test_perm), print.progress = F)
@@ -7408,7 +7579,7 @@ globalIntegration(A = gpa_coords_rx, ShowPlot = T)')
             }
           } else {
             for(i in 1:nlevels(groupings)){
-              coords.subset <- gpa_coords_rx[,,which(groupings == levels(groupings)[i])]
+              coords.subset <- gpa_coords[,,which(groupings == levels(groupings)[i])]
               integ.test.new <- integration.test(coords.subset, partition.gp = vals$modularity_groups, 
                                                  iter = ..(input$integration_test_perm), 
                                                  print.progress = F)
@@ -7442,7 +7613,7 @@ globalIntegration(A = gpa_coords_rx, ShowPlot = T)')
         if(input$integration_phylo_tf) {
           req(vals$phy_rx)
           vals$IT <- phylo.integration(gpa_coords_rx(), phy = vals$phy_rx, 
-                                       partition.gp = vals$modularity_groups, iter = as.numeric(input$integration_test_perm), print.progress = F)
+                                       partition.gp = vals$modularity_groups, iter = input$integration_test_perm, print.progress = F)
         } else vals$IT <- integration.test(gpa_coords_rx(), partition.gp = vals$modularity_groups, 
                                            iter = as.numeric(input$integration_test_perm), print.progress = F)
         if(!is.null(vals$IT$XScores)) {
@@ -7458,7 +7629,7 @@ globalIntegration(A = gpa_coords_rx, ShowPlot = T)')
             coords_subset <- gpa_coords_rx()[,,which(groupings == levels(groupings)[i])]
             phy_subset <- keep.tip(vals$phy_rx, dimnames(coords_subset)[[3]])
             integ.test.new <- phylo.integration(coords_subset, phy = phy_subset, partition.gp = vals$modularity_groups,
-                                                iter = as.numeric(input$integration_test_perm), print.progress = F)
+                                                iter = input$integration_test_perm, print.progress = F)
             integ.test[[i]] <- integ.test.new
           }
           input$integration_group_level
@@ -7467,7 +7638,7 @@ globalIntegration(A = gpa_coords_rx, ShowPlot = T)')
           for(i in 1:nlevels(groupings)){
             coords.subset <- gpa_coords_rx()[,,which(groupings == levels(groupings)[i])]
             integ.test.new <- integration.test(coords.subset, partition.gp = vals$modularity_groups, 
-                                               iter = as.numeric(input$integration_test_perm), print.progress = F)
+                                               iter = input$integration_test_perm, print.progress = F)
             integ.test[[i]] <- integ.test.new
           }
           input$integration_group_level # this is required so that the vals$ bit doesn't get triggered for this to run again if isolate taken out
@@ -7524,7 +7695,9 @@ print(title)
 print(text) } # This function turns the pop up messages available in gmShiny into R console text. This will only appear if some sort of error is made.',
         edit_export_code(code),
         'plot(vals$bilat_symmetry)
-summary(vals$bilat_symmetry)') 
+summary(vals$bilat_symmetry)
+vals$bilat_symmetry$signed.AI
+vals$bilat_symmetry$unsigned.AI') 
       writeLines(as.character(code), file)
       
     }
@@ -7536,11 +7709,24 @@ summary(vals$bilat_symmetry)')
       req(vals$bilat_symmetry)
       sum <- summary(vals$bilat_symmetry)
       table <- sum$shape.anova
+      rownames(table) <- NULL
+      
       if(!is.null(sum$size.anova)) {
         table <-  rbind(NA, table, NA, NA, sum$size.anova)
         rownames(table)[1] <- "Shape ANOVA"
         rownames(table)[nrow(sum$shape.anova)+3] <- "Centroid Size ANOVA"
       }
+      ind_tab <- cbind(c("Individual signed asymmetry index",
+                         vals$bilat_symmetry$signed.AI), 
+                       c("Individual unsigned asymmetry index",
+                         vals$bilat_symmetry$unsigned.AI))
+      ind_tab <- cbind(ind_tab, NA, NA, NA, NA, NA)
+      colnames(ind_tab) <- colnames(table)
+      row_counting <- nrow(table) + 4
+      table <- rbind(table, NA, NA, ind_tab)
+      rnames <- names(vals$bilat_symmetry$unsigned.AI)
+      rnames <- paste("Individual_", rnames, sep = "")
+      rownames(table)[(row_counting):(row_counting+nrow(ind_tab)-2)] <- rnames
       write.csv(table, file)
     }
   )
@@ -7548,24 +7734,35 @@ summary(vals$bilat_symmetry)')
   output$symmetry_results <- renderPrint({
     req(vals$bilat_symmetry)
     summary(vals$bilat_symmetry)
+    
+    if(!is.null(vals$bilat_symmetry$signed.AI)){
+      print("")
+      print("Individual signed asymmetry index:")
+      print(vals$bilat_symmetry$signed.AI)
+    }
+    if(!is.null(vals$bilat_symmetry$unsigned.AI)){
+      print("")
+      print("Individual unsigned asymmetry index:")
+      print(vals$bilat_symmetry$unsigned.AI)
+    }
   })
   
   output$symmetry_landpair_plot <- metaRender2(renderPlot, bg = "transparent", {
     req(gpa_coords_rx())
-    gpa_coords_rx <- gpa_coords_rx()
+    gpa_coords <- gpa_coords_rx()
     vals$symmetry_land_pairs <- as.matrix(input$symmetry_landpairs_definitions)
     metaExpr({
-      shape <- mshape(gpa_coords_rx)
+      shape <- mshape(gpa_coords)
       
       class(shape) <- "array"
       
       symmetry_land_pairs <- vals$symmetry_land_pairs
       
       if(!is.null(symmetry_land_pairs)) {
-        lm_col_vec <- rep('black', dim(gpa_coords_rx)[1])
-        lm_pch_vec <- rep('19', dim(gpa_coords_rx)[1])
+        lm_col_vec <- rep('black', dim(gpa_coords)[1])
+        lm_pch_vec <- rep('19', dim(gpa_coords)[1])
         if(nrow(symmetry_land_pairs) > 2) {
-          ncolors <- floor(dim(gpa_coords_rx)[1]/2)
+          ncolors <- floor(dim(gpa_coords)[1]/2)
           if(ncolors < 12) {
             col_spec <- c("red", brewer.pal(name = "Spectral", n = ncolors)[-1])
           } else { col_spec <- colorRampPalette(colors = c("red", "blue", "darkgreen", "grey60"), alpha = TRUE)(ncolors) }
@@ -7876,7 +8073,7 @@ vals$evol_rates_pairwise')
   
   output$allometry_plot <- metaRender2(renderPlot, bg = "transparent", {
     req(input$allometry_predictor)
-    gpa_coords_rx <- gpa_coords_rx()
+    gpa_coords <- gpa_coords_rx()
     metaExpr({
       if(!is.null(..(input$allometry_predictor))) {
         this_trait <- (2:6)[c(..(input$allometry_predictor) == "by_trait_1", 
@@ -7901,7 +8098,7 @@ vals$evol_rates_pairwise')
                                 ..(input$allometry_color) == "by_trait_1", 
                                 ..(input$allometry_color) == "by_trait_2", 
                                 ..(input$allometry_color) == "by_trait_3")]
-          if(this_color == 1) { color <- rep("black", dim(gpa_coords_rx)[3])} else {
+          if(this_color == 1) { color <- rep("black", dim(gpa_coords)[3])} else {
             color <- as.character(vals$trait_rx[,this_color])
             levs <- levels(as.factor(vals$trait_rx[,this_color]))
             color[which(color == levs[1])] <- ..(input$allom_color_1)
@@ -8260,43 +8457,54 @@ vals$evol_rates_pairwise')
     content = function(file) { 
       req(vals$trajectory_fit)
       sum <- summary(vals$TA, attribute = input$trajectory_attribute, show.trajectories = T)
-      write.csv(sum$summary.table, file)
+      out <- sum$summary.table
+      out <- rbind(rep(NA, ncol(out)), colnames(out), out)
+      colnames(out) <- NULL
+      out.obs <- vals$TA$PD$obs
+      if(length(out.obs)<ncol(out)) { out.obs <- c(out.obs, rep(NA, ncol(out)-length(out.obs))) }
+      if(length(out.obs)>ncol(out)) { out <- cbind(out, matrix(NA, ncol = length(out.obs)-ncol(out), nrow = nrow(out)))}
+      out <- rbind(out.obs, out)
+      colnames(out)[1:length(vals$TA$PD$obs)] <- names(vals$TA$PD$obs)
+      write.csv(out, file)
     }
   )
   
   output$trajectory_plot <- metaRender2(renderPlot, bg = "transparent", {
     req(vals$TA)
     
-      this_group <- (1:4)[c(isolate(input$trajectory_group) == "noneg",
-                            isolate(input$trajectory_group) == "by_trait_1", 
-                            isolate(input$trajectory_group) == "by_trait_2", 
-                            isolate(input$trajectory_group) == "by_trait_3")]
-      if(this_group != 1) group <- as.factor(isolate(vals$trait_rx)[,this_group])
-      this_trait <- (1:4)[c(isolate(input$trajectory_trait) == "nonet",
-                            isolate(input$trajectory_trait) == "by_trait_1", 
-                            isolate(input$trajectory_trait) == "by_trait_2", 
-                            isolate(input$trajectory_trait) == "by_trait_3")]
-      if(this_trait != 1) {trait <- as.factor(isolate(vals$trait_rx)[,this_trait])} else {trait <- NULL}
-      if(!is.null(isolate(vals$go_example_1))) { # if using the example dataset, you have to adjust the 3 level trait so that there are repeats in all 4 'levels'
-        if(!is.null(group)){
-          if(nlevels(group) > 2) { 
-            group[which(group == levels(group)[2])] <- levels(group)[3] # condensing levels for purposes of example
-            group <- droplevels(group)
-          }
-        }
-        if(!is.null(trait)){
-          if(nlevels(trait) > 2) { 
-            trait[which(trait == levels(trait)[2])] <- levels(trait)[3] # condensing levels for purposes of example
-            trait <- droplevels(trait)
-          }
+    this_group <- (1:4)[c(isolate(input$trajectory_group) == "noneg",
+                          isolate(input$trajectory_group) == "by_trait_1", 
+                          isolate(input$trajectory_group) == "by_trait_2", 
+                          isolate(input$trajectory_group) == "by_trait_3")]
+    if(this_group != 1) group <- as.factor(isolate(vals$trait_rx)[,this_group])
+    this_trait <- (1:4)[c(isolate(input$trajectory_trait) == "nonet",
+                          isolate(input$trajectory_trait) == "by_trait_1", 
+                          isolate(input$trajectory_trait) == "by_trait_2", 
+                          isolate(input$trajectory_trait) == "by_trait_3")]
+    if(this_trait != 1) {trait <- as.factor(isolate(vals$trait_rx)[,this_trait])} else {trait <- NULL}
+    if(!is.null(isolate(vals$go_example_1))) { # if using the example dataset, you have to adjust the 3 level trait so that there are repeats in all 4 'levels'
+      if(!is.null(group)){
+        if(nlevels(group) > 2) { 
+          group[which(group == levels(group)[2])] <- levels(group)[3] # condensing levels for purposes of example
+          group <- droplevels(group)
         }
       }
-      
-      metaExpr({
+      if(!is.null(trait)){
+        if(nlevels(trait) > 2) { 
+          trait[which(trait == levels(trait)[2])] <- levels(trait)[3] # condensing levels for purposes of example
+          trait <- droplevels(trait)
+        }
+      }
+    }
+    
+    metaExpr({
       if(!is.null(group)){
         if(nlevels(group) < 8) { 
           gs <- c(21:25, 8, 7)[1:nlevels(group)]
         } else { gs <- c(21:25, 8, 7, rep(1, nlevels(group) - 7))[1:nlevels(group)] } # all higher levels than 8 get pch = 1}
+        pchs <- as.character(group)
+        for(i in 1:nlevels(group)){ 
+          pchs[which(pchs == levels(group)[i])] <- gs[i]}
       } else gs <- NULL
       
       if(!is.null(trait)){
@@ -8312,7 +8520,7 @@ vals$evol_rates_pairwise')
         bgs[which(!(bgs %in% tr_col_vec))] <- tr_col_vec[7] # putting all other trait levels as black
       } else bgs <- NULL
       
-      TP <- plot(vals$TA, pch = gs, bg = bgs, cex = ..(input$trajectory_specimen_cex), col = bgs)
+      TP <- plot(vals$TA, pch = as.numeric(pchs), bg = bgs, cex = ..(input$trajectory_specimen_cex), col = bgs)
       add.trajectories.ekb(TP, 
                            traj.pch = gs, 
                            traj.gp.bg = tr_col_vec[1:nlevels(trait)], 
@@ -8393,7 +8601,7 @@ vals$evol_rates_pairwise')
       code_2 <- expandChain(output$trajectory_plot())
       code <- c(
         general_notes(),
-        prep_code(add.source = F),
+        prep_code(add.source = T),
         'shinyalert <- function(title, text, html, size) { 
 print(title) 
 print(text) } # This function turns the pop up messages available in gmShiny into R console text. This will only appear if some sort of error is made.',
@@ -8403,6 +8611,42 @@ print(text) } # This function turns the pop up messages available in gmShiny int
       writeLines(as.character(code), file)
     }
   )
+  
+  #### Extras Outputs ####
+  
+  output$news <- renderText({
+"xx.xx.2021 - gmShiny v0.0 launch!
+"
+  })
+  
+  output$upcoming_features <- renderText({
+    "Here is where you'll find information on what we're currently working on."
+  })
+  
+  output$email_me <- renderUI({
+    url <- a("Write Email", href="mailto:erica.baken@gmail.com")
+    tagList("Contact Dr. Erica Baken:", url)
+  })
+  
+  output$report <- renderUI({
+    url <- a("Github Issue Reporting", href="https://github.com/geomorphR/gmShiny/issues/new", target="_blank")
+    tagList("Report an issue with the App:", url)
+  })
+  
+  output$geomorph_list <- renderUI({
+    url <- a("geomorph List Serve", href="https://groups.google.com/g/geomorph-r-package", target="_blank")
+    tagList("Ask a question related to geomorph:", url)
+  })
+  
+  output$citation_info <- renderText({
+    "Baken, EK, ML Collyer, A Kaliontzopoulou, and DC Adams. 2021. gmShiny and geomorph 4.0: new 
+    graphical interface and enhanced analytics for a comprehensive morphometric experience. [citation to be edited
+    after manuscript acceptance]"
+  })
+  
+  output$github_link <- renderText({
+    "This GitHub repository houses the source code for this App: www.github.com/geomorphR/gmShiny/"
+  })
   
   #### Bookmarking ####
   

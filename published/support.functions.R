@@ -17,6 +17,22 @@ tryObserve <- function(x, priority=0, suspended = F) {
   })
 }
 
+tryMetaObserve2 <- function(x, priority=0, suspended = F) {
+  x <- substitute(x)
+  env <- parent.frame()
+  metaObserve2({ # priority = priority, suspended = suspended, 
+    tryCatch(
+      eval(x, env),
+      error = function(e) {
+        if(nchar(e$message) > 0){
+          call_start <- capture.output(e$call)
+          showNotification(paste("Error: ", e$message,"; Call began: ", call_start[1], sep = ""), type = "error", duration = NULL) # shinyalert(title = "Error",
+        }
+      }
+    )
+  })
+}
+
 tryObserveEvent <- function(eventExpr,  handlerExpr, ignoreInit = F, priority=0) {
   eventExpr <- substitute(eventExpr)
   y <- substitute(handlerExpr)
@@ -59,7 +75,7 @@ prep_code <- function(add.source = F, extra.libs = NULL){
   if(add.source) {
     output <- 'rm(list = ls())
 load("data_current_state.RData") # replace with your data_current_state file (you must press the Export Current Data button AFTER all settings and inputs have been finalized for the desired plot/results)  
-source("support_functions.R") # download support functions from github: https://github.com/ebaken/ShinyMorph/blob/main/published/support.functions.R 
+source("published/support.functions.R") # download support functions from github: https://github.com/ebaken/ShinyMorph/blob/main/published/support.functions.R 
 vals <- vals2
 library(geomorph)'
   } else {
