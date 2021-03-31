@@ -1550,14 +1550,14 @@ ui <- function(request) {
           ),
           wellPanel(
             style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Part 3: Morphospace and Warp Grids"))),hr(),
-                    fluidRow(
-                      column(
-                        11, offset = 1,
-                        HTML('<iframe src="https://player.vimeo.com/video/530951457?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
+            fluidRow(column(9, offset = 1, h4("Part 3: Morphospace and Warp Grids"))),hr(),
+            fluidRow(
+              column(
+                11, offset = 1,
+                HTML('<iframe src="https://player.vimeo.com/video/530951457?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
                              width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
                              title="Morphospace_and_Warp_Grids.mp4"></iframe>')))
-                    
+            
           ),
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
                     fluidRow(column(9, offset = 1, h4("Part 4: Shape Patterns"))),hr(),
@@ -1638,32 +1638,32 @@ server <- function(input, output, session) {
   
   
   #### Instructions ####
-    tryObserveEvent(input$navbar, {
-      if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
-        shinyalert(
-          title = "Welcome!",
-          inputId = "keep_alerts_on_tf",
-          text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
+  tryObserveEvent(input$navbar, {
+    if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
+      shinyalert(
+        title = "Welcome!",
+        inputId = "keep_alerts_on_tf",
+        text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
            
            Would you like to keep these Instructions on?",
-          size = "s", 
-          closeOnEsc = F,
-          closeOnClickOutside = F,
-          html = FALSE,
-          type = "success",
-          showConfirmButton = TRUE,
-          showCancelButton = TRUE,
-          confirmButtonText = "Yes",
-          confirmButtonCol = "#AEDEF4",
-          cancelButtonText = "No",
-          timer = 0,
-          imageUrl = "",
-          animation = TRUE
-        )
-        alert_vals$navbar_datainput_welcomealertdone <- "yes"
-      }
+        size = "s", 
+        closeOnEsc = F,
+        closeOnClickOutside = F,
+        html = FALSE,
+        type = "success",
+        showConfirmButton = TRUE,
+        showCancelButton = TRUE,
+        confirmButtonText = "Yes",
+        confirmButtonCol = "#AEDEF4",
+        cancelButtonText = "No",
+        timer = 0,
+        imageUrl = "",
+        animation = TRUE
+      )
+      alert_vals$navbar_datainput_welcomealertdone <- "yes"
     }
-    )
+  }
+  )
   
   tryObserveEvent(input$alert_on_off, ignoreInit = T, priority = -10,  {
     if(input$alert_on_off == F) { 
@@ -2643,31 +2643,22 @@ server <- function(input, output, session) {
   # symmetry individuals  
   tryObserveEvent(input$symmetry_obj_sym, ignoreInit = F, {
     
-    if(!is.null(update_vals$symmetry_definitions_selected)) {
-      symmetry_manual_matrix_replace <- update_vals$symmetry_definitions_selected
-    } else { 
-      symmetry_manual_matrix_replace <- symmetry_manual_matrix 
-      vals$go_symmetry_file <-  NULL
-      vals$go_symmetry_landpairs_file <- NULL
-      vals$go_show_specimen_assignments <- NULL
-      vals$go_show_landmark_assignments <- NULL
-      vals$show_no_replicates_text <- NULL
-      vals$run_symmetry_go <- NULL
-      vals$bilat_symmetry <- NULL
-      reset("symmetry_file_upload")
-      reset("symmetry_land_pairs_file_upload")
-      reset("run_symmetry_go")
-      reset("go_symmetry_no_replicates")
-    }
-    
-    if(!is.null(update_vals$symmetry_landpairs_definitions_selected)) {
-      symmetry_landpairs_manual_matrix_replace <- update_vals$symmetry_landpairs_definitions_selected
-    } else { symmetry_landpairs_manual_matrix_replace <- symmetry_landpairs_manual_matrix }
+    vals$go_symmetry_file <-  NULL
+    vals$go_symmetry_landpairs_file <- NULL
+    vals$go_show_specimen_assignments <- NULL
+    vals$go_show_landmark_assignments <- NULL
+    vals$show_no_replicates_text <- NULL
+    vals$run_symmetry_go <- NULL
+    vals$bilat_symmetry <- NULL
+    reset("symmetry_file_upload")
+    reset("symmetry_land_pairs_file_upload")
+    reset("run_symmetry_go")
+    reset("go_symmetry_no_replicates")
     
     updateMatrixInput(session, "symmetry_definitions", 
-                      value = symmetry_manual_matrix_replace)
+                      value = symmetry_manual_matrix)
     updateMatrixInput(session, "symmetry_landpairs_definitions", 
-                      value = symmetry_landpairs_manual_matrix_replace)
+                      value = symmetry_landpairs_manual_matrix)
     
     
   })
@@ -3019,7 +3010,6 @@ server <- function(input, output, session) {
   #### Input Data Reactives ####
   
   vals <- reactiveValues()
-  update_vals <- reactiveValues()
   
   lms_rx <- reactive({ # landmark reactive element
     ee <- input$go_remove_outlier_specimen_reset #trigger
@@ -3107,26 +3097,17 @@ server <- function(input, output, session) {
                                                             sep = ".")
         }
       }
-      
-    }
-    if(!is.null(isolate(update_vals$remove_outlier_specimen_unselected))){
-      temp_LMs <- temp_LMs[,,-which(dimnames(temp_LMs)[[3]] %in% isolate(update_vals$remove_outlier_specimen_unselected))]
     }
     
     return(temp_LMs) # this is when the button for example data
   }) 
   
   tryObserveEvent(input$file_tps, {
-    if(!is.null(input$file_tps)) {
-      vals$tps_rx_upload_state <- 'uploaded'
-    }
+    if(!is.null(input$file_tps)) { vals$tps_rx_upload_state <- 'uploaded' }
   })
   
   tryObserveEvent(input$file_stereomorph, {
-    if(!is.null(input$file_stereomorph)) {
-      vals$tps_rx_upload_state <- 'uploaded'
-      if(!is.null(update_vals$links_df)){ vals$links_df <- update_vals$links_df }
-    }
+    if(!is.null(input$file_stereomorph)) { vals$tps_rx_upload_state <- 'uploaded' }
   })
   
   tryObserveEvent(input$shape_file_type, ignoreInit = T, priority = -10, {
@@ -3138,8 +3119,6 @@ server <- function(input, output, session) {
   })
   
   tryObserveEvent(lms_rx(), ignoreInit = F, {
-    if(!is.null(update_vals$links_df)){ vals$links_df <- update_vals$links_df }
-    
     req(vals$tps_rx_upload_state)
     if(vals$tps_rx_upload_state == "reset") { 
       vals$links_df <- NULL
@@ -3156,7 +3135,7 @@ server <- function(input, output, session) {
     vals$stereomorph_curve4_n <- input$stereomorph_curve4_n
     vals$stereomorph_curve5_n <- input$stereomorph_curve5_n
     vals$stereomorph_curve6_n <- input$stereomorph_curve6_n
-    if(is.null(update_vals$links_df)){ vals$links_df <- NULL }
+    vals$links_df <- NULL 
   })
   
   phy_rx <- reactive({ # phylogeny reactive element
@@ -3177,9 +3156,6 @@ server <- function(input, output, session) {
       temp_phy <- plethspecies$phy 
     }
     if(!is.null(temp_phy)) {
-      if(!is.null(isolate(update_vals$remove_outlier_specimen_unselected))){
-        temp_phy <- drop.tip(temp_phy, isolate(update_vals$remove_outlier_specimen_unselected))
-      }
       showTab(inputId = "tab_shapepatterns", "Phylogenetic Signal")
       return(temp_phy)
     } else { 
@@ -3203,8 +3179,7 @@ server <- function(input, output, session) {
   trait_rx <- reactive({
     trait_table <- NULL
     dd <- input$go_remove_outlier_specimen_reset #trigger dddd
-    if(is.null(isolate(update_vals$trait_column_selected))) { trait_column <- as.numeric(input$trait_column) } else {
-      trait_column <- as.numeric(isolate(update_vals$trait_column_selected)) }
+    trait_column <- as.numeric(input$trait_column)
     
     if(is.null(vals$go_example_1)){ # if the example button has not been pressed
       if(!is.null(input$file_trait)) {
@@ -3233,10 +3208,6 @@ server <- function(input, output, session) {
       #}
     }
     if(!is.null(trait_table)) {
-      if(!is.null(isolate(update_vals$remove_outlier_specimen_unselected))){
-        trait_table <- trait_table[-which(trait_table[,1] %in% isolate(update_vals$remove_outlier_specimen_unselected)),]
-      }
-      
       if(ncol(trait_table) > 1) {
         if(ncol(trait_table) > 4) { trait_table <- trait_table[,1:4] }
         if(input$trait_1_transformation != "raw" |
@@ -3500,15 +3471,7 @@ server <- function(input, output, session) {
   tryObserve(priority = -100, {
     req(input$trait_column)
     
-    if(is.null(isolate(update_vals$trait_1_treatment_selected))){
-      x <- c(input$trait_1_treatment, input$trait_2_treatment, input$trait_3_treatment)
-    } else {
-      x <- c(isolate(update_vals$trait_1_treatment_selected), 
-             isolate(update_vals$trait_2_treatment_selected), 
-             isolate(update_vals$trait_3_treatment_selected))
-    }
-    
-    xx <- x[1:length(input$trait_column)]
+    xx <- c(input$trait_1_treatment, input$trait_2_treatment, input$trait_3_treatment)[1:length(input$trait_column)]
     
     if(length(which(xx=="disc"))>0) {vals$one_disc_traits <- "one_trait"} else {vals$one_disc_traits <- NULL}
     if(length(which(xx=="disc"))>1) {vals$two_disc_traits <- "two_traits"} else {vals$two_disc_traits <- NULL}
@@ -3639,7 +3602,7 @@ server <- function(input, output, session) {
   output$outlier_selected <- reactive({return(!is.null(vals$outlier_row))})
   outputOptions(output, 'outlier_selected', suspendWhenHidden=FALSE)
   
-  output$outlier_removed <- reactive({return(!is.null(vals$outlier_removed_names) | !is.null(isolate(update_vals$remove_outlier_specimen_unselected)))})
+  output$outlier_removed <- reactive({return(!is.null(vals$outlier_removed_names))})
   outputOptions(output, "outlier_removed", suspendWhenHidden = F)
   
   output$show_no_replicates_text <- reactive({return(!is.null(vals$show_no_replicates_text))})
@@ -3806,17 +3769,8 @@ server <- function(input, output, session) {
     } else { vals$go_run_model_comparison <- NULL }
   })
   
-  go_run_gpa_listen <- reactive({list(update_vals$go_run_gpa_selected, input$go_run_gpa)})
-  tryObserveEvent(eventExpr = go_run_gpa_listen(), ignoreInit = F, {
-    if(input$go_run_gpa>0) {
-      vals$go_run_gpa <- c(vals$go_run_gpa, "go")
-    } else {
-      if(!is.null(update_vals$go_run_gpa_selected)){
-        if(update_vals$go_run_gpa_selected > 0) {
-          vals$go_run_gpa <- c(vals$go_run_gpa, "go")
-        }
-      }
-    }
+  tryObserveEvent(eventExpr = input$go_run_gpa, ignoreInit = T, {
+    if(input$go_run_gpa>0) { vals$go_run_gpa <- c(vals$go_run_gpa, "go") }
   })
   
   tryObserveEvent(eventExpr = vals$go_example_1, priority = 10000, ignoreInit = T, { # example dataset button
@@ -4098,19 +4052,15 @@ server <- function(input, output, session) {
   
   morphospace_clicked_listen <- reactive({list(input$morphospace_specimen_click, 
                                                input$warp_comparison_start, 
-                                               input$warp_comparison_end,
-                                               update_vals$morphospace_specimen_click_selected)})
+                                               input$warp_comparison_end)})
   tryObserveEvent(eventExpr = morphospace_clicked_listen(), ignoreInit = F, {
     if(!is.null(input$morphospace_specimen_click)) {
       vals$morpho_clicked <- 1 # initiate the vals for conditional paneling
       rotation_x_df <- as.data.frame(pca_nonphylo_rx()$x) # pca rotation converted into a dataframe for nearPoints function below
-      if(is.null(update_vals$morphospace_specimen_click_selected)) { 
-        
-        clicked_point <- nearPoints(rotation_x_df, input$morphospace_specimen_click, 
-                                    xvar = x_lab_rx(), yvar = y_lab_rx(),
-                                    threshold = 20, maxpoints = 1)  # this prints the x and y values of the nearest point (within 20 pixels) to the click on the morphospace
-      } else { clicked_point <- update_vals$morphospace_specimen_click_selected }
       
+      clicked_point <- nearPoints(rotation_x_df, input$morphospace_specimen_click, 
+                                  xvar = x_lab_rx(), yvar = y_lab_rx(),
+                                  threshold = 20, maxpoints = 1)  # this prints the x and y values of the nearest point (within 20 pixels) to the click on the morphospace
       
       
       if(length(unlist(clicked_point))>1){
@@ -4580,16 +4530,8 @@ server <- function(input, output, session) {
     
   })
   
-  tryObserveEvent(update_vals$semilms_manual_input_selected, {
-    if(!is.null(update_vals$semilms_manual_input_selected)) {
-      updateMatrixInput(session, "semilms_manual_input", value = update_vals$semilms_manual_input_selected)
-      update_vals$semilms_manual_input_selected <- NULL # resetting this so that next edits after returning to a bookmark don't revert to this
-    }
-  })
-  
-  outlier_selected_listen <- reactive({list(input$outlier_selected, update_vals$outlier_selected_selected)})
-  tryObserveEvent(outlier_selected_listen(), ignoreInit = F, { 
-    if(!is.null(input$outlier_selected) | !is.null(update_vals$outlier_selected_selected)) {
+  tryObserveEvent(input$outlier_selected, ignoreInit = F, { 
+    if(!is.null(input$outlier_selected)) {
       grouping <- NULL
       req(gpa_coords_rx())
       
@@ -4608,13 +4550,9 @@ server <- function(input, output, session) {
                              produce_plot = F) 
       y <- x[order(x, decreasing = TRUE)]
       outlier_df <- data.frame("x" = order(y, decreasing = TRUE), "y" = y) # defining the right x and y values for the plotOutliers
-      if(is.null(update_vals$outlier_selected_selected)){
-        vals$outlier_row <- nearPoints(outlier_df, input$outlier_selected, xvar = "x", yvar = "y",
-                                       threshold = 15, maxpoints = 1) 
-      } else {
-        vals$outlier_row <- update_vals$outlier_selected_selected
-      }
       
+      vals$outlier_row <- nearPoints(outlier_df, input$outlier_selected, xvar = "x", yvar = "y",
+                                     threshold = 15, maxpoints = 1) 
       
       delay(300, session$sendCustomMessage(type = "scrollCallback_outlier", 1))
     }
@@ -4733,19 +4671,11 @@ server <- function(input, output, session) {
     }
     
     if(!is.null(vals$col_names_temp)) {
-      
-      if(is.null(isolate(update_vals$trait_column_selected))) {
+
         updateCheckboxGroupInput(session, "trait_column", label = NULL,
                                  choiceNames = vals$col_names_temp[2:vals$trait_column_max_value], 
                                  choiceValues = 2:vals$trait_column_max_value, # updating options for all columns available
                                  selected = 2, inline = F)
-      } else {
-        updateCheckboxGroupInput(session, "trait_column", label = NULL,
-                                 choiceNames = vals$col_names_temp[2:vals$trait_column_max_value], 
-                                 choiceValues = 2:vals$trait_column_max_value, # updating options for all columns available
-                                 selected = isolate(update_vals$trait_column_selected), inline = F)
-        # update_vals$trait_column_selected <- NULL # resetting the bookmarked vals
-      }
     }
     
   })
@@ -4772,21 +4702,15 @@ server <- function(input, output, session) {
     req(gpa_coords_rx())
     vals$outlier_row <- NULL
     if(input$remove_outlier_specimen %in% dimnames(gpa_coords_rx())[[3]]) {
-      vals$outlier_removed_names <- unique(c(vals$outlier_removed_names, input$remove_outlier_specimen, update_vals$remove_outlier_specimen_unselected)) 
+      vals$outlier_removed_names <- unique(c(vals$outlier_removed_names, input$remove_outlier_specimen)) 
     }
   })
   
   tryObserve({
     if(!is.null(vals$phy_rx) | !is.null(vals$go_example_1)) { pgls_ols <- "pgls" } else { pgls_ols <- "ols" }
-    if(is.null(isolate(update_vals$pgls_ols_selected))) {
       updateRadioButtons(session, "pgls_ols", label = "Analysis Type:", 
                          choices = c("PGLS" = "pgls", "OLS" = "ols"), selected = pgls_ols)
-    } else {
-      updateRadioButtons(session, "pgls_ols", label = "Analysis Type:", 
-                         choices = c("PGLS" = "pgls", "OLS" = "ols"), selected = isolate(update_vals$pgls_ols_selected)) # the isolates for these update_vals makes it so that pressing the bookmark button does not trigger a reset of inputs
-      #update_vals$pgls_ols_selected <- NULL
-    }
-    
+   
   })
   
   tryObserve({
@@ -4811,16 +4735,9 @@ server <- function(input, output, session) {
           choice_vals <- na.omit(choice_vals)
         }
         
-        if(is.null(isolate(update_vals$outlier_group_level_plotted_selected))){
           updateRadioButtons(session, "outlier_group_level_plotted", label = NULL, 
                              choiceNames = choice_names, choiceValues = choice_vals)
-        } else {
-          updateRadioButtons(session, "outlier_group_level_plotted", label = NULL, 
-                             choiceNames = choice_names, choiceValues = choice_vals,
-                             selected = isolate(update_vals$outlier_group_level_plotted_selected))
-          
-        }
-        
+      
       }
     }
   })
@@ -4856,41 +4773,23 @@ server <- function(input, output, session) {
       independent_variable_named <- choice_list
       names(independent_variable_named) <- all_selected_trait_names
       
-      if(is.null(isolate(update_vals$independent_variables_selected))) { 
-        selected_item <- independent_variable_named[1]
-      } else {
-        selected_item <- isolate(update_vals$independent_variables_selected)
-      }
+      selected_item <- independent_variable_named[1]
       
       updateCheckboxGroupInput(session, "independent_variables" , 
                                "Independent Variables Tested:",
                                choices = independent_variable_named, # updating options for all columns available
                                selected = selected_item, inline = F) 
-      
-      if(is.null(isolate(update_vals$independent_variables_model_1_selected))) { 
-        selected_item <- independent_variable_named[1]
-      } else { selected_item <- isolate(update_vals$independent_variables_model_1_selected) }
-      
+
       updateCheckboxGroupInput(session, "independent_variables_model_1" , 
                                "Independent Variables Tested in Model 1:",
                                choices = independent_variable_named, # updating options for all columns available
                                selected = selected_item, inline = F) 
       
-      if(is.null(isolate(update_vals$independent_variables_model_2_selected))) { 
-        selected_item <- independent_variable_named[1]
-      } else {
-        selected_item <- isolate(update_vals$independent_variables_model_2_selected)
-      }
       updateCheckboxGroupInput(session, "independent_variables_model_2" , 
                                "Independent Variables Tested in Model 2:",
                                choices = independent_variable_named, # updating options for all columns available
                                selected = selected_item, inline = F) 
       
-      if(is.null(isolate(update_vals$independent_variables_model_3_selected))) { 
-        selected_item <- independent_variable_named[1]
-      } else {
-        selected_item <- isolate(update_vals$independent_variables_model_3_selected)
-      }
       updateCheckboxGroupInput(session, "independent_variables_model_3" , 
                                "Independent Variables Tested in Model 3:",
                                choices = independent_variable_named, # updating options for all columns available
@@ -4898,11 +4797,8 @@ server <- function(input, output, session) {
       
       
       independent_variable_named_traj <- c("None" = "none1", independent_variable_named)
-      if(is.null(isolate(update_vals$trajectory_independent_var_selected))) { 
-        selected_item <- independent_variable_named_traj[1]
-      } else {
-        selected_item <- isolate(update_vals$trajectory_independent_var_selected)
-      }
+      selected_item <- independent_variable_named_traj[1]
+      
       vals$independent_variable_named_traj <- independent_variable_named_traj
       
       updateRadioButtons(session, "trajectory_independent_var", 
@@ -4913,45 +4809,27 @@ server <- function(input, output, session) {
       choice_list_color <- c("all_1_col", choice_list)
       names(choice_list_color) <- c("All One Color", names(choice_list))
       
-      
-      
-      if(is.null(isolate(update_vals$tip_col_category_selected))) { 
-        selected_item <- "all_1_col"
-      } else { selected_item <- isolate(update_vals$tip_col_category_selected) }
-      
       updateSelectInput(session, inputId = "tip_col_category", label = "Point Color:", 
-                        choices = choice_list_color, selected = selected_item) 
+                        choices = choice_list_color, selected = "all_1_col") 
       
-      if(!is.null(update_vals$trait_1_treatment_selected)) {
-        updates_tf <- any(((isolate(update_vals$trait_1_treatment_selected)) == "disc" & length(colnames(vals$trait_rx)[-1]) > 0), 
-                          ((isolate(update_vals$trait_2_treatment_selected)) == "disc" & length(colnames(vals$trait_rx)[-1]) > 1),
-                          ((isolate(update_vals$trait_3_treatment_selected)) == "disc" & length(colnames(vals$trait_rx)[-1]) > 2) )
-      } else { updates_tf <- F}
       
       if((input$trait_1_treatment == "disc" & length(colnames(vals$trait_rx)[-1]) > 0) | 
          (input$trait_2_treatment == "disc" & length(colnames(vals$trait_rx)[-1]) > 1) | 
          (input$trait_3_treatment == "disc" & length(colnames(vals$trait_rx)[-1]) > 2) | 
-         is.null(vals$trait_rx) | updates_tf){ #making reduced choice lists of just discrete variables
+         is.null(vals$trait_rx)){ #making reduced choice lists of just discrete variables
         
-        if(is.null(isolate(update_vals$trait_1_treatment_selected))){
+        
           selected_disc_options <- (1:length(colnames(vals$trait_rx)[-1]))[c(input$trait_1_treatment == "disc", 
                                                                              input$trait_2_treatment == "disc", 
                                                                              input$trait_3_treatment == "disc")]
-        } else {
-          selected_disc_options <- (1:length(colnames(vals$trait_rx)[-1]))[c(isolate(update_vals$trait_1_treatment_selected) == "disc", 
-                                                                             isolate(update_vals$trait_2_treatment_selected) == "disc", 
-                                                                             isolate(update_vals$trait_3_treatment_selected) == "disc")]
-        }
+        
         
         if(is.null(vals$trait_rx)) { selected_disc_options <- NULL } 
         
         choice_list_disc <- choice_list[na.omit(selected_disc_options)]
         
-        if(is.null(isolate(update_vals$outlier_group_selected))) { 
-          selected_item <- choice_list_disc[1]
-        } else { selected_item <- isolate(update_vals$outlier_group_selected) }
-        
-        updateRadioButtons(session, "outlier_group", label = NULL, choices = choice_list_disc, selected = selected_item)
+        updateRadioButtons(session, "outlier_group", label = NULL, 
+                           choices = choice_list_disc, selected = choice_list_disc[1])
         
         for(i in 1:length(selected_disc_options)){ # loop that excludes any discrete trait with only 2 specimens in any given level
           trait <- as.factor(isolate(vals$trait_rx)[,(1+selected_disc_options[i])])
@@ -4965,86 +4843,58 @@ server <- function(input, output, session) {
         choice_list_disc_plus_none <- c("none", choice_list_disc_3plus)
         names(choice_list_disc_plus_none) <- c("None", names(choice_list_disc_3plus))
         
-        if(is.null(isolate(update_vals$integration_group_by_selected))) { 
-          selected_item <- choice_list_disc_plus_none[1]
-        } else { selected_item <- isolate(update_vals$integration_group_by_selected) }
-        
-        updateRadioButtons(session, "integration_group_by", label = NULL, choices = choice_list_disc_plus_none, selected = selected_item )
+        updateRadioButtons(session, "integration_group_by", label = NULL, 
+                           choices = choice_list_disc_plus_none, selected = choice_list_disc_plus_none[1] )
         
         
         choice_list_disc_allcol <- c("all_one_color", choice_list_disc)
         names(choice_list_disc_allcol) <- c("All One Color", names(choice_list_disc))
-        if(is.null(isolate(update_vals$allometry_color_selected))) { 
-          selected_item <- choice_list_disc_allcol[1]
-        } else { selected_item <- isolate(update_vals$allometry_color_selected) }
-        
         
         updateSelectInput(session, "allometry_color", label = "Color Points:", 
-                          choices = choice_list_disc_allcol, selected = selected_item)
+                          choices = choice_list_disc_allcol, selected = choice_list_disc_allcol[1])
         
         if(length(choice_list_disc)>0) {
           names(choice_list_disc) <- substring(names(choice_list_disc), 4, nchar(names(choice_list_disc)))
-          if(is.null(isolate(update_vals$trajectory_group_selected))) { 
-            selected_item <- choice_list_disc[1]
-          } else { selected_item <- isolate(update_vals$trajectory_group_selected) }
+         
+          updateRadioButtons(session, "trajectory_group", "Trajectory Group:", 
+                             choices = choice_list_disc, selected = choice_list_disc[1])
           
-          updateRadioButtons(session, "trajectory_group", "Trajectory Group:", choices = choice_list_disc, selected = selected_item)
-          
-          if(length(choice_list_disc) > 1){
-            if(is.null(isolate(update_vals$trajectory_trait_selected))) { 
-              selected_item <- choice_list_disc[1]
-            } else { selected_item <- isolate(update_vals$trajectory_trait_selected) }
-            updateRadioButtons(session, "trajectory_trait", "Trajectory Points:", choices = choice_list_disc, selected = selected_item)
+          if(length(choice_list_disc) > 1){ 
+            updateRadioButtons(session, "trajectory_trait", "Trajectory Points:", 
+                               choices = choice_list_disc, selected = choice_list_disc[1])
           }
         } 
-        
-        
         
         choice_list_shape <- c(19, 1, 18, choice_list_disc)
         new_names <- names(choice_list_disc)
         if(length(choice_list_shape)>3) new_names <- paste("By", new_names, sep = " ") # labeling the choices
         names(choice_list_shape) <- c("Filled Circle", "Hollow Circle", "Filled Diamond", new_names)
         
-        
-        
-        if(is.null(isolate(update_vals$tip_pch_selected))) { 
-          selected_item <- choice_list_shape[1]
-        } else { selected_item <- isolate(update_vals$tip_pch_selected) }
-        
         updateSelectInput(session, inputId = "tip_pch", label = "Point Shape:", 
-                          choices = choice_list_shape, selected = selected_item)
+                          choices = choice_list_shape, selected = choice_list_shape[1])
         
-        if(is.null(isolate(update_vals$show_convex_hull_1_selected))) {
-          selected_item <- F
-        } else { selected_item <- isolate(update_vals$show_convex_hull_1_selected) }
         
         updateCheckboxInput(session, inputId = "show_convex_hull_1", label = replacement_chull_name[c(input$trait_1_treatment == "disc", 
                                                                                                       input$trait_2_treatment == "disc", 
                                                                                                       input$trait_3_treatment == "disc")][1],
-                            value = selected_item) 
+                            value = F) 
         
         two_hulls_dependencies <- (length(which(c(input$trait_1_treatment == "disc", 
                                                   input$trait_2_treatment == "disc", 
                                                   input$trait_3_treatment == "disc"))) > 1)
         if(two_hulls_dependencies) { 
-          if(is.null(isolate(update_vals$show_convex_hull_2_selected))) {
-            selected_item <- F
-          } else { selected_item <- isolate(update_vals$show_convex_hull_2_selected) }
           
           updateCheckboxInput(session, inputId = "show_convex_hull_2", label = replacement_chull_name[c(input$trait_1_treatment == "disc", 
                                                                                                         input$trait_2_treatment == "disc", 
                                                                                                         input$trait_3_treatment == "disc")][2],
-                              value = selected_item)  # display a second convex hull option
+                              value = F)  # display a second convex hull option
           if(input$trait_1_treatment == "disc" & 
              input$trait_2_treatment == "disc" & 
              input$trait_3_treatment == "disc") { # display an option for a third hull
-            if(is.null(isolate(update_vals$show_convex_hull_3_selected))) {
-              selected_item <- F
-            } else { selected_item <- isolate(update_vals$show_convex_hull_3_selected) }
             
-            updateCheckboxInput(session, inputId = "show_convex_hull_3", label = replacement_chull_name[3], value = selected_item) 
+            updateCheckboxInput(session, inputId = "show_convex_hull_3", label = replacement_chull_name[3], 
+                                value = F) 
           }
-          
         }
       }  
       
@@ -5072,13 +4922,9 @@ server <- function(input, output, session) {
           if(length(choice_list_cont) > 0) { # if any selected variables are continuous
             choice_list_phy_sig <- c("shape", choice_list_cont)
             names(choice_list_phy_sig) <- c("Shape", names(choice_list_cont))
-            
-            if(is.null(isolate(update_vals$phy_signal_input_selected))) {
-              selected_item <- choice_list_phy_sig[1]
-            } else { selected_item <- isolate(update_vals$phy_signal_input_selected) }
-            
+        
             updateRadioButtons(session, inputId = "phy_signal_input", label = "Test Signal of:",
-                               choices = choice_list_phy_sig, selected = selected_item)
+                               choices = choice_list_phy_sig, selected = choice_list_phy_sig[1])
           } else {
             updateRadioButtons(session, "phy_signal_input", "Test Signal of:", choices = c("Shape" = "shape"))
           }
@@ -5086,25 +4932,17 @@ server <- function(input, output, session) {
       })
     } 
   })
-  
+
   allometry_predictor_listen <- reactive({list(vals$trait_rx, input$go_run_anova)})
   tryObserveEvent(allometry_predictor_listen(), ignoreInit = F, {
     if(input$go_run_anova > 0) {
-      #req(vals$trait_rx)
-      
+     req(vals$trait_rx)
       if(is.null(vals$trait_rx)) { all_selected_trait_names <- NULL } else {
         all_selected_trait_names <- colnames(vals$trait_rx)[-1] # what are the selected column names from trait file
       }
       
-      #if(is.null(isolate(vals$csize))) {
       choice_list <- c("by_trait_1", "by_trait_2", "by_trait_3")[1:length(all_selected_trait_names)]
-      #} else { 
-      #  all_selected_trait_names <- c(all_selected_trait_names, "Centroid Size")
-      #  if(length(colnames(isolate(vals$trait_rx))[-1]) > 0) {
-      #    choice_list <- c(c("by_trait_1", "by_trait_2", "by_trait_3")[1:length(colnames(isolate(vals$trait_rx))[-1])], "csize")
-      #  } else {  choice_list <- "csize" }
-      #}
-      
+     
       selected_cont_options <- (1:(ncol(vals$trait_rx)-1))[c(input$trait_1_treatment == "cont", 
                                                              input$trait_2_treatment == "cont", 
                                                              input$trait_3_treatment == "cont")]
@@ -5112,21 +4950,15 @@ server <- function(input, output, session) {
       choice_list_cont <- choice_list[na.omit(selected_cont_options)]
       names(choice_list_cont) <- all_selected_trait_names[na.omit(selected_cont_options)]
       choice_list_cont <- c(choice_list_cont, "Centroid Size" = "csize")
-      
-      if(is.null(isolate(update_vals$allometry_predictor_selected))) {
-        selected_item <- choice_list_cont[1]
-      } else { selected_item <- isolate(update_vals$allometry_predictor_selected) }
-      
+     
       updateRadioButtons(session, inputId = "allometry_predictor", label = "Predictor Variable:",
-                         choices = choice_list_cont, selected = selected_item)
+                         choices = choice_list_cont, selected = choice_list_cont[1])
     }
   })
   
   tryObserveEvent(input$independent_variables, ignoreInit = F, {
     
-    if(is.null(update_vals$independent_variables_selected)) {
       independent_variables <- input$independent_variables
-    } else { independent_variables <- update_vals$independent_variables_selected}
     
     req(vals$trait_rx)
     col_names_temp <- names(vals$trait_names) # what are the selected column names from trait file
@@ -5137,9 +4969,6 @@ server <- function(input, output, session) {
     
     if("csize" %in% independent_variables){
       traits_selected <- c(traits_selected, "Centroid Size")
-    }
-    if(!is.null(update_vals$independent_variables_order_selected)) { 
-      traits_selected <- update_vals$independent_variables_order_selected
     }
     
     if(length(traits_selected)>1) {
@@ -5152,9 +4981,7 @@ server <- function(input, output, session) {
   
   tryObserveEvent(input$independent_variables_model_1, ignoreInit = F, {
     
-    if(is.null(update_vals$independent_variables_model_1_selected)) {
       independent_variables <- input$independent_variables_model_1
-    } else { independent_variables <- update_vals$independent_variables_model_1_selected}
     
     req(vals$trait_rx)
     if(input$navbar == "Linear Models") {
@@ -5166,9 +4993,6 @@ server <- function(input, output, session) {
       
       if("csize" %in% independent_variables){
         traits_selected <- list(traits_selected, "Centroid Size")
-      }
-      if(!is.null(update_vals$independent_variables_order_model_1_selected)) { 
-        traits_selected <- update_vals$independent_variables_order_model_1_selected
       }
       
       vals$model_comparison_model_1 <- c(vals$model_comparison_model_1,"go")
@@ -5179,9 +5003,7 @@ server <- function(input, output, session) {
   
   tryObserveEvent(input$independent_variables_model_2, ignoreInit = F, {
     
-    if(is.null(update_vals$independent_variables_model_2_selected)) {
       independent_variables <- input$independent_variables_model_2
-    } else { independent_variables <- update_vals$independent_variables_model_2_selected}
     
     req(vals$trait_rx)
     if(input$navbar == "Linear Models") {
@@ -5193,9 +5015,6 @@ server <- function(input, output, session) {
       
       if("csize" %in% independent_variables){
         traits_selected <- list(traits_selected, "Centroid Size")
-      }
-      if(!is.null(update_vals$independent_variables_order_model_2_selected)) { 
-        traits_selected <- update_vals$independent_variables_order_model_2_selected
       }
       
       vals$model_comparison_model_2 <- c(vals$model_comparison_model_2,"go")
@@ -5206,9 +5025,7 @@ server <- function(input, output, session) {
   
   tryObserveEvent(input$independent_variables_model_3, ignoreInit = T, {
     
-    if(is.null(update_vals$independent_variables_model_3_selected)) {
       independent_variables <- input$independent_variables_model_3
-    } else { independent_variables <- update_vals$independent_variables_model_3_selected}
     
     req(vals$trait_rx)
     if(input$navbar == "Linear Models") {
@@ -5220,9 +5037,6 @@ server <- function(input, output, session) {
       
       if("csize" %in% independent_variables){
         traits_selected <- list(traits_selected, "Centroid Size")
-      }
-      if(!is.null(update_vals$independent_variables_order_model_3_selected)) { 
-        traits_selected <- update_vals$independent_variables_order_model_3_selected
       }
       
       vals$model_comparison_model_3 <- c(vals$model_comparison_model_3,"go")
@@ -5366,59 +5180,14 @@ server <- function(input, output, session) {
       trait_levels <- 1:length(trait_level_names)
       names(trait_levels) <- trait_level_names
       
-      if(!is.null(update_vals$integration_group_level_selected)){
-        selected <- update_vals$integration_group_level_selected
-      } else { selected <- trait_levels[1] }
-      
       updateRadioButtons(session, "integration_group_level", "Trait Level Plotted:",
-                         choices = trait_levels, selected = selected)
+                         choices = trait_levels, selected = trait_levels[1])
     }
   })
   
   tryObserve(priority = 10, {
     req(gpa_coords_rx())
-    
-    if(!is.null(isolate(update_vals$modularity_group_1_selected))) {
-      
-      modularity_groups <- rep(1, dim(gpa_coords_rx())[[1]])
-      modularity_groups[as.numeric(isolate(update_vals$modularity_group_1_selected))] <- 1
-      modularity_groups[as.numeric(isolate(update_vals$modularity_group_2_selected))] <- 2
-      modularity_groups[as.numeric(isolate(update_vals$modularity_group_3_selected))] <- 3
-      modularity_groups[as.numeric(isolate(update_vals$modularity_group_4_selected))] <- 4
-      modularity_groups[as.numeric(isolate(update_vals$modularity_group_5_selected))] <- 5
-      modularity_groups[as.numeric(isolate(update_vals$modularity_group_6_selected))] <- 6
-      modularity_groups[as.numeric(isolate(update_vals$modularity_group_7_selected))] <- 7
-      modularity_groups[as.numeric(isolate(update_vals$modularity_group_8_selected))] <- 8
-      
-      
-      vals$modularity_groups <- modularity_groups
-      
-      suppressWarnings(updateOrderInput(session, "modularity_group_1", "", items = which(modularity_groups == 1), 
-                                        connect = c('modularity_group_2', 'modularity_group_3', 'modularity_group_4', 
-                                                    'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_2", "", items = which(modularity_groups == 2),
-                                        connect = c('modularity_group_1','modularity_group_3',  'modularity_group_4', 
-                                                    'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_3", "", items = which(modularity_groups == 3),
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_4', 
-                                                    'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_4", "", items = which(modularity_groups == 4),
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
-                                                    'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_5", "", items = which(modularity_groups == 5),
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
-                                                    'modularity_group_4', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_6", "", items = which(modularity_groups == 6),
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
-                                                    'modularity_group_4', 'modularity_group_5', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_7", "", items = which(modularity_groups == 7),
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
-                                                    'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_8", "", items = which(modularity_groups == 8),
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
-                                                    'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_7')))
-      
-    } else { 
+
       modularity_groups <- rep(2, dim(gpa_coords_rx())[1])
       
       full_length <- length(modularity_groups)
@@ -5453,7 +5222,7 @@ server <- function(input, output, session) {
                                                     'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_7')))
       
       reset("modularity_n_groups")
-    }
+    
   })
   
   tryObserveEvent(input$apply_modular_groups_go, {  
@@ -5559,30 +5328,19 @@ server <- function(input, output, session) {
       trait_choices <- c("no_run", intersect(these_traits, disc_traits))
       names(trait_choices) <- c("Not Run", col_names_temp[intersect(these_traits, disc_traits)])
       
-      if(is.null(isolate(update_vals$trait_pairwise_selected))){
-        selected_item <- trait_choices[1]
-      } else { selected_item <- isolate(update_vals$trait_pairwise_selected) }
+      selected_item <- trait_choices[1]
       
       updateRadioButtons(session, inputId = "trait_pairwise", 
                          choices = trait_choices, 
                          selected = selected_item) 
       
-      if(is.null(isolate(update_vals$disparity_groups_selected))){
-        selected_item <- trait_choices[1]
-      } else { selected_item <- isolate(update_vals$disparity_groups_selected) }
-      
       updateRadioButtons(session, "disparity_groups",
                          "Morphological Disparity Groups Tested:",
                          choices = trait_choices, selected = selected_item)
       
-      if(is.null(isolate(update_vals$evol_rate_groups_selected))){
-        selected_item <- trait_choices[1]
-      } else { selected_item <- isolate(update_vals$evol_rate_groups_selected) }
-      
       updateRadioButtons(session, "evol_rate_groups",
                          "Evolutionary Rate Groups Tested:",
                          choices = trait_choices, selected = selected_item)
-      
       
     }
   })
@@ -5626,9 +5384,7 @@ server <- function(input, output, session) {
       if (x > 9) { pc_axes_temp <- 1:10 } # limit the axes options to first 10 axes, shouldnt be necessary to do more
     } else { pc_axes_temp <- 1:8 } # example data have 9 pc axes
     
-    if(is.null(update_vals$warp_axes_selected_selected)) {
       selected_item <- c(1,2)
-    } else { selected_item <- update_vals$warp_axes_selected_selected } 
     
     updateCheckboxGroupInput(session, "warp_axes_selected", label = "Visualize Variation Across PC:",
                              choices = pc_axes_temp, selected = selected_item, inline = T)
@@ -5639,44 +5395,28 @@ server <- function(input, output, session) {
       names(axes_options)[i] <- paste("PC", pc_axes_temp[i], sep = "") #  
     }
     
-    if(is.null(update_vals$pca_x_axis_selected)) {
-      selected_item <- 1
-    } else { selected_item <- update_vals$pca_x_axis_selected }
+    updateSelectInput(session, "pca_x_axis", label = "X axis", choices = axes_options, selected = 1)
     
-    updateSelectInput(session, "pca_x_axis", label = "X axis", choices = axes_options, selected = selected_item)
-    
-    if(is.null(update_vals$pca_y_axis_selected)) {
-      selected_item <- 2
-    } else { selected_item <- update_vals$pca_y_axis_selected }
-    
-    updateSelectInput(session, "pca_y_axis", label = "Y axis", choices = axes_options, selected = selected_item)
+    updateSelectInput(session, "pca_y_axis", label = "Y axis", choices = axes_options, selected = 2)
     
   })
   
   tryObserve({ # updating the warp grid comparisons when the morphospace is doubleclicked, adding an option to compare the projected point
     if(!is.null(vals$morpho_dbclicked)) {
       
-      if(is.null(isolate(update_vals$warp_comparison_start_selected))) {
-        selected_item <- "mean"
-      } else { selected_item <- isolate(update_vals$warp_comparison_start_selected) }
-      
-      updateRadioButtons(session, inputId="warp_comparison_start", label = "Warp Comparison Start (Reference):", 
+       updateRadioButtons(session, inputId="warp_comparison_start", label = "Warp Comparison Start (Reference):", 
                          choices = c("Mean Shape" = "mean",
                                      "Observed Point (Clicked)" = "selected_obs", 
                                      "Observed Point (By Name)" = "selected_obs_byname", 
                                      "Selected Projected Point (X)" = "selected_proj"),
-                         selected = selected_item)
-      
-      if(is.null(isolate(update_vals$warp_comparison_end_selected))) {
-        selected_item <- "selected_proj"
-      } else { selected_item <- isolate(update_vals$warp_comparison_end_selected) }
+                         selected = "mean")
       
       updateRadioButtons(session, inputId="warp_comparison_end", label = "Warp Comparison End (Target):", 
                          choices = c("Mean Shape" = "mean",
                                      "Observed Point (Clicked)" = "selected_obs", 
                                      "Observed Point (By Name)" = "selected_obs_byname", 
                                      "Selected Projected Point (X)" = "selected_proj"),
-                         selected = selected_item)
+                         selected = "selected_proj")
     }
   })
   
@@ -5708,11 +5448,7 @@ server <- function(input, output, session) {
     for (i in 1:length(disc_or_cont)) { # manually update all three labels if example data are used
       id_name <- paste("trait", i, "treatment", sep = "_")
       
-      if(is.null(isolate(update_vals$trait_1_treatment_selected))) {
-        selected_item <- disc_or_cont
-      } else { selected_item <- c(isolate(update_vals$trait_1_treatment_selected), 
-                                  isolate(update_vals$trait_2_treatment_selected), 
-                                  isolate(update_vals$trait_3_treatment_selected))}
+       selected_item <- disc_or_cont
       
       updateRadioButtons(session, inputId = id_name, 
                          choices = c("Discrete" = "disc", "Continuous" = "cont"), 
@@ -5769,24 +5505,17 @@ server <- function(input, output, session) {
     })
   })
   
-  #anova_listen <- reactive({list(vals$go_run_anova, vals$go_run_model_comparison)})
-  #tryObserveEvent(anova_listen(), ignoreInit = F,  {
   tryObserve({
     vals$trait_1_treatment <- input$trait_1_treatment
     vals$trait_2_treatment <- input$trait_2_treatment
     vals$trait_3_treatment <- input$trait_3_treatment
   })
   
-  #go_run_anova_listen <- reactive({list(input$go_run_anova, update_vals$independent_variables_order_selected)})
-  
-  #tryObserveEvent(go_run_anova_listen(), ignoreInit = F, priority = -10, { # suspend necessary because for some reason, (even when using priority) trait_1_treatment was not updated before this ran, causing a problem at the pairwise function
   anova_table_metaO <- tryMetaObserve2({
     vals$trigger <- input$go_run_anova
     req(isolate(input$independent_variables)) # keeps things from crashing if all are unselected
     req(isolate(gpa_coords_rx()))
-    #if(is.null(update_vals$independent_variables_selected)) {
     vals$independent_variables <- isolate(input$independent_variables)    
-    #} else { independent_variables <- update_vals$independent_variables_selected }
     gpa_coords <- isolate(gpa_coords_rx())
     vals$input.pgls_ols <- isolate(input$pgls_ols)
     vals$input.anova_perm <- isolate(input$anova_perm)
@@ -5940,7 +5669,6 @@ server <- function(input, output, session) {
                                             input$independent_variables_order_model_1)})
   
   
-  #tryObserveEvent(model_comparison_listen(), ignoreInit = F, priority = -10, {
   model_comparison_metaO <- tryMetaObserve2({
     if(input$go_run_model_comparison > 0) {
       input$go_run_model_comparison # here to trigger this
@@ -5948,14 +5676,6 @@ server <- function(input, output, session) {
       req(isolate(input$independent_variables_model_2)) 
       req(isolate(vals$trait_rx))
       
-      #if(is.null(update_vals$independent_variables_model_1_selected)) {
-      #  independent_variables_model_1 <- input$independent_variables_model_1  
-      #  independent_variables_model_2 <- input$independent_variables_model_2 
-      #  independent_variables_model_3 <- input$independent_variables_model_3
-      #} #else { 
-      #independent_variables_model_1 <- update_vals$independent_variables_model_1_selected
-      #independent_variables_model_2 <- update_vals$independent_variables_model_2_selected
-      #independent_variables_model_3 <- update_vals$independent_variables_model_3_selected }
       gpa_coords <- isolate(gpa_coords_rx())
       metaExpr({
         independent_variables_model_1 <- isolate(..(input$independent_variables_model_1))
@@ -6235,9 +5955,7 @@ gpa_coords <- gpa_coords$coords # ***
     metaExpr({
       grouping <- NULL
       column <- (2:4)[c("by_trait_1", "by_trait_2", "by_trait_3") %in% ..(input$outlier_group)]
-      #if(is.null(update_vals$outlier_group_tf_selected)) {
       outlier_group_tf <- ..(input$outlier_group_tf)
-      #} else { outlier_group_tf <- update_vals$outlier_group_tf_selected}
       
       if(length(column) > 0 & outlier_group_tf) { 
         grouping <- as.factor(vals$trait_rx[,column]) 
@@ -6436,23 +6154,16 @@ gpa_coords <- gpa_coords$coords # ***
   )
   
   output$outlier_removed_names <- renderText(sep = ", ",{
-    if(!is.null(vals$outlier_removed_names) | !is.null(isolate(update_vals$remove_outlier_specimen_unselected))){
-      vals$outlier_removed_names <- unique(c(isolate(vals$outlier_removed_names), 
-                                             isolate(update_vals$remove_outlier_specimen_unselected)))
+    if(!is.null(vals$outlier_removed_names)){
+      vals$outlier_removed_names <- unique(isolate(vals$outlier_removed_names))
     }
   })
   
   output$outlier_removed_names_tab <- renderText({
     if(is.null(vals$outlier_removed_names)) {
-      if(!is.null(isolate(update_vals$remove_outlier_specimen_unselected))) {
-        mat <- matrix(isolate(update_vals$remove_outlier_specimen_unselected), ncol = 1)
-        colnames(mat) <- " "
-        mat
-      } else {
         mat <- matrix("None")
         colnames(mat) <- " "
         mat
-      }
     } else {
       mat <- matrix(vals$outlier_removed_names, ncol = 1)
       colnames(mat) <- " "
@@ -7949,9 +7660,7 @@ summary(vals$PS_shape)')
     name <- "Model Tested: Shape ~ "
     vars <- NULL
     
-    if(is.null(update_vals$independent_variables_selected)) { independent_variables <- input$independent_variables } else {
-      independent_variables <- update_vals$independent_variables_selected
-    }
+    independent_variables <- input$independent_variables 
     
     if("by_trait_1" %in% independent_variables) {vars <- c(vars, substring(names(vals$trait_names)[1], 4, nchar(names(vals$trait_names)[1])))}
     if("by_trait_2" %in% independent_variables) {vars <- c(vars, substring(names(vals$trait_names)[2], 4, nchar(names(vals$trait_names)[2])))}
@@ -7959,18 +7668,9 @@ summary(vals$PS_shape)')
     if("csize" %in% independent_variables) {vars <- c(vars, "Centroid Size")}
     
     if(length(vars)>1) { 
-      if(is.null(update_vals$independent_variables_order_selected)) {
         vars <- input$independent_variables_order 
-      } else { vars <- update_vals$independent_variables_order_selected }
     }
-    #if(input$interactions_included) { # needs to be updated to involve update_vals$___
-    #  if(length(independent_variables) == 2) {
-    #    vars <- c(vars, paste(vars[1], vars[2], sep = "*"))
-    #  }
-    #  if(length(independent_variables) == 3) {
-    #    vars <- c(vars, paste(vars[1], vars[2], sep = "*"), paste(vars[1], vars[3], sep = "*"), paste(vars[2], vars[3], sep = "*"))
-    #  }
-    #}
+    
     name <- paste(name, vars[1], sep = "")
     if(length(vars)>1){
       for (i in 2:length(vars)){
@@ -7981,13 +7681,7 @@ summary(vals$PS_shape)')
     name
   })
   
-  output$model_tested_2 <- renderText({
-    if(is.null(vals$mod_name)){
-      if(!is.null(isolate(update_vals$mod_name))) { isolate(update_vals$mod_name) }
-    } else {
-      vals$mod_name
-    }
-  })
+  output$model_tested_2 <- renderText({ vals$mod_name })
   
   output$stats_shape_trait_overall_fit <- renderPrint({
     req(vals$fit)
@@ -8244,28 +7938,15 @@ vals$evol_rates_pairwise')
     name <- "Model 1: Shape ~ "
     vars <- NULL
     
-    if(is.null(update_vals$independent_variables_model_1_selected)) { independent_variables_model_1 <- input$independent_variables_model_1 } else {
-      independent_variables_model_1 <- update_vals$independent_variables_model_1_selected
-    } 
+    independent_variables_model_1 <- input$independent_variables_model_1 
     
     if("by_trait_1" %in% independent_variables_model_1) {vars <- c(vars, substring(names(vals$trait_names)[1], 4, nchar(names(vals$trait_names)[1])))}
     if("by_trait_2" %in% independent_variables_model_1) {vars <- c(vars, substring(names(vals$trait_names)[2], 4, nchar(names(vals$trait_names)[2])))}
     if("by_trait_3" %in% independent_variables_model_1) {vars <- c(vars, substring(names(vals$trait_names)[3], 4, nchar(names(vals$trait_names)[3])))}
     if("csize" %in% independent_variables_model_1) {vars <- c(vars, "Centroid Size")}
     
-    if(length(vars)>1) { 
-      if(is.null(update_vals$independent_variables_order_model_1_selected)) {
-        vars <- input$independent_variables_order_model_1 
-      } else { vars <- update_vals$independent_variables_order_model_1_selected }
-    }
-    #if(input$interactions_included) {
-    #  if(length(input$independent_variables_model_1) == 2) {
-    #    vars <- c(vars, paste(vars[1], vars[2], sep = "*"))
-    #  }
-    #  if(length(input$independent_variables_model_1) == 3) {
-    #    vars <- c(vars, paste(vars[1], vars[2], sep = "*"), paste(vars[1], vars[3], sep = "*"), paste(vars[2], vars[3], sep = "*"))
-    #  }
-    #}
+    if(length(vars)>1) { vars <- input$independent_variables_order_model_1  }
+   
     name <- paste(name, vars[1], sep = "")
     if(length(vars)>1){
       for (i in 2:length(vars)){
@@ -8280,28 +7961,14 @@ vals$evol_rates_pairwise')
     name <- "Model 2: Shape ~ "
     vars <- NULL
     
-    if(is.null(update_vals$independent_variables_model_2_selected)) { independent_variables_model_2 <- input$independent_variables_model_2 } else {
-      independent_variables_model_2 <- update_vals$independent_variables_model_2_selected
-    } 
+    independent_variables_model_2 <- input$independent_variables_model_2 
     
     if("by_trait_1" %in% independent_variables_model_2) {vars <- c(vars, substring(names(vals$trait_names)[1], 4, nchar(names(vals$trait_names)[1])))}
     if("by_trait_2" %in% independent_variables_model_2) {vars <- c(vars, substring(names(vals$trait_names)[2], 4, nchar(names(vals$trait_names)[2])))}
     if("by_trait_3" %in% independent_variables_model_2) {vars <- c(vars, substring(names(vals$trait_names)[3], 4, nchar(names(vals$trait_names)[3])))}
     if("csize" %in% independent_variables_model_2) {vars <- c(vars, "Centroid Size")}
     
-    if(length(vars)>1) { 
-      if(is.null(update_vals$independent_variables_order_model_2_selected)) {
-        vars <- input$independent_variables_order_model_2
-      } else { vars <- update_vals$independent_variables_order_model_2_selected }
-    }
-    # if(input$interactions_included) {
-    #   if(length(input$independent_variables_model_2) == 2) {
-    #     vars <- c(vars, paste(vars[1], vars[2], sep = "*"))
-    #   }
-    #   if(length(input$independent_variables_model_2) == 3) {
-    #     vars <- c(vars, paste(vars[1], vars[2], sep = "*"), paste(vars[1], vars[3], sep = "*"), paste(vars[2], vars[3], sep = "*"))
-    #   }
-    # }
+    if(length(vars)>1) {  vars <- input$independent_variables_order_model_2 }
     
     name <- paste(name, vars[1], sep = "")
     if(length(vars)>1){
@@ -8320,9 +7987,7 @@ vals$evol_rates_pairwise')
       name <- "Model 3: Shape ~ "
       vars <- NULL
       
-      if(is.null(update_vals$independent_variables_model_3_selected)) { independent_variables_model_3 <- input$independent_variables_model_3 } else {
-        independent_variables_model_3 <- update_vals$independent_variables_model_3_selected
-      } 
+      independent_variables_model_3 <- input$independent_variables_model_3 
       
       if("by_trait_1" %in% independent_variables_model_3) {vars <- c(vars, substring(names(vals$trait_names)[1], 4, nchar(names(vals$trait_names)[1])))}
       if("by_trait_2" %in% independent_variables_model_3) {vars <- c(vars, substring(names(vals$trait_names)[2], 4, nchar(names(vals$trait_names)[2])))}
@@ -8330,18 +7995,9 @@ vals$evol_rates_pairwise')
       if("csize" %in% independent_variables_model_3) {vars <- c(vars, "Centroid Size")}
       
       if(length(vars)>1) { 
-        if(is.null(isolate(update_vals$independent_variables_order_model_3_selected))) {
           vars <- input$independent_variables_order_model_3
-        } else { vars <- isolate(update_vals$independent_variables_order_model_3_selected) }
+        
       }
-      # if(input$interactions_included) {
-      #   if(length(input$independent_variables_model_3) == 2) {
-      #     vars <- c(vars, paste(vars[1], vars[2], sep = "*"))
-      #   }
-      #   if(length(input$independent_variables_model_3) == 3) {
-      #     vars <- c(vars, paste(vars[1], vars[2], sep = "*"), paste(vars[1], vars[3], sep = "*"), paste(vars[2], vars[3], sep = "*"))
-      #   }
-      # }
       
       name <- paste(name, vars[1], sep = "")
       if(length(vars)>1){
@@ -8673,266 +8329,13 @@ print(text) } # This function turns the pop up messages available in gmShiny int
     "This GitHub repository houses the source code for this App: www.github.com/geomorphR/gmShiny/"
   })
   
-  #### Bookmarking ####
-  
-  onBookmark(function(state) {
-    state$values$vals <- vals
-    state$values$alert_vals <- alert_vals
-    state$values$time <- Sys.time()
-    
-    update_vals <- reactiveValues()
-    
-    update_vals$trait_column_selected <- input$trait_column
-    update_vals$semilms_manual_input_selected <- input$semilms_manual_input
-    update_vals$pgls_ols_selected <- input$pgls_ols
-    update_vals$outlier_group_level_plotted_selected <- input$outlier_group_level_plotted
-    update_vals$outlier_group_tf_selected <- input$outlier_group_tf
-    update_vals$independent_variables_selected <- input$independent_variables
-    update_vals$independent_variables_model_1_selected <- input$independent_variables_model_1 
-    update_vals$independent_variables_model_2_selected <- input$independent_variables_model_2
-    update_vals$independent_variables_model_3_selected <- input$independent_variables_model_3
-    update_vals$independent_variables_order_model_1_selected <- input$independent_variables_order_model_1 
-    update_vals$independent_variables_order_model_2_selected <- input$independent_variables_order_model_2
-    update_vals$independent_variables_order_model_3_selected <- input$independent_variables_order_model_3
-    update_vals$tip_col_category_selected <- input$tip_col_category
-    update_vals$outlier_group_selected <- input$outlier_group
-    update_vals$remove_outlier_specimen_selected <- input$remove_outlier_specimen
-    update_vals$integration_group_by_selected <- input$integration_group_by
-    update_vals$allometry_color_selected <- input$allometry_color
-    update_vals$trajectory_group_selected <- input$trajectory_group
-    update_vals$trajectory_trait_selected <- input$trajectory_trait
-    update_vals$tip_pch_selected <- input$tip_pch
-    update_vals$show_convex_hull_1_selected <- input$show_convex_hull_1
-    update_vals$show_convex_hull_2_selected <- input$show_convex_hull_2
-    update_vals$show_convex_hull_3_selected <- input$show_convex_hull_3
-    update_vals$phy_signal_input_selected <- input$phy_signal_input
-    update_vals$allometry_predictor_selected <- input$allometry_predictor
-    update_vals$independent_variables_order_selected <- input$independent_variables_order
-    update_vals$modularity_group_1_selected <- input$modularity_group_1
-    update_vals$modularity_group_2_selected <- input$modularity_group_2
-    update_vals$modularity_group_3_selected <- input$modularity_group_3
-    update_vals$modularity_group_4_selected <- input$modularity_group_4
-    update_vals$modularity_group_5_selected <- input$modularity_group_5
-    update_vals$modularity_group_6_selected <- input$modularity_group_6
-    update_vals$modularity_group_7_selected <- input$modularity_group_7
-    update_vals$modularity_group_8_selected <- input$modularity_group_8
-    update_vals$trait_pairwise_selected <- input$trait_pairwise 
-    update_vals$disparity_groups_selected <- input$disparity_groups
-    update_vals$evol_rate_groups_selected <- input$evol_rate_groups
-    update_vals$warp_axes_selected_selected <- input$warp_axes_selected
-    update_vals$warp_specific_ref_specimen_selected <- input$warp_specific_ref_specimen
-    update_vals$warp_specific_targ_specimen_selected <- input$warp_specific_targ_specimen
-    update_vals$remove_outlier_specimen_unselected <- vals$outlier_removed_names
-    update_vals$pca_x_axis_selected <- input$pca_x_axis
-    update_vals$pca_y_axis_selected <- input$pca_y_axis
-    update_vals$warp_comparison_start_selected <- input$warp_comparison_start
-    update_vals$warp_comparison_end_selected <- input$warp_comparison_end
-    update_vals$trait_1_treatment_selected <- input$trait_1_treatment
-    update_vals$trait_2_treatment_selected <- input$trait_2_treatment
-    update_vals$trait_3_treatment_selected <- input$trait_3_treatment
-    update_vals$go_remove_outlier_specimen_selected <- input$go_remove_outlier_specimen
-    update_vals$integration_group_level_selected <- input$integration_group_level
-    update_vals$gpa_not_run_alert_selected <- input$gpa_not_run_alert
-    update_vals$go_run_gpa_selected <- input$go_run_gpa
-    update_vals$outlier_selected_selected <- vals$outlier_row
-    update_vals$morphospace_specimen_click_selected <- vals$specimen_row_targ
-    update_vals$symmetry_definitions_selected <- input$symmetry_definitions
-    update_vals$symmetry_landpairs_definitions_selected <- input$symmetry_landpairs_definitions
-    
-    state$values$update_vals <- update_vals
-    
-  })
-  
-  # Read values from state$values when we restore
-  onRestore(function(state) {
-    
-    bookmark_vals$time <- state$values$time
-    
-    vals$neg_lms <- state$values$vals$neg_lms
-    update_vals$links_df <- state$values$vals$links_df
-    vals$links_df <- state$values$vals$links_df
-    vals$specimen_row_targ <- state$values$vals$specimen_row_targ
-    vals$specimen_row_ref <- state$values$vals$specimen_row_ref
-    vals$go_example_1 <- state$values$vals$go_example_1
-    vals$curves_final <- state$values$vals$curves_final
-    vals$links_dbclicked <- state$values$vals$links_dbclicked
-    vals$csize <- state$values$vals$csize
-    vals$tip_col <- state$values$vals$tip_col
-    vals$modularity_groups <- state$values$vals$modularity_groups
-    vals$plot <- state$values$vals$plot
-    vals$outlier_row <- state$values$vals$outlier_row
-    vals$two_disc_traits <- state$values$vals$two_disc_traits
-    vals$tip_pch <- state$values$vals$tip_pch
-    vals$lms_rx <- state$values$vals$lms_rx
-    vals$PS_shape <- state$values$vals$PS_shape
-    vals$links <- state$values$vals$links
-    vals$estimates_cancelled <- state$values$vals$estimates_cancelled
-    vals$one_disc_traits <- state$values$vals$one_disc_traits
-    vals$phy_rx <- state$values$vals$phy_rx
-    vals$trait_rx <- state$values$vals$trait_rx
-    vals$three_disc_traits <- state$values$vals$three_disc_traits
-    vals$morphospace <- state$values$vals$morphospace
-    vals$trait_names <- state$values$vals$trait_names
-    vals$semis_brushed <- state$values$vals$semis_brushed
-    vals$curves_final_anyNAs <- state$values$vals$curves_final_anyNAs
-    vals$outlier_removed_names <- state$values$vals$outlier_removed_names
-    vals$curves <- state$values$vals$curves
-    vals$color_options_list <- state$values$vals$color_options_list
-    vals$morpho_clicked <- state$values$vals$morpho_clicked
-    vals$morpho_dbclicked <- state$values$vals$morpho_dbclicked
-    vals$prune_datasets <- state$values$vals$prune_datasets
-    vals$projection_row <- state$values$vals$projection_row
-    vals$warp_initiated <- state$values$vals$warp_initiated
-    vals$alert_semilmmat_wrong_format <- state$values$vals$alert_semilmmat_wrong_format
-    vals$semilms_manual <- state$values$vals$semilms_manual
-    vals$trait_1_treatment <- state$values$vals$trait_1_treatment
-    vals$trait_2_treatment <- state$values$vals$trait_2_treatment
-    vals$trait_3_treatment <- state$values$vals$trait_3_treatment
-    vals$fit <- state$values$vals$fit
-    vals$anova_table <- state$values$vals$anova_table
-    vals$proc_vars <- state$values$vals$proc_vars
-    vals$morphol_disp_table <- state$values$vals$morphol_disp_table
-    vals$evol_rates <- state$values$vals$evol_rates
-    vals$evol_rates_pairwise <- state$values$vals$evol_rates_pairwise
-    vals$pairwise_table <- state$values$vals$pairwise_table
-    vals$plot_args <- state$values$vals$plot_args
-    vals$TA <- state$values$vals$TA
-    vals$modularity_groups <- state$values$vals$modularity_groups
-    vals$modularity_test <- state$values$vals$modularity_test
-    vals$compare_multi_evol_rates <- state$values$vals$compare_multi_evol_rates
-    vals$IT <- state$values$vals$IT
-    vals$col_names_temp <- state$values$vals$col_names_temp
-    vals$trait_column_max_value <- state$values$vals$trait_column_max_value
-    vals$go_pruning <- state$values$vals$go_pruning
-    vals$go_symmetry_file <-  state$values$vals$go_symmetry_file
-    vals$go_symmetry_landpairs_file <- state$values$vals$go_symmetry_landpairs_file
-    vals$go_show_specimen_assignments <- state$values$vals$go_show_specimen_assignments
-    vals$go_show_landmark_assignments <- state$values$vals$go_show_landmark_assignments
-    vals$go_symmetry_landmark_file <- state$values$vals$go_symmetry_landmark_file
-    vals$run_symmetry_go <- state$values$vals$run_symmetry_go
-    vals$bilat_symmetry <- state$values$vals$bilat_symmetry
-    update_vals$mod_name <- vals$mod_name <- state$values$vals$mod_name
-    
-    
-    
-    alert_vals$navbar_datainput_welcomealertdone <- state$alert_vals$alert_vals$navbar_datainput_welcomealertdone
-    alert_vals$navbar_datainput <- state$values$alert_vals$navbar_datainput
-    alert_vals$navbar_datainput_examplealertdone <- state$values$alert_vals$navbar_datainput_examplealertdone
-    alert_vals$navbar_datainput_filetpsalertdone <- state$values$alert_vals$navbar_datainput_filetpsalertdone
-    alert_vals$navbar_datainput_filetraitalertdone <- state$values$alert_vals$navbar_datainput_filetraitalertdone
-    alert_vals$navbar_datainput_dontmatchalertdone <- state$values$alert_vals$navbar_datainput_dontmatchalertdone
-    alert_vals$navbar_dataprep <- state$values$alert_vals$navbar_dataprep
-    alert_vals$navbar_dataprep_links <- state$values$alert_vals$navbar_dataprep_links
-    alert_vals$navbar_dataprep_outliers <- state$values$alert_vals$navbar_dataprep_outliers
-    alert_vals$navbar_dataprep_signal <- state$values$alert_vals$navbar_dataprep_signal
-    alert_vals$navbar_dataprep_links_semialertdone <- state$values$alert_vals$navbar_dataprep_links_semialertdone
-    alert_vals$navbar_dataprep_links_linkalertdone <- state$values$alert_vals$navbar_dataprep_links_linkalertdone
-    alert_vals$navbar_morphospaceplot <- state$values$alert_vals$navbar_morphospaceplot
-    alert_vals$navbar_morphospaceplot_tipcol <- state$values$alert_vals$navbar_morphospaceplot_tipcol
-    alert_vals$navbar_morphospaceplot_tipcolalertdone <- state$values$alert_vals$navbar_morphospaceplot_tipcolalertdone
-    alert_vals$navbar_morphospaceplot_tippch <- state$values$alert_vals$navbar_morphospaceplot_tippch
-    alert_vals$navbar_morphospaceplot_tippchalertdone <- state$values$alert_vals$navbar_morphospaceplot_tippchalertdone
-    alert_vals$navbar_morphospaceplot_warp <- state$values$alert_vals$navbar_morphospaceplot_warp
-    alert_vals$navbar_morphospaceplot_warpalertdone <- state$values$alert_vals$navbar_morphospaceplot_warpalertdone
-    alert_vals$navbar_linearmodels <- state$values$alert_vals$navbar_linearmodels
-    alert_vals$navbar_linearmodels_modeldesign <- state$values$alert_vals$navbar_linearmodels_modeldesign
-    alert_vals$navbar_linearmodels_modeldesignalertdone <- state$values$alert_vals$navbar_linearmodels_modeldesignalertdone
-    alert_vals$navbar_linearmodels_allometry <- state$values$alert_vals$navbar_linearmodels_allometry
-    alert_vals$navbar_linearmodels_allometryalertdone <- state$values$alert_vals$navbar_linearmodels_allometryalertdone
-    alert_vals$navbar_linearmodels_trajectory <- state$values$alert_vals$navbar_linearmodels_trajectory
-    alert_vals$navbar_linearmodels_trajectoryalertdone <- state$values$alert_vals$navbar_linearmodels_trajectoryalertdone
-    
-    alert_vals$navbar_exampletutorial <- state$values$alert_vals$navbar_exampletutorial
-    alert_vals$gpa_not_ready <- state$values$alert_vals$gpa_not_ready
-    alert_vals$prune_warning  <- state$values$alert_vals$prune_warning
-    alert_vals$already_aligned_csize_done <- state$values$alert_vals$already_aligned_csize_done
-    
-    bookmark_vals$adjust_updates <- "true"
-    
-    update_vals$trait_column_selected <- state$values$update_vals$trait_column_selected
-    update_vals$semilms_manual_input_selected <- state$values$update_vals$semilms_manual_input_selected
-    update_vals$pgls_ols_selected <- state$values$update_vals$pgls_ols_selected
-    update_vals$outlier_group_level_plotted_selected <- state$values$update_vals$outlier_group_level_plotted_selected
-    update_vals$outlier_group_tf_selected <- state$values$update_vals$outlier_group_tf_selected
-    update_vals$independent_variables_selected <- state$values$update_vals$independent_variables_selected
-    update_vals$independent_variables_model_1_selected <- state$values$update_vals$independent_variables_model_1_selected
-    update_vals$independent_variables_model_2_selected <- state$values$update_vals$independent_variables_model_2_selected
-    update_vals$independent_variables_model_3_selected <- state$values$update_vals$independent_variables_model_3_selected
-    update_vals$independent_variables_order_model_1_selected <- state$values$update_vals$independent_variables_order_model_1_selected
-    update_vals$independent_variables_order_model_2_selected <- state$values$update_vals$independent_variables_order_model_2_selected
-    update_vals$independent_variables_order_model_3_selected <- state$values$update_vals$independent_variables_order_model_3_selected
-    update_vals$tip_col_category_selected <- state$values$update_vals$tip_col_category_selected
-    update_vals$outlier_group_selected <- state$values$update_vals$outlier_group_selected
-    update_vals$remove_outlier_specimen_selected <- state$values$update_vals$remove_outlier_specimen_selected
-    update_vals$integration_group_by_selected <- state$values$update_vals$integration_group_by_selected
-    update_vals$allometry_color_selected <- state$values$update_vals$allometry_color_selected
-    update_vals$trajectory_group_selected <- state$values$update_vals$trajectory_group_selected
-    update_vals$trajectory_trait_selected <- state$values$update_vals$trajectory_trait_selected
-    update_vals$tip_pch_selected <- state$values$update_vals$tip_pch_selected
-    update_vals$show_convex_hull_1_selected <- state$values$update_vals$show_convex_hull_1_selected
-    update_vals$show_convex_hull_2_selected <- state$values$update_vals$show_convex_hull_2_selected
-    update_vals$show_convex_hull_3_selected <- state$values$update_vals$show_convex_hull_3_selected
-    update_vals$phy_signal_input_selected <- state$values$update_vals$phy_signal_input_selected
-    update_vals$allometry_predictor_selected <- state$values$update_vals$allometry_predictor_selected
-    update_vals$independent_variables_order_selected <- state$values$update_vals$independent_variables_order_selected
-    update_vals$modularity_group_1_selected <- state$values$update_vals$modularity_group_1_selected
-    update_vals$modularity_group_2_selected <- state$values$update_vals$modularity_group_2_selected
-    update_vals$modularity_group_3_selected <- state$values$update_vals$modularity_group_3_selected
-    update_vals$modularity_group_4_selected <- state$values$update_vals$modularity_group_4_selected
-    update_vals$modularity_group_5_selected <- state$values$update_vals$modularity_group_5_selected
-    update_vals$modularity_group_6_selected <- state$values$update_vals$modularity_group_6_selected
-    update_vals$modularity_group_7_selected <- state$values$update_vals$modularity_group_7_selected
-    update_vals$modularity_group_8_selected <- state$values$update_vals$modularity_group_8_selected
-    update_vals$trait_pairwise_selected <- state$values$update_vals$trait_pairwise_selected
-    update_vals$disparity_groups_selected <- state$values$update_vals$disparity_groups_selected
-    update_vals$evol_rate_groups_selected <- state$values$update_vals$evol_rate_groups_selected
-    update_vals$warp_axes_selected_selected <- state$values$update_vals$warp_axes_selected_selected
-    update_vals$pca_x_axis_selected <- state$values$update_vals$pca_x_axis_selected 
-    update_vals$pca_y_axis_selected <- state$values$update_vals$pca_y_axis_selected 
-    update_vals$warp_comparison_start_selected <- state$values$update_vals$warp_comparison_start_selected
-    update_vals$warp_comparison_end_selected <- state$values$update_vals$warp_comparison_end_selected
-    update_vals$trait_1_treatment_selected <- state$values$update_vals$trait_1_treatment_selected
-    update_vals$trait_2_treatment_selected <- state$values$update_vals$trait_2_treatment_selected
-    update_vals$trait_3_treatment_selected <- state$values$update_vals$trait_3_treatment_selected
-    update_vals$go_remove_outlier_specimen_selected <- state$values$update_vals$go_remove_outlier_specimen_selected
-    update_vals$integration_group_level_selected <- state$values$update_vals$integration_group_level_selected
-    update_vals$gpa_not_run_alert_selected <- state$values$update_vals$gpa_not_run_alert_selected
-    update_vals$go_run_gpa_selected <- state$values$update_vals$go_run_gpa_selected
-    update_vals$outlier_selected_selected <- state$values$update_vals$outlier_selected_selected
-    update_vals$morphospace_specimen_click_selected <- state$values$update_vals$morphospace_specimen_click_selected
-    update_vals$warp_specific_ref_specimen_selected <- state$values$update_vals$warp_specific_ref_specimen_selected
-    update_vals$warp_specific_targ_specimen_selected <- state$values$update_vals$warp_specific_targ_specimen_selected
-    update_vals$remove_outlier_specimen_unselected <- state$values$update_vals$remove_outlier_specimen_unselected
-    update_vals$symmetry_definitions_selected <- state$values$update_vals$symmetry_definitions_selected
-    update_vals$symmetry_landpairs_definitions_selected <- state$values$update_vals$symmetry_landpairs_definitions_selected
-    
-  })
-  
-  onRestored(function(state) {
-    shinyalert(
-      "Bookmark Opened!",
-      paste("You've successfully returned to a previously bookmarked state of the Geomorph Shiny App. The full
-      state of the App will take several seconds to fully load, so please be patient. <br></br>
-      This state was saved on ", substring(bookmark_vals$time, 1, 10), " at ", substring(bookmark_vals$time, 12, 16), ".", sep = ""),
-      type = "success",
-      html = T
-    )
-    
-    delay(10000, {
-      for(i in names(update_vals)) update_vals[[i]] <- NULL
-    }) # resetting the update_vals after a substantial delay
-  })
-  
-  setBookmarkExclude(c("link_click_initiated", "link_click_end",  
-                       "semis_selected", "file_tps", "file_phy", "file_trait",
-                       "go_file_reset", "go_run_gpa"))
   
   #### End ####
   
   session$onSessionEnded(stopApp)
 }
 
-shinyApp(ui= ui, server = server, enableBookmarking = "server")
+shinyApp(ui= ui, server = server)
 
 
 
