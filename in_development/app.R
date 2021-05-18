@@ -4,6 +4,11 @@ if(!require(geomorph)) {install.packages("remotes")
   remotes::install_github("geomorphR/geomorph", ref = "Develop", build_vignettes = F)
 }
 
+#install.packages(c("shiny", "shinyjs", "shinyWidgets", "shinydashboard", "shinythemes", "shinyalert", 
+#                   "shinyMatrix", "shinyjqui", "shinymeta", "prettycode", 
+#                   "ape", "stringr", "stringi", "shinyforms", 
+#                   "RColorBrewer", "reactlog", "StereoMorph", "shinybusy"))
+
 library(shiny); library(shinyjs); library(shinyWidgets); library(shinydashboard); library(shinythemes) 
 library(shinyalert); library(shinyMatrix); library(shinyjqui); library(shinymeta); library(prettycode)
 library(geomorph); library(ape); library(stringr); library(stringi); library(shinyforms)
@@ -17,7 +22,7 @@ library(RColorBrewer); library(reactlog); library(StereoMorph); library(shinybus
 # options(shiny.error = browser)
 # or options(shiny.error = ___any function you want___)
 
-source("/Users/ericabaken/Documents/School/Projects/gmShiny/published/support.functions.R")
+source("/Users/ericabaken/Documents/School/Projects/gmShiny/published/support.functions.R") ##!!! make a different one so messing with it doesn't mess up published stuff
 
 rm(list = ls())
 # defining elements upon startup
