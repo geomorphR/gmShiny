@@ -1664,7 +1664,9 @@ server <- function(input, output, session) {
         text = "If at any time you would like to turn the instructions back on, 
        or if you'd like to view the instructions for a particular page, you can do
         so using the <strong>'Instructions'</strong> toggle in the bottom left-hand corner, currently 
-       labeled <strong>'Instructions Off'</strong>.",
+       labeled <strong>'Instructions Off'</strong>. 
+        <br><br>
+        Video tutorials are also available on the <strong>Extras</strong> page.",
         html = T,
         closeOnClickOutside = T,
         closeOnEsc = T,
@@ -1684,7 +1686,9 @@ server <- function(input, output, session) {
         text = "If at any time you would like to turn the instructions back on, 
         or if you'd like to view the instructions for a particular page, you can do
          so using the <strong>'Instructions'</strong> toggle in the bottom left-hand corner, currently 
-        labeled <strong>'Instructions Off'</strong>.",
+        labeled <strong>'Instructions Off'</strong>.
+        <br><br>
+        Video tutorials are also available on the <strong>Extras</strong> page.",
         html = T,
         closeOnClickOutside = T,
         closeOnEsc = T,
