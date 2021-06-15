@@ -22,9 +22,10 @@ library(RColorBrewer); library(reactlog); library(StereoMorph); library(shinybus
 # options(shiny.error = browser)
 # or options(shiny.error = ___any function you want___)
 
-source("/Users/ericabaken/Documents/School/Projects/gmShiny/published/support.functions.R") ##!!! make a different one so messing with it doesn't mess up published stuff
+source("/Users/ericabaken/Documents/Work/Projects/gmShiny-internal/in_development/support.functions.R") ##!!! make a different one so messing with it doesn't mess up published stuff
 
 rm(list = ls())
+
 # defining elements upon startup
 data(plethspecies) 
 example_mat <- cbind(plethspecies$phy$tip.label, 
@@ -544,6 +545,9 @@ ui <- function(request) {
                                      radioButtons(inputId = "transform_resid_tf", NULL, 
                                                   choices = c("FALSE" = FALSE, "TRUE" = TRUE), 
                                                   selected = FALSE, inline = T)))), br())),
+          fluidRow(align = "center", 
+                   downloadButton("export_component_scores", "Export Component Scores", 
+                                  style='width: 200px; padding:6px; font-size:80%; background-color: #337ab7;  border-color: #337ab7;')), br(),
           fluidRow(align = "center", 
                    downloadButton("export_rotation_loadings", "Export Rotation Loadings", 
                                   style='width: 200px; padding:6px; font-size:80%; background-color: #337ab7;  border-color: #337ab7;')), br(),
@@ -1677,7 +1681,9 @@ server <- function(input, output, session) {
         text = "If at any time you would like to turn the instructions back on, 
        or if you'd like to view the instructions for a particular page, you can do
         so using the <strong>'Instructions'</strong> toggle in the bottom left-hand corner, currently 
-       labeled <strong>'Instructions Off'</strong>.",
+       labeled <strong>'Instructions Off'</strong>. 
+        <br><br>
+        Video tutorials are also available on the <strong>Extras</strong> page.",
         html = T,
         closeOnClickOutside = T,
         closeOnEsc = T,
@@ -1697,7 +1703,9 @@ server <- function(input, output, session) {
         text = "If at any time you would like to turn the instructions back on, 
         or if you'd like to view the instructions for a particular page, you can do
          so using the <strong>'Instructions'</strong> toggle in the bottom left-hand corner, currently 
-        labeled <strong>'Instructions Off'</strong>.",
+        labeled <strong>'Instructions Off'</strong>.
+        <br><br>
+        Video tutorials are also available on the <strong>Extras</strong> page.",
         html = T,
         closeOnClickOutside = T,
         closeOnEsc = T,
@@ -3089,6 +3097,8 @@ server <- function(input, output, session) {
       }
     }
     
+    
+    
     dimnames(temp_LMs)[[1]] <- 1:(dim(temp_LMs)[1]) # adding the appropriate label so that the point_clicks work to define the links
     dimnames(temp_LMs)[[2]] <- c("X", "Y", "Z")[1:(dim(temp_LMs)[2])] # labeling the dimensions in both scenarios of lms being 2 or 3 dimensions
     dimnames(temp_LMs)[[3]] <- str_replace_all(dimnames(temp_LMs)[[3]], " ", "_")  # make all names separated by underscores (matching most phylogeny inputs). 
@@ -3448,21 +3458,47 @@ server <- function(input, output, session) {
   
   pca_nonphylo_rx <- reactive({
     req(gpa_coords_rx()) # dont run until gpa_coords defined
-    prcomp(two.d.array(gpa_coords_rx())) # run a prcomp for when phylogeny is not being shown on morphospace
+    
+    temp_pca <- prcomp(two.d.array(gpa_coords_rx())) # run a prcomp for when phylogeny is not being shown on morphospace
+    
+    input.flip_axis <- vals$input.flip_axis
+    if(length(input.flip_axis)>0){
+      x_axis <- as.numeric(input$pca_x_axis)
+      y_axis <- as.numeric(input$pca_y_axis)
+      if(1 %in% input.flip_axis) {
+        temp_pca$x[,x_axis] <- temp_pca$x[,x_axis]*(-1)
+      }
+      if(2 %in% input.flip_axis) {
+        temp_pca$x[,y_axis] <- temp_pca$x[,y_axis]*(-1)
+      }
+    } 
+    
+    temp_pca
   })
   
   pca_rx <- metaReactive2({
     req(gpa_coords_rx()) # dont run until gpa_coords defined
     metaExpr({
       if(..(datasets_dont_match()) == FALSE) {
-        #shape <- ..(gpa_coords_rx())
+        temp_pca <- geomorph:::gm.prcomp(..(gpa_coords_rx()), vals$phy_rx, GLS = ..(input$gls_center_tf),
+                                         align.to.phy = ..(input$align_to_phy_tf), 
+                                         transform = as.logical(..(input$transform_resid_tf))) # gm.prcomp for phylomorphospace
         
-        # data(plethspecies) 
-        # Y.gpa <- gpagen(plethspecies$land) 
-        # shape <- Y.gpa$coords
-        geomorph:::gm.prcomp(..(gpa_coords_rx()), vals$phy_rx, GLS = ..(input$gls_center_tf),
-                             align.to.phy = ..(input$align_to_phy_tf), 
-                             transform = as.logical(..(input$transform_resid_tf))) # gm.prcomp for phylomorphospace
+        input.flip_axis <- vals$input.flip_axis
+        if(length(input.flip_axis)>0){
+          x_axis <- as.numeric(input$pca_x_axis)
+          y_axis <- as.numeric(input$pca_y_axis)
+          if(1 %in% input.flip_axis) {
+            temp_pca$x[,x_axis] <- temp_pca$x[,x_axis]*(-1)
+          }
+          if(2 %in% input.flip_axis) {
+            temp_pca$x[,y_axis] <- temp_pca$x[,y_axis]*(-1)
+          }
+        }
+        
+        temp_pca
+        
+        
       }
     })
   })
@@ -4061,7 +4097,8 @@ server <- function(input, output, session) {
   tryObserveEvent(eventExpr = morphospace_clicked_listen(), ignoreInit = F, {
     if(!is.null(input$morphospace_specimen_click)) {
       vals$morpho_clicked <- 1 # initiate the vals for conditional paneling
-      rotation_x_df <- as.data.frame(pca_nonphylo_rx()$x) # pca rotation converted into a dataframe for nearPoints function below
+      
+      rotation_x_df <- as.data.frame(pca_nonphylo_rx()$x)
       
       clicked_point <- nearPoints(rotation_x_df, input$morphospace_specimen_click, 
                                   xvar = x_lab_rx(), yvar = y_lab_rx(),
@@ -4467,7 +4504,9 @@ server <- function(input, output, session) {
   
   tryObserveEvent(input$semilms_manual_input, ignoreInit = T, {
     temp_mat <- input$semilms_manual_input
-    for(i in 1:nrow(temp_mat)) { temp_mat[i,] <- as.numeric(temp_mat[i,])}
+    if(nrow(temp_mat)>0) {
+      for(i in 1:nrow(temp_mat)) { temp_mat[i,] <- as.numeric(temp_mat[i,])}
+    }
     
     if(!is.null(vals$curves_final)) { temp_vals_mat <- matrix(unlist(vals$curves_final), ncol = 3) } else { temp_vals_mat <- NULL }
     
@@ -4676,11 +4715,11 @@ server <- function(input, output, session) {
     }
     
     if(!is.null(vals$col_names_temp)) {
-
-        updateCheckboxGroupInput(session, "trait_column", label = NULL,
-                                 choiceNames = vals$col_names_temp[2:vals$trait_column_max_value], 
-                                 choiceValues = 2:vals$trait_column_max_value, # updating options for all columns available
-                                 selected = 2, inline = F)
+      
+      updateCheckboxGroupInput(session, "trait_column", label = NULL,
+                               choiceNames = vals$col_names_temp[2:vals$trait_column_max_value], 
+                               choiceValues = 2:vals$trait_column_max_value, # updating options for all columns available
+                               selected = 2, inline = F)
     }
     
   })
@@ -4713,9 +4752,9 @@ server <- function(input, output, session) {
   
   tryObserve({
     if(!is.null(vals$phy_rx) | !is.null(vals$go_example_1)) { pgls_ols <- "pgls" } else { pgls_ols <- "ols" }
-      updateRadioButtons(session, "pgls_ols", label = "Analysis Type:", 
-                         choices = c("PGLS" = "pgls", "OLS" = "ols"), selected = pgls_ols)
-   
+    updateRadioButtons(session, "pgls_ols", label = "Analysis Type:", 
+                       choices = c("PGLS" = "pgls", "OLS" = "ols"), selected = pgls_ols)
+    
   })
   
   tryObserve({
@@ -4740,9 +4779,9 @@ server <- function(input, output, session) {
           choice_vals <- na.omit(choice_vals)
         }
         
-          updateRadioButtons(session, "outlier_group_level_plotted", label = NULL, 
-                             choiceNames = choice_names, choiceValues = choice_vals)
-      
+        updateRadioButtons(session, "outlier_group_level_plotted", label = NULL, 
+                           choiceNames = choice_names, choiceValues = choice_vals)
+        
       }
     }
   })
@@ -4784,7 +4823,7 @@ server <- function(input, output, session) {
                                "Independent Variables Tested:",
                                choices = independent_variable_named, # updating options for all columns available
                                selected = selected_item, inline = F) 
-
+      
       updateCheckboxGroupInput(session, "independent_variables_model_1" , 
                                "Independent Variables Tested in Model 1:",
                                choices = independent_variable_named, # updating options for all columns available
@@ -4824,9 +4863,9 @@ server <- function(input, output, session) {
          is.null(vals$trait_rx)){ #making reduced choice lists of just discrete variables
         
         
-          selected_disc_options <- (1:length(colnames(vals$trait_rx)[-1]))[c(input$trait_1_treatment == "disc", 
-                                                                             input$trait_2_treatment == "disc", 
-                                                                             input$trait_3_treatment == "disc")]
+        selected_disc_options <- (1:length(colnames(vals$trait_rx)[-1]))[c(input$trait_1_treatment == "disc", 
+                                                                           input$trait_2_treatment == "disc", 
+                                                                           input$trait_3_treatment == "disc")]
         
         
         if(is.null(vals$trait_rx)) { selected_disc_options <- NULL } 
@@ -4860,7 +4899,7 @@ server <- function(input, output, session) {
         
         if(length(choice_list_disc)>0) {
           names(choice_list_disc) <- substring(names(choice_list_disc), 4, nchar(names(choice_list_disc)))
-         
+          
           updateRadioButtons(session, "trajectory_group", "Trajectory Group:", 
                              choices = choice_list_disc, selected = choice_list_disc[1])
           
@@ -4927,7 +4966,7 @@ server <- function(input, output, session) {
           if(length(choice_list_cont) > 0) { # if any selected variables are continuous
             choice_list_phy_sig <- c("shape", choice_list_cont)
             names(choice_list_phy_sig) <- c("Shape", names(choice_list_cont))
-        
+            
             updateRadioButtons(session, inputId = "phy_signal_input", label = "Test Signal of:",
                                choices = choice_list_phy_sig, selected = choice_list_phy_sig[1])
           } else {
@@ -4937,17 +4976,17 @@ server <- function(input, output, session) {
       })
     } 
   })
-
+  
   allometry_predictor_listen <- reactive({list(vals$trait_rx, input$go_run_anova)})
   tryObserveEvent(allometry_predictor_listen(), ignoreInit = F, {
     if(input$go_run_anova > 0) {
-     req(vals$trait_rx)
+      req(vals$trait_rx)
       if(is.null(vals$trait_rx)) { all_selected_trait_names <- NULL } else {
         all_selected_trait_names <- colnames(vals$trait_rx)[-1] # what are the selected column names from trait file
       }
       
       choice_list <- c("by_trait_1", "by_trait_2", "by_trait_3")[1:length(all_selected_trait_names)]
-     
+      
       selected_cont_options <- (1:(ncol(vals$trait_rx)-1))[c(input$trait_1_treatment == "cont", 
                                                              input$trait_2_treatment == "cont", 
                                                              input$trait_3_treatment == "cont")]
@@ -4955,7 +4994,7 @@ server <- function(input, output, session) {
       choice_list_cont <- choice_list[na.omit(selected_cont_options)]
       names(choice_list_cont) <- all_selected_trait_names[na.omit(selected_cont_options)]
       choice_list_cont <- c(choice_list_cont, "Centroid Size" = "csize")
-     
+      
       updateRadioButtons(session, inputId = "allometry_predictor", label = "Predictor Variable:",
                          choices = choice_list_cont, selected = choice_list_cont[1])
     }
@@ -4963,7 +5002,7 @@ server <- function(input, output, session) {
   
   tryObserveEvent(input$independent_variables, ignoreInit = F, {
     
-      independent_variables <- input$independent_variables
+    independent_variables <- input$independent_variables
     
     req(vals$trait_rx)
     col_names_temp <- names(vals$trait_names) # what are the selected column names from trait file
@@ -4986,7 +5025,7 @@ server <- function(input, output, session) {
   
   tryObserveEvent(input$independent_variables_model_1, ignoreInit = F, {
     
-      independent_variables <- input$independent_variables_model_1
+    independent_variables <- input$independent_variables_model_1
     
     req(vals$trait_rx)
     if(input$navbar == "Linear Models") {
@@ -5008,7 +5047,7 @@ server <- function(input, output, session) {
   
   tryObserveEvent(input$independent_variables_model_2, ignoreInit = F, {
     
-      independent_variables <- input$independent_variables_model_2
+    independent_variables <- input$independent_variables_model_2
     
     req(vals$trait_rx)
     if(input$navbar == "Linear Models") {
@@ -5030,7 +5069,7 @@ server <- function(input, output, session) {
   
   tryObserveEvent(input$independent_variables_model_3, ignoreInit = T, {
     
-      independent_variables <- input$independent_variables_model_3
+    independent_variables <- input$independent_variables_model_3
     
     req(vals$trait_rx)
     if(input$navbar == "Linear Models") {
@@ -5192,41 +5231,41 @@ server <- function(input, output, session) {
   
   tryObserve(priority = 10, {
     req(gpa_coords_rx())
-
-      modularity_groups <- rep(2, dim(gpa_coords_rx())[1])
-      
-      full_length <- length(modularity_groups)
-      modularity_groups[1:ceiling(full_length/2)] <- 1
-      modularity_groups[(ceiling(full_length/2)+1):full_length] <- 2
-      names(modularity_groups) <- 1:(dim(gpa_coords_rx())[1])
-      vals$modularity_groups <- modularity_groups
-      
-      suppressWarnings(updateOrderInput(session, "modularity_group_1", "", items = names(modularity_groups)[which(modularity_groups == 1)], 
-                                        connect = c('modularity_group_2', 'modularity_group_3', 'modularity_group_4', 
-                                                    'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_2", "", items = names(modularity_groups)[which(modularity_groups == 2)],
-                                        connect = c('modularity_group_1','modularity_group_3',  'modularity_group_4', 
-                                                    'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_3", "", items = NULL,
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_4', 
-                                                    'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_4", "", items = NULL,
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
-                                                    'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_5", "", items = NULL,
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
-                                                    'modularity_group_4', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_6", "", items = NULL,
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
-                                                    'modularity_group_4', 'modularity_group_5', 'modularity_group_7', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_7", "", items = NULL,
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
-                                                    'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_8')))
-      suppressWarnings(updateOrderInput(session, "modularity_group_8", "", items = NULL,
-                                        connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
-                                                    'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_7')))
-      
-      reset("modularity_n_groups")
+    
+    modularity_groups <- rep(2, dim(gpa_coords_rx())[1])
+    
+    full_length <- length(modularity_groups)
+    modularity_groups[1:ceiling(full_length/2)] <- 1
+    modularity_groups[(ceiling(full_length/2)+1):full_length] <- 2
+    names(modularity_groups) <- 1:(dim(gpa_coords_rx())[1])
+    vals$modularity_groups <- modularity_groups
+    
+    suppressWarnings(updateOrderInput(session, "modularity_group_1", "", items = names(modularity_groups)[which(modularity_groups == 1)], 
+                                      connect = c('modularity_group_2', 'modularity_group_3', 'modularity_group_4', 
+                                                  'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
+    suppressWarnings(updateOrderInput(session, "modularity_group_2", "", items = names(modularity_groups)[which(modularity_groups == 2)],
+                                      connect = c('modularity_group_1','modularity_group_3',  'modularity_group_4', 
+                                                  'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
+    suppressWarnings(updateOrderInput(session, "modularity_group_3", "", items = NULL,
+                                      connect = c('modularity_group_1','modularity_group_2',  'modularity_group_4', 
+                                                  'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
+    suppressWarnings(updateOrderInput(session, "modularity_group_4", "", items = NULL,
+                                      connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
+                                                  'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
+    suppressWarnings(updateOrderInput(session, "modularity_group_5", "", items = NULL,
+                                      connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
+                                                  'modularity_group_4', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')))
+    suppressWarnings(updateOrderInput(session, "modularity_group_6", "", items = NULL,
+                                      connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
+                                                  'modularity_group_4', 'modularity_group_5', 'modularity_group_7', 'modularity_group_8')))
+    suppressWarnings(updateOrderInput(session, "modularity_group_7", "", items = NULL,
+                                      connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
+                                                  'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_8')))
+    suppressWarnings(updateOrderInput(session, "modularity_group_8", "", items = NULL,
+                                      connect = c('modularity_group_1','modularity_group_2',  'modularity_group_3', 
+                                                  'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_7')))
+    
+    reset("modularity_n_groups")
     
   })
   
@@ -5389,7 +5428,7 @@ server <- function(input, output, session) {
       if (x > 9) { pc_axes_temp <- 1:10 } # limit the axes options to first 10 axes, shouldnt be necessary to do more
     } else { pc_axes_temp <- 1:8 } # example data have 9 pc axes
     
-      selected_item <- c(1,2)
+    selected_item <- c(1,2)
     
     updateCheckboxGroupInput(session, "warp_axes_selected", label = "Visualize Variation Across PC:",
                              choices = pc_axes_temp, selected = selected_item, inline = T)
@@ -5409,7 +5448,7 @@ server <- function(input, output, session) {
   tryObserve({ # updating the warp grid comparisons when the morphospace is doubleclicked, adding an option to compare the projected point
     if(!is.null(vals$morpho_dbclicked)) {
       
-       updateRadioButtons(session, inputId="warp_comparison_start", label = "Warp Comparison Start (Reference):", 
+      updateRadioButtons(session, inputId="warp_comparison_start", label = "Warp Comparison Start (Reference):", 
                          choices = c("Mean Shape" = "mean",
                                      "Observed Point (Clicked)" = "selected_obs", 
                                      "Observed Point (By Name)" = "selected_obs_byname", 
@@ -5453,7 +5492,7 @@ server <- function(input, output, session) {
     for (i in 1:length(disc_or_cont)) { # manually update all three labels if example data are used
       id_name <- paste("trait", i, "treatment", sep = "_")
       
-       selected_item <- disc_or_cont
+      selected_item <- disc_or_cont
       
       updateRadioButtons(session, inputId = id_name, 
                          choices = c("Discrete" = "disc", "Continuous" = "cont"), 
@@ -6166,9 +6205,9 @@ gpa_coords <- gpa_coords$coords # ***
   
   output$outlier_removed_names_tab <- renderText({
     if(is.null(vals$outlier_removed_names)) {
-        mat <- matrix("None")
-        colnames(mat) <- " "
-        mat
+      mat <- matrix("None")
+      colnames(mat) <- " "
+      mat
     } else {
       mat <- matrix(vals$outlier_removed_names, ncol = 1)
       colnames(mat) <- " "
@@ -6277,6 +6316,13 @@ names(vals$csize) <- dimnames(gpa_coords)[[3]]'
     }
   )
   
+  output$export_component_scores <- downloadHandler(
+    filename = function() { paste("component_scores.csv")},
+    content = function(file) { 
+      write.csv(pca_rx()$x, file)
+    }
+  )
+  
   output$morphospace <- metaRender2(renderPlot, bg = scales::alpha("white", 0), {
     req(vals$morphospace)
     pr <- pca_rx() 
@@ -6299,8 +6345,8 @@ names(vals$csize) <- dimnames(gpa_coords)[[3]]'
       pr.plot <- RRPP:::plot.ordinate(pr, axis1 = as.numeric(..(input$pca_x_axis)), 
                                       axis2 = as.numeric(..(input$pca_y_axis)), 
                                       pch = input_pch, cex = as.numeric(..(input$tip_cex)),
-                                      col = vals$tip_col, asp = 1,
-                                      flip = vals$input.flip_axis) # its unclear why the axis line types are red too
+                                      col = vals$tip_col, asp = 1)#,
+      #flip = vals$input.flip_axis) # its unclear why the axis line types are red too
       
       abline(h = 0, lty = 2) # these are only here until Mike fixes the plot.ordinate function in RRPP
       abline(v = 0, lty = 2) # these are only here until Mike fixes the plot.ordinate function in RRPP
@@ -7673,7 +7719,7 @@ summary(vals$PS_shape)')
     if("csize" %in% independent_variables) {vars <- c(vars, "Centroid Size")}
     
     if(length(vars)>1) { 
-        vars <- input$independent_variables_order 
+      vars <- input$independent_variables_order 
     }
     
     name <- paste(name, vars[1], sep = "")
@@ -7951,7 +7997,7 @@ vals$evol_rates_pairwise')
     if("csize" %in% independent_variables_model_1) {vars <- c(vars, "Centroid Size")}
     
     if(length(vars)>1) { vars <- input$independent_variables_order_model_1  }
-   
+    
     name <- paste(name, vars[1], sep = "")
     if(length(vars)>1){
       for (i in 2:length(vars)){
@@ -8000,7 +8046,7 @@ vals$evol_rates_pairwise')
       if("csize" %in% independent_variables_model_3) {vars <- c(vars, "Centroid Size")}
       
       if(length(vars)>1) { 
-          vars <- input$independent_variables_order_model_3
+        vars <- input$independent_variables_order_model_3
         
       }
       
@@ -8341,6 +8387,14 @@ print(text) } # This function turns the pop up messages available in gmShiny int
 }
 
 shinyApp(ui= ui, server = server)
+
+
+
+
+
+
+
+
 
 
 
