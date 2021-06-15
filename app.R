@@ -1,7 +1,7 @@
 # gmShiny - Published
 
 if(!require(geomorph)) {install.packages("remotes")
-  remotes::install_github("geomorphR/geomorph", ref = "Develop", build_vignettes = F)
+  remotes::install_github("geomorphR/geomorph", ref = "Stable", build_vignettes = F)
 }
 
 library(shiny); library(shinyjs); library(shinyWidgets); library(shinydashboard); library(shinythemes) 
@@ -531,6 +531,9 @@ ui <- function(request) {
                                      radioButtons(inputId = "transform_resid_tf", NULL, 
                                                   choices = c("FALSE" = FALSE, "TRUE" = TRUE), 
                                                   selected = FALSE, inline = T)))), br())),
+          fluidRow(align = "center", 
+                   downloadButton("export_component_scores", "Export Component Scores", 
+                                  style='width: 200px; padding:6px; font-size:80%; background-color: #337ab7;  border-color: #337ab7;')), br(),
           fluidRow(align = "center", 
                    downloadButton("export_rotation_loadings", "Export Rotation Loadings", 
                                   style='width: 200px; padding:6px; font-size:80%; background-color: #337ab7;  border-color: #337ab7;')), br(),
@@ -3080,6 +3083,8 @@ server <- function(input, output, session) {
       }
     }
     
+    
+    
     dimnames(temp_LMs)[[1]] <- 1:(dim(temp_LMs)[1]) # adding the appropriate label so that the point_clicks work to define the links
     dimnames(temp_LMs)[[2]] <- c("X", "Y", "Z")[1:(dim(temp_LMs)[2])] # labeling the dimensions in both scenarios of lms being 2 or 3 dimensions
     dimnames(temp_LMs)[[3]] <- str_replace_all(dimnames(temp_LMs)[[3]], " ", "_")  # make all names separated by underscores (matching most phylogeny inputs). 
@@ -3439,22 +3444,48 @@ server <- function(input, output, session) {
   
   pca_nonphylo_rx <- reactive({
     req(gpa_coords_rx()) # dont run until gpa_coords defined
-    prcomp(two.d.array(gpa_coords_rx())) # run a prcomp for when phylogeny is not being shown on morphospace
+    
+    temp_pca <- prcomp(two.d.array(gpa_coords_rx())) # run a prcomp for when phylogeny is not being shown on morphospace
+    
+    input.flip_axis <- vals$input.flip_axis
+    if(length(input.flip_axis)>0){
+      x_axis <- as.numeric(input$pca_x_axis)
+      y_axis <- as.numeric(input$pca_y_axis)
+      if(1 %in% input.flip_axis) {
+        temp_pca$x[,x_axis] <- temp_pca$x[,x_axis]*(-1)
+      }
+      if(2 %in% input.flip_axis) {
+        temp_pca$x[,y_axis] <- temp_pca$x[,y_axis]*(-1)
+      }
+    } 
+
+    temp_pca
   })
   
   pca_rx <- metaReactive2({
     req(gpa_coords_rx()) # dont run until gpa_coords defined
     metaExpr({
       if(..(datasets_dont_match()) == FALSE) {
-        #shape <- ..(gpa_coords_rx())
-        
-        # data(plethspecies) 
-        # Y.gpa <- gpagen(plethspecies$land) 
-        # shape <- Y.gpa$coords
-        geomorph:::gm.prcomp(..(gpa_coords_rx()), vals$phy_rx, GLS = ..(input$gls_center_tf),
+        temp_pca <- geomorph:::gm.prcomp(..(gpa_coords_rx()), vals$phy_rx, GLS = ..(input$gls_center_tf),
                              align.to.phy = ..(input$align_to_phy_tf), 
                              transform = as.logical(..(input$transform_resid_tf))) # gm.prcomp for phylomorphospace
-      }
+        
+        input.flip_axis <- vals$input.flip_axis
+        if(length(input.flip_axis)>0){
+          x_axis <- as.numeric(input$pca_x_axis)
+          y_axis <- as.numeric(input$pca_y_axis)
+          if(1 %in% input.flip_axis) {
+            temp_pca$x[,x_axis] <- temp_pca$x[,x_axis]*(-1)
+          }
+          if(2 %in% input.flip_axis) {
+            temp_pca$x[,y_axis] <- temp_pca$x[,y_axis]*(-1)
+          }
+        }
+        
+        temp_pca
+        
+        
+        }
     })
   })
   
@@ -4052,7 +4083,8 @@ server <- function(input, output, session) {
   tryObserveEvent(eventExpr = morphospace_clicked_listen(), ignoreInit = F, {
     if(!is.null(input$morphospace_specimen_click)) {
       vals$morpho_clicked <- 1 # initiate the vals for conditional paneling
-      rotation_x_df <- as.data.frame(pca_nonphylo_rx()$x) # pca rotation converted into a dataframe for nearPoints function below
+      
+      rotation_x_df <- as.data.frame(pca_nonphylo_rx()$x)
       
       clicked_point <- nearPoints(rotation_x_df, input$morphospace_specimen_click, 
                                   xvar = x_lab_rx(), yvar = y_lab_rx(),
@@ -4458,7 +4490,9 @@ server <- function(input, output, session) {
   
   tryObserveEvent(input$semilms_manual_input, ignoreInit = T, {
     temp_mat <- input$semilms_manual_input
-    for(i in 1:nrow(temp_mat)) { temp_mat[i,] <- as.numeric(temp_mat[i,])}
+    if(nrow(temp_mat)>0) {
+      for(i in 1:nrow(temp_mat)) { temp_mat[i,] <- as.numeric(temp_mat[i,])}
+    }
     
     if(!is.null(vals$curves_final)) { temp_vals_mat <- matrix(unlist(vals$curves_final), ncol = 3) } else { temp_vals_mat <- NULL }
     
@@ -6268,6 +6302,13 @@ names(vals$csize) <- dimnames(gpa_coords)[[3]]'
     }
   )
   
+  output$export_component_scores <- downloadHandler(
+    filename = function() { paste("component_scores.csv")},
+    content = function(file) { 
+      write.csv(pca_rx()$x, file)
+    }
+  )
+  
   output$morphospace <- metaRender2(renderPlot, bg = scales::alpha("white", 0), {
     req(vals$morphospace)
     pr <- pca_rx() 
@@ -6290,8 +6331,8 @@ names(vals$csize) <- dimnames(gpa_coords)[[3]]'
       pr.plot <- RRPP:::plot.ordinate(pr, axis1 = as.numeric(..(input$pca_x_axis)), 
                                       axis2 = as.numeric(..(input$pca_y_axis)), 
                                       pch = input_pch, cex = as.numeric(..(input$tip_cex)),
-                                      col = vals$tip_col, asp = 1,
-                                      flip = vals$input.flip_axis) # its unclear why the axis line types are red too
+                                      col = vals$tip_col, asp = 1)#,
+                                      #flip = vals$input.flip_axis) # its unclear why the axis line types are red too
       
       abline(h = 0, lty = 2) # these are only here until Mike fixes the plot.ordinate function in RRPP
       abline(v = 0, lty = 2) # these are only here until Mike fixes the plot.ordinate function in RRPP
