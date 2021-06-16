@@ -1607,6 +1607,9 @@ ui <- function(request) {
                     fluidRow(column(9, offset = 1, h4("Upcoming Features"))),hr(),
                     fluidRow(column(11, offset = .5, textOutput("upcoming_features")))),
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+                    fluidRow(column(9, offset = 1, h4("Server Capacity Limitations"))),hr(),
+                    fluidRow(column(11, offset = .5, textOutput("server_capacity")))),
+          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
                     fluidRow(column(9, offset = 1, h4("Contact the Developers"))),hr(),
                     fluidRow(column(11, offset = .5, uiOutput("report"))), br(),
                     fluidRow(column(11, offset = .5, uiOutput("geomorph_list"))), br(),
@@ -8353,6 +8356,10 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   
   output$upcoming_features <- renderText({
     "Here is where you'll find information on what we're currently working on."
+  })
+  
+  output$server_capacity <- renderText({
+    "We are currently changing servers. Here is where we will update the info on server capacity and limitations."
   })
   
   output$email_me <- renderUI({
