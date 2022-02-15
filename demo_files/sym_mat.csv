@@ -1,0 +1,26 @@
+,Indiv,Rep,Side
+P_cinereus,1,1,1
+P_electromorphus,1,2,1
+P_hoffmani,1,2,2
+P_hubrichti,2,1,1
+P_nettingi,2,2,1
+P_richmondi,2,2,2
+P_serratus,3,1,1
+P_shenandoah,3,2,1
+P_virginia,3,2,2
+,,,
+,,,
+,,,
+"Notes""",,,
+,These notes are designed to assist the formatting of your own MATCHING symmetry file for upload into gmShiny,,
+,This means that each shape object for which there are landmarks are EITHER representative of one side of the shape or the other,,
+,DELETE ALL NOTES before attempting to upload them into the app,,
+,,,
+,The first column is the shape object's IDs as specified on the Data Input tab,,
+,"The second column, labeled ""Indiv"" indicates which uploaded shape objects are associated with a single individual",,
+,"If each shape object represents a new specimen, each specimen should have a unique number in the ""Indiv"" column",,
+,"The third column, labeled ""Rep"" labeles the replicates within each individual",,
+,"If there are no replicates within an individual and side, the ""Rep"" column should be all 1s",,
+,"The forth column, labeled ""Side"" is for specifying which side of the specimen each shape object represents",,
+,This column can only take the values 1 or 2.,,
+,"The filled in data shows what would indicate that the first three shape objects were taken from a single individual. The first is of  1 side on that individual, the second two are replicates 1 and 2 of the other side on that individual",,

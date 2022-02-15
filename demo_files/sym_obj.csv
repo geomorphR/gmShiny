@@ -1,0 +1,26 @@
+,Indiv,Rep
+P_cinereus,1,1
+P_electromorphus,1,2
+P_hoffmani,1,3
+P_hubrichti,2,1
+P_nettingi,2,2
+P_richmondi,2,3
+P_serratus,3,1
+P_shenandoah,3,2
+P_virginia,3,3
+,,
+,,
+,,
+"Notes""",,
+,These notes are designed to assist the formatting of your own OBJECT symmetry file for upload into gmShiny,
+,This means that both sides of the symmetrical object are represented in each shape object,
+,DELETE ALL NOTES before attempting to upload them into the app,
+,,
+,The first column is the shape object's IDs as specified on the Data Input tab,
+,"The second column, labeled ""Indiv"" indicates which uploaded shape objects are associated with a single individual",
+,"If each shape object represents a new specimen, each specimen should have a unique number in the ""Indiv"" column",
+,"The third column, labeled ""Rep"" labeles the replicates within each individual",
+,"If there are no replicates within an individual and side, the ""Rep"" column should be all 1s",
+,,
+,,
+,"The filled in data shows what would indicate that the first three shape objects were taken from a single individual, the next three were from a second individual, and the last three were from a third individual.",

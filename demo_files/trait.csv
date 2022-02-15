@@ -1,0 +1,21 @@
+,Microhabitat,Body Size (SVL in mm),Average Lifespan (in years)
+P_cinereus,Terr,42.26,9
+P_electromorphus,Foss,49.14,13
+P_hoffmani,Foss,49.18,12
+P_hubrichti,Foss,50.43,10
+P_nettingi,Foss,43.98,10
+P_richmondi,Foss,46.12,9
+P_serratus,Terr,36,5
+P_shenandoah,Terr,48.65,18
+P_virginia,Foss,53.55,21
+,,,
+,,,
+,,,
+"Notes""",,,
+,These notes are designed to assist the formatting of your own trait data file for upload into gmShiny,,
+,DELETE ALL NOTES before attempting to upload them into the app,,
+,,,
+,The first column is the shape object's IDs as specified by the Shape Data upload options,,
+,"Each subsequent column has a title, indicating what the trait should be referred to. The values in these columns indicate the specimen values for these traits.",,
+,,,
+,"The lifespan data in this demo trait file ARE COMPLETELY MADE UP and only to be used as demonstrative. Body size data were collected as part of the manuscript, Baken and Adams 2019 in Ecology and Evolution. Microhabitat data are the 6-L scheme from Baken and Adams 2019 in Ecology & Evolution.",,

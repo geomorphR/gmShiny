@@ -1,0 +1,24 @@
+Side 1,Side 2
+4,2
+5,1
+6,11
+7,10
+8,9
+,
+,
+,
+,
+,
+,
+,
+,
+Notes,
+,These notes are designed to assist the formatting of your own OBJECT symmetry file for upload into gmShiny
+,This means that both sides of the symmetrical object are represented in each shape object
+,This  file assigns the landmark pairs to the corresponding side
+,DELETE ALL NOTES before attempting to upload them into the app
+,
+,Each row represents the left and right side of the homologous trait
+,"Each column must consistently represent the same side of the symmetric object. E.g., all landmarks for the left side should be in the same column"
+,
+,"The example Plethodon dataset does not actually have a symmetric component to it in real life, but this example can help demonstrate how to apply symmetry if, as is the case here, LMs 4567&8 were all on the left side of the salamander head while 1 2 11 10 & 9 were the matching lms on the right side of the salamander head"
