@@ -1,0 +1,373 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2578
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;\f2\fswiss\fcharset0 ArialMT;
+\f3\fswiss\fcharset0 Arial-BoldMT;\f4\fnil\fcharset0 HelveticaNeue;\f5\fnil\fcharset0 .AppleSystemUIFontMonospaced-Regular;
+\f6\fmodern\fcharset0 CourierNewPSMT;\f7\fswiss\fcharset0 Helvetica-Bold;\f8\fnil\fcharset0 Menlo-Bold;
+}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue0;\red255\green255\blue255;
+\red38\green38\blue38;\red246\green246\blue246;\red0\green0\blue0;\red255\green255\blue255;\red26\green26\blue26;
+\red26\green26\blue26;\red14\green14\blue14;\red14\green14\blue14;\red26\green28\blue31;\red244\green244\blue244;
+\red53\green134\blue255;\red86\green32\blue244;}
+{\*\expandedcolortbl;;\csgray\c0;\cssrgb\c0\c1\c1;\cssrgb\c100000\c100000\c99985\c0;
+\cssrgb\c20000\c20000\c20000;\cssrgb\c97255\c97255\c97255;\cssrgb\c0\c0\c0;\cssrgb\c100000\c100000\c100000\c0;\cssrgb\c13348\c13348\c13331;
+\cssrgb\c13333\c13333\c13333;\cssrgb\c6674\c6674\c6666;\cssrgb\c6682\c6682\c6665;\cssrgb\c13725\c14902\c16078;\cssrgb\c96471\c96471\c96471;
+\cssrgb\c25490\c61176\c100000;\cssrgb\c41680\c25960\c96645;}
+\margl1440\margr1440\vieww16420\viewh19240\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+\
+\
+\
+##### THIS IS ALL OLD INFO, CHECK Server Editing Guide FOR UPDATED INSTRUCTIONS #######\
+\
+\
+\
+\
+\
+\
+\
+\
+Log on to chatham VPN\
+Open Terminal\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0 ssh appman@10.87.4.67\
+149pm@May\
+\
+
+\f0 # Control D logs you off of the ssh
+\f1 \
+\
+11/2/21\
+\
+Reinstall shiny server\
+\
+Need a\cf3 \cb4  fortran compiler to compile certain R packages\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs28 \cf3 \expnd0\expndtw0\kerning0
+\CocoaLigature1 sudo apt-get install 
+\f3\b gfortran
+\f2\b0 \
+\
+Installed 
+\f4\fs30 build-dependencies for R-package
+\f2\fs28 \
+\pard\pardeftab720\partightenfactor0
+
+\f5\fs26 \cf3 sudo apt-get install r-base-dev
+\f2\fs28 \
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs22 \cf2 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+Changed permissions for R library directory:\
+sudo chmod 777 /usr/local/lib/R/site-library\
+\
+# switch to user called \'91shiny\'92 so that shiny server uses the correct R library\
+\
+Need to reinstall all packages needed:\
+- remotes\
+- geomorph Stable from GitHub 11/3/21\
+- ape (and dependencies)\
+- prettycode\
+- shiny\
+- shinyjs\
+- shinyWidgets\
+- shinydashboard\
+- shinythemes\
+- shinyalert\
+- shinyMatrix\
+- shinyjqui\
+- shinymeta\
+- stringr\
+- stringi\
+- RColorBrewer\
+- reactlog\
+- StereoMorph\
+- shinybusy\
+\
+\
+Now trying to get gmshiny.chatham.edu to be the base URL\
+\
+Shiny server log: \
+vi 
+\fs28\fsmilli14400 \cf5 \cb6 \expnd0\expndtw0\kerning0
+\CocoaLigature1 /var/log/shiny-server.log\
+
+\fs22 \cf2 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+sudo vi 
+\fs28\fsmilli14400 \cf5 \cb6 \expnd0\expndtw0\kerning0
+\CocoaLigature1 /var/log/shiny-server/
+\fs22 \cf2 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+\
+\
+\
+\
+\
+\
+\
+\
+\
+# NOTES FOR WHEN NEW RELEASE IS READY\
+\
+Shiny updates (version by version as I described with antigoni) clone to have a develop and stable branch on server. Change that on gmshiny.com\
+\
+Go to geomorphR/gmshiny GitHub, press 0 tabs, \'93create new release\'94. Change version.\
+News file with each release: New functions, edited functions, bugs fixed.\
+\
+Archiving. Mike said he doesn\'92t know how to archive. Zenodo? \
+\
+# OLD NOTES\
+\
+\
+\
+\
+\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf7 \cb8 # updating server.R and app.R
+\f1 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\fs22 \cf3 \cb4 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f6 \cf3 cd /srv/\expnd0\expndtw0\kerning0
+\CocoaLigature1 shiny-server/gmshiny/\
+rm app.R\
+nano app.R\
+	# copy app.R script over from published folder\
+Control X # save and quit\cf9 \cb8 \
+\cf7 \kerning1\expnd0\expndtw0 \CocoaLigature0 sudo service shiny-server restart
+\fs28 \cf9 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\
+
+\f0\fs22 # Editing configuration file
+\f6\fs28 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 sudo nano /etc/shiny-server/shiny-server.conf\
+149pm@May\cf7 \cb8 \
+	\
+
+\f0 \cf2 \cb1 \
+
+\f1 \
+\
+Notes from 11/2/21\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f7\b\fs32 \cf10 \expnd0\expndtw0\kerning0
+\CocoaLigature1 http://<server-address>:3838/<your_username>/hello
+\f1\b0\fs22 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+
+\f7\b\fs32 \cf10 \expnd0\expndtw0\kerning0
+\CocoaLigature1 http://
+\f1\b0\fs22 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 10.87.4.67
+\f7\b\fs32 \cf10 \expnd0\expndtw0\kerning0
+\CocoaLigature1 :3838/
+\f1\b0\fs22 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 appman
+\f7\b\fs32 \cf10 \expnd0\expndtw0\kerning0
+\CocoaLigature1 /hello
+\f1\b0\fs22 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+systemctl status shiny-server.service\
+\
+End notes\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs28 # Server Info: \
+\
+Public IP: 
+\fs29\fsmilli14667 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 66.207.141.195
+\fs28 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+Internal IP: 
+\fs29\fsmilli14667 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 10.87.4.67 
+\fs28 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \
+Welcome to Ubuntu 20.04.2 LTS (GNU/Linux 5.4.0-77-generic x86_64)\
+\
+ * Documentation:  https://help.ubuntu.com\
+ * Management:     https://landscape.canonical.com\
+ * Support:        https://ubuntu.com/advantage\
+\
+  System information as of Fri 02 Jul 2021 03:54:39 PM UTC\
+\
+  System load:  0.0                Processes:               273\
+  Usage of /:   11.2% of 97.44GB   Users logged in:         1\
+  Memory usage: 6%                 IPv4 address for ens160: 10.87.4.67\
+  Swap usage:   0%\
+\
+ * Super-optimized for small spaces - read how we shrank the memory\
+   footprint of MicroK8s to make it the smallest full K8s around.\
+\
+   https://ubuntu.com/blog/microk8s-memory-optimisation\
+\
+77 updates can be applied immediately.\
+To see these additional updates run: apt list --upgradable\
+\
+\
+\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\fs28 # To edit the page gmshiny.chatham.edu
+\fs22 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f6 \cf7 \cb8 \
+\pard\pardeftab720\partightenfactor0
+\cf7 sudo nano \cf11 \expnd0\expndtw0\kerning0
+\CocoaLigature1 /var/www/gmshiny/\cf7 \kerning1\expnd0\expndtw0 \CocoaLigature0 index.html\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1 \cf2 \cb1 \
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\fs28 # To set up the server, I have done the following:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\fs22 # Websites used for initial setup:\
+https://www.r-bloggers.com/2015/12/deploying-your-very-own-shiny-server/\
+https://docs.rstudio.com/shiny-server/\
+\
+
+\f0 ## 10/7/21\
+## Paul asked if the apache service is setup for the gmshiny.chatham.edu domain name\
+## followed this website: https://ubuntu.com/tutorials/install-and-configure-apache#2-installing-apache\
+## logged on and entered 
+\f1 \
+\pard\pardeftab720\partightenfactor0
+
+\f6 \cf11 \cb8 \expnd0\expndtw0\kerning0
+\CocoaLigature1 sudo apt update\
+sudo apt install apache2\
+\pard\pardeftab720\partightenfactor0
+
+\f0 \cf11 \
+# setting up a folder
+\f6 \
+\cf12 sudo mkdir /var/www/gmshiny/ #(accidentally made one named gci, can delete that\
+cd /var/www/gmshiny \cf11 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf7 \kerning1\expnd0\expndtw0 \CocoaLigature0 sudo nano index.html\
+\pard\pardeftab720\partightenfactor0
+
+\f5\fs26 \cf13 \cb14 \expnd0\expndtw0\kerning0
+\CocoaLigature1 sudo service apache2 restart
+\f1\fs22 \cf2 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\
+
+\f0 # Copied the below into the index.html file
+\f1 \
+\pard\pardeftab720\partightenfactor0
+
+\f0 \cf11 \cb8 \expnd0\expndtw0\kerning0
+\CocoaLigature1 <html>\
+<head>\
+  <title> Ubuntu rocks! </title>\
+</head>\
+<body>\
+  <p> I'm running this website on an Ubuntu Server server!\
+</body>\
+</html>\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f6 \cf11 cd /etc/apache2/sites-available/\
+sudo cp 000-default.conf gmshiny.conf\
+\pard\pardeftab720\partightenfactor0
+\cf12 sudo nano gmshiny.conf
+\f0\fs32 \cf11 \
+\pard\pardeftab720\partightenfactor0
+
+\fs22 \cf12 # edit this .config so that\
+\cf7 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf7 ServerAdmin erica.baken@gmail.com\
+\pard\pardeftab720\partightenfactor0
+\cf11 \expnd0\expndtw0\kerning0
+\CocoaLigature1 DocumentRoot /var/www/gmshiny/\
+\pard\pardeftab720\partightenfactor0
+\cf12 ServerName gmshiny.chatham.edu\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1 \cf2 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 sudo nano /etc/apache2/sites-available/gmshiny.conf \
+# to get back to that config file
+\f0 \cf12 \cb8 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\pard\pardeftab720\partightenfactor0
+\cf11 \
+# then activate VirtualHost file\
+\pard\pardeftab720\partightenfactor0
+
+\f6 \cf11 sudo a2ensite gmshiny.conf\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf7 \kerning1\expnd0\expndtw0 \CocoaLigature0 systemctl reload apache2
+\f1 \cf2 \cb1 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0 # Chose Chatham University (appman) as identities and enters password (149pm@May)\
+\
+## 10/8/21\
+## Finished the shiny server encryption using this website:  https://cran.r-project.org/web/packages/ReviewR/vignettes/deploy_server.html\
+\
+Shiny server wasn\'92t running because executable was always failing (permission denied)\
+So I changed the file to add \'91sudo\'92 before the executable\
+
+\f1 sudo nano /etc/systemd/system/shiny-server.service\
+Now shiny-server runs!\
+\
+\
+## 1/25/22\
+\
+Updates:\
+- http://10.87.4.67:3838/gmshiny/ doesn\'92t work on my BB home network, but it does work when VPN connected to chatham\'92s network\
+- gmshiny.chatham.edu goes to \'93I\'92m running this website\'85\'94 when on BB home network and when VPN connected to Chatham\'92s network\
+- 
+\f2\fs24 \cf15 \expnd0\expndtw0\kerning0
+\ul \ulc15 \CocoaLigature1 http://gmshiny.chatham.edu:3838/gmshiny/ 
+\f1\fs22 \cf2 \kerning1\expnd0\expndtw0 \ulnone \CocoaLigature0 does work on my BB home network.\
+- based on the ticket messages from Chatham, \'93
+\f2\fs24 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 you have to configure your web server to redirect to the 3838 port and the folder/gmshiny.\'94\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f8\b\fs22 \cf16 \kerning1\expnd0\expndtw0 \CocoaLigature0 /srv/shiny-server/sample-apps/hello
+\f1\b0 \cf2 $ sudo nano ui.R is the sample app that runs on port 3838\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs24 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+
+\f1\fs22 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+Go here tomorrow:\
+\
+sudo nano /etc/apache2/sites-available/gmshiny.conf \
+\
+This link fixed it so that gmshiny.chatham.edu goes straight to our shiny server! Lets GOOOOO!!!!!\
+\
+\
+}
