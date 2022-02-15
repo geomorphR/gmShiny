@@ -1,13 +1,14 @@
-if(!require(geomorph)) {install.packages("remotes")
-  remotes::install_github("geomorphR/geomorph", ref = "Stable", build_vignettes = F)
-}
+#if(!require(geomorph)) {install.packages("remotes")
+#  remotes::install_github("geomorphR/geomorph", ref = "Stable", build_vignettes = F)
+#}
 
 library(shiny); library(shinyjs); library(shinyWidgets); library(shinydashboard); library(shinythemes) 
 library(shinyalert); library(shinyMatrix); library(shinyjqui); library(shinymeta); library(prettycode)
 library(geomorph); library(ape); library(stringr); library(stringi);
 library(RColorBrewer); library(reactlog); library(StereoMorph); library(shinybusy)
 
-source("support.functions.R")
+#source("support.functions.R")
+source("/srv/shiny-server/gmshiny/support.functions.R")
 rm(list = ls())
 
 # defining elements upon startup
