@@ -2,13 +2,14 @@
 #  remotes::install_github("geomorphR/geomorph", ref = "Stable", build_vignettes = F)
 #}
 
-library(shiny); library(shinyjs); library(shinyWidgets); library(shinydashboard); library(shinythemes) 
+library(shiny);library(shinyjs); library(shinyWidgets); library(shinydashboard); library(shinythemes) 
 library(shinyalert); library(shinyMatrix); library(shinyjqui); library(shinymeta); library(prettycode)
-library(geomorph); library(ape); library(stringr); library(stringi);
-library(RColorBrewer); library(reactlog); library(StereoMorph); library(shinybusy)
+library(geomorph); library(ape); library(stringr); library(stringi); library(RColorBrewer);
+library(reactlog); library(StereoMorph); library(shinybusy)
 
 #source("support.functions.R")
 source("/srv/shiny-server/gmshiny/support.functions.R")
+
 rm(list = ls())
 
 # defining elements upon startup
@@ -32,17 +33,17 @@ symmetry_landpairs_manual_matrix <- matrix(NA, ncol = 2, nrow = 1)
 colnames(symmetry_landpairs_manual_matrix) <- c("Side 1", "Side 2")
 
 options(shiny.maxRequestSize = 30*1024^2, # sets file limit size
-        shiny.suppressMissingContextError = TRUE,
+        shiny.suppressMissingContextError = TRUE#,
         #shiny.error=recover, # test this
         #shiny.fullstacktrace = T, # try this when debugging
         #shiny.sanitize.errors = T, # try this if some error won't go away (can also wrap errors in safeError())
-        shiny.reactlog = TRUE # this allows for the reaction log to be generated (hit command + fn + f3 to see it)
+        #shiny.reactlog = TRUE # this allows for the reaction log to be generated (hit command + fn + f3 to see it)
 )
 
 
 ui <- fillPage(
   navbarPage(
-    title = "gmShiny v0.1.1",
+    title = "gmShiny v0.1.0",
     id = "navbar",
     theme = shinytheme("flatly"),
     footer = div(style = "position: absolute; bottom:0; padding: 12px; height: 50px; width: 100%;
@@ -480,7 +481,7 @@ ui <- fillPage(
                        tableOutput("semilandmark_matrix")),
                      hr(),
                      fluidRow(align = "center", 
-                              downloadButton("export_run_gpa_code", "Download GPA Code", icon = shiny::icon("registered"),
+                              downloadButton("export_run_gpa_code", "Export GPA Code", icon = shiny::icon("registered"),
                                              style='width: 200px; padding:6px; font-size:80%; background-color: #337ab7; border-color: #337ab7;'
                               )))),
             column(4,
@@ -1623,9 +1624,9 @@ ui <- fillPage(
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
                     fluidRow(column(9, offset = 1, h4("Upcoming Features"))),hr(),
                     fluidRow(column(11, uiOutput("upcoming_features")))),
-          wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
-                    fluidRow(column(9, offset = 1, h4("Server Capacity Limitations"))),hr(),
-                    fluidRow(column(11, uiOutput("server_capacity")))),
+          #wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
+          #          fluidRow(column(9, offset = 1, h4("Server Capacity Limitations"))),hr(),
+          #          fluidRow(column(11, uiOutput("server_capacity")))), # add this back in on next release
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
                     fluidRow(column(9, offset = 1, h4("Contact the Developers"))),hr(),
                     fluidRow(column(11, 

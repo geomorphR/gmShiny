@@ -1,7 +1,7 @@
-library(shiny); library(shinyjs); library(shinyWidgets); library(shinydashboard); library(shinythemes) 
+library(shiny);library(shinyjs); library(shinyWidgets); library(shinydashboard); library(shinythemes) 
 library(shinyalert); library(shinyMatrix); library(shinyjqui); library(shinymeta); library(prettycode)
-library(geomorph); library(ape); library(stringr); library(stringi); 
-library(RColorBrewer); library(reactlog); library(StereoMorph); library(shinybusy)
+library(geomorph); library(ape); library(stringr); library(stringi); library(RColorBrewer);
+library(reactlog); library(StereoMorph); library(shinybusy)
 
 #source("support.functions.R")
 source("/srv/shiny-server/gmshiny/support.functions.R")
@@ -7592,7 +7592,7 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   #### Extras Outputs ####
   
   output$news <- renderUI({
-    HTML("<li> 02.17.2022 - v0.1.1 release </li>
+    HTML("<li> 02.17.2022 - v0.1.0 release </li>
     <li> 09.17.2021 - gmShiny v0.0.1 launch! </li>")
   })
   
@@ -7649,5 +7649,4 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   
   #session$onSessionEnded(stopApp) 
 }
-
 
