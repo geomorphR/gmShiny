@@ -1,0 +1,17 @@
+Package: shinyMatrix
+Title: Shiny Matrix Input Field
+Version: 0.6.0
+Author: Andreas Neudecker
+Maintainer: Andreas Neudecker <andreas.neudecker@inwt-statistics.de>
+Description: Implements a custom matrix input field. 
+Depends: R (>= 3.5)
+License: MIT + file LICENSE
+Encoding: UTF-8
+Imports: shiny, jsonlite
+Suggests: testthat, covr
+RoxygenNote: 7.1.0
+NeedsCompilation: no
+Packaged: 2021-05-20 15:50:59 UTC; laneudecker
+Repository: CRAN
+Date/Publication: 2021-05-20 16:40:02 UTC
+Built: R 4.0.2; ; 2021-06-01 12:53:27 UTC; unix

@@ -38,7 +38,7 @@ tryObserveEvent <- function(eventExpr,  handlerExpr, ignoreInit = F, priority=0)
   y <- substitute(handlerExpr)
   
   env <- parent.frame()
-  observeEvent(ignoreInit = ignoreInit, priority = priority, eventExpr= tryCatch(
+  observeEvent(ignoreInit = ignoreInit, priority = priority,eventExpr= tryCatch(
     eval(eventExpr, env),
     error = function(e) {
       if(nchar(e$message) > 0){
@@ -66,26 +66,21 @@ tryObserveEvent <- function(eventExpr,  handlerExpr, ignoreInit = F, priority=0)
 
 general_notes <- function(x) {
 return("# Notes:
-# Before running any of the below code, set your working directory to wherever the .RData file exists. Without having moved it yourself, 
-# this will be in the unzipped folder. The function 'setwd()' can be used for this step. 
-       
 # The below code includes 'if else' statements that might appear unnecessary (e.g., 'if(TRUE){}').
 # These are the result of gmShiny pulling information from settings and other dependencies within the app to
-# fill in T/F statements as is appropriate for your data and current settings.
-"
-       )
+# fill in T/F statements as is appropriate for your data and current settings.")
 }
 
 prep_code <- function(add.source = F, extra.libs = NULL){
   if(add.source) {
     output <- 'rm(list = ls())
-load("data_current_state.RData")
-source("support.functions.R") 
+load("data_current_state.RData") # replace with your data_current_state file (you must press the Export Current Data button AFTER all settings and inputs have been finalized for the desired plot/results)  
+source("published/support.functions.R") # download support functions from github: https://github.com/ebaken/ShinyMorph/blob/main/published/support.functions.R 
 vals <- vals2
 library(geomorph)'
   } else {
   output <- 'rm(list = ls())
-load("data_current_state.RData") 
+load("data_current_state.RData") # replace with your data_current_state file (you must press the Export Current Data button AFTER all settings and inputs have been finalized for the desired plot/results)  
 vals <- vals2
 library(geomorph)'
   }

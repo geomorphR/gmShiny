@@ -1,0 +1,22 @@
+Package: gmailr
+Title: Access the 'Gmail' 'RESTful' API
+Version: 1.0.0
+Author: Jim Hester
+Maintainer: Jim Hester <james.f.hester@gmail.com>
+Description: An interface to the 'Gmail' 'RESTful' API.  Allows
+    access to your 'Gmail' messages, threads, drafts and labels.
+License: MIT + file LICENSE
+URL: https://github.com/r-lib/gmailr
+BugReports: https://github.com/r-lib/gmailr/issues
+Depends: R (>= 3.0.0)
+Imports: base64enc, crayon, gargle, httr, jsonlite, lifecycle,
+        magrittr, mime, rematch2
+Suggests: covr, knitr, methods, sodium, rmarkdown, testthat, xml2
+VignetteBuilder: knitr
+Encoding: UTF-8
+RoxygenNote: 6.1.1
+NeedsCompilation: no
+Packaged: 2019-08-23 14:20:55 UTC; Administrator
+Repository: CRAN
+Date/Publication: 2019-08-23 14:40:02 UTC
+Built: R 4.0.2; ; 2020-07-16 14:32:07 UTC; unix

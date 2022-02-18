@@ -1,0 +1,46 @@
+Package: RRPP
+Title: Linear Model Evaluation with Randomized Residuals in a
+        Permutation Procedure
+Version: 1.0.0
+Authors@R: c(
+    person("Michael", "Collyer", , "mlcollyer@gmail.com", c("aut", "cre"), 
+    comment = c(ORCID = "0000-0003-0238-2201")),
+    person("Dean", "Adams", , role = "aut", 
+    comment = c(ORCID = "0000-0001-9172-7894"))
+    )
+Description: Linear model calculations are made for many random versions of data.  
+    Using residual randomization in a permutation procedure, sums of squares are 
+    calculated over many permutations to generate empirical probability distributions 
+    for evaluating model effects.  This packaged is described by 
+    Collyer & Adams (2018) <doi:10.1111/2041-210X.13029>.  Additionally, coefficients, statistics, fitted values, and residuals generated over many 
+    permutations can be used for various procedures including pairwise tests, prediction, classification, and
+    model comparison.  This package should provide most tools one could need for the analysis of
+    high-dimensional data, especially in ecology and evolutionary biology, but certainly other fields, as well.
+Depends: R (>= 3.5.0)
+License: GPL (>= 3)
+URL: https://github.com/mlcollyer/RRPP
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Imports: Rcpp (>= 1.0.6), parallel, ape, ggplot2, Matrix
+Suggests: knitr, rmarkdown, testthat (>= 3.0.0), dplyr, tibble
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2021-03-31 13:19:12 UTC; ericabaken
+Author: Michael Collyer [aut, cre] (<https://orcid.org/0000-0003-0238-2201>),
+  Dean Adams [aut] (<https://orcid.org/0000-0001-9172-7894>)
+Maintainer: Michael Collyer <mlcollyer@gmail.com>
+Repository: CRAN
+Date/Publication: 2021-03-28
+Config/testthat/edition: 3
+RemoteType: github
+RemoteHost: api.github.com
+RemoteRepo: RRPP
+RemoteUsername: mlcollyer
+RemoteRef: develop
+RemoteSha: d9c4c918aa8a42ebbcffc7f7e68557a796803c8c
+GithubRepo: RRPP
+GithubUsername: mlcollyer
+GithubRef: develop
+GithubSHA1: d9c4c918aa8a42ebbcffc7f7e68557a796803c8c
+Built: R 4.0.4; ; 2021-03-31 13:19:12 UTC; unix
