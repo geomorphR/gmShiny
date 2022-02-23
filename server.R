@@ -3,8 +3,7 @@ library(shinyalert); library(shinyMatrix); library(shinyjqui); library(shinymeta
 library(geomorph); library(ape); library(stringr); library(stringi); library(RColorBrewer);
 library(reactlog); library(StereoMorph); library(shinybusy)
 
-#source("support.functions.R")
-source("/srv/shiny-server/gmshiny/support.functions.R")
+source("support.functions.R")
 rm(list = ls())
 
 # defining elements upon startup
