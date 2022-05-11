@@ -1,3 +1,6 @@
+# v0.1.1 (released 5/11/22)
+Changes:
+1) Stereomorph file inputs can now have greater than 6 curves
 
 # v0.1.0 (released 2/17/22)
 Changes:

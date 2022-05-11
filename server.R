@@ -1524,28 +1524,33 @@ server <- function(input, output, session) {
         }}
     } 
     if(input$shape_file_type == "StereoMorph") {
-      
       req(input$file_stereomorph)
       inFile <- input$file_stereomorph
       
-      shapes <- readShapes(inFile$datapath)
+      shapes <- suppressWarnings(readShapes(inFile$datapath)) # suppressing warnings because the warnings are not informative 
       vals$file_stereomorph_shape_curven <- length(shapes$curves.control[[1]])
       
       if(length(shapes$curves.control[[1]]) > 0 & !is.null(vals$go_run_stereomorph_curves)) { # if there are curves
-        vals$curve_n_vec <- c(isolate(input$stereomorph_curve1_n), isolate(input$stereomorph_curve2_n), # create a vector the length of how many curves there are
-                              isolate(input$stereomorph_curve3_n), isolate(input$stereomorph_curve4_n),
-                              isolate(input$stereomorph_curve5_n), isolate(input$stereomorph_curve6_n))[1:length(shapes$curves.control[[1]])]
+        curve_n_vec <- c(isolate(input$stereomorph_curve1_n), 
+                              isolate(input$stereomorph_curve2_n), # create a vector the length of how many curves there are
+                              isolate(input$stereomorph_curve3_n), 
+                              isolate(input$stereomorph_curve4_n),
+                              isolate(input$stereomorph_curve5_n), 
+                              isolate(input$stereomorph_curve6_n))
+        min_val <- min(length(shapes$curves.control[[1]]), 6)
+        curve_n_vec <- curve_n_vec[1:min_val] # take all the curve data up to 6 curves, but no more
         if(length(shapes$curves.control[[1]]) > 6) {
-          for(i in 7:length(shapes$curves.control[[1]])) { # repeating the number of curve points in curve # 6 across all subsequent curves
-            vals$curve_n_vec <- c(vals$curve_n_vec, isolate(input$stereomorph_curve6_n))
-          }
+          curve_n_vec <- c(curve_n_vec, rep(input$stereomorph_curve6_n, length(shapes$curves.control[[1]])-6)) 
+          # repeating the number of curve points in curve # 6 across all subsequent curves
         }
+        vals$curve_n_vec <- curve_n_vec
       } else {
         vals$curve_n_vec <- NULL # otherwise replace with NULL
       }
-      shapesGM <- readland.shapes(shapes, nCurvePts = vals$curve_n_vec, continuous.curve = input$cont_curve) 
+      shapesGM <- readland.shapes(shapes, nCurvePts = vals$curve_n_vec, continuous.curve = input$cont_curve) # will throw error if asked for 2LMs on a curve where the start and end LM are the same (pup fish eye)
+          # Error in `rownames<-`(`*tmp*`, value = curve.mat.nms) : 
+          # attempt to set 'rownames' on an object with no dimensions
       
-      lms_unlisted <- as.matrix(unlist(shapesGM$landmarks))
       lm_mat <- matrix(NA, ncol = length(shapesGM$landmarks[[1]]), nrow = length(shapesGM$landmarks))
       for(i in 1:length(shapesGM$landmarks)) {
         for(j in 1:nrow(shapesGM$landmarks[[1]])) {
@@ -1922,7 +1927,7 @@ server <- function(input, output, session) {
                 curve.mat <- matrix(as.integer(curves), ncol = 3, byrow = F)
                 colnames(curve.mat) <- c("before", "slide", "after")
               }else { curve.mat <- NULL}
-            }else { curve.mat <- NULL} 
+            }else { curve.mat <- NULL } 
             vals$Data_gpa <- gpagen(lms_estimated, curves = curve.mat, 
                                     ProcD = ..(input$ProcD), Proj = ..(input$Proj), 
                                     print.progress = F)
@@ -2963,10 +2968,25 @@ server <- function(input, output, session) {
       }
     }
   })
-  
+
   stereomorph_curve_error_listen <- reactive({list(input$stereomorph_curve_not_applied_recently, input$stereomorph_curve_not_applied)})
   tryObserveEvent(stereomorph_curve_error_listen() , ignoreInit = T, {
     updateNavbarPage(session, "navbar", selected = "Data Input") # doesnt need a bookmarking workaround
+  })
+  
+  tryObserveEvent(vals$file_stereomorph_shape_curven, ignoreInit = T, {
+    if(vals$file_stereomorph_shape_curven > 6) {
+      shinyalert(
+        title = "Too Many Curves",
+        text = "There are too many curves in this dataset to allow for full customization within gmShiny. 
+            Curves 7 and onward will automatically inherit the same number of Curve Points assigned to curve 6. 
+            <br><br> For full customization of curve points for curves 7+, we recommend manipulating your data
+            directly in R or RStudio.",
+        type = "warning",
+        html = T,
+        inputId = "stereomorph_too_many_curves"
+      )
+    }
   })
   
   tryObserveEvent(vals$shapesGM, ignoreInit = F, {
@@ -7591,7 +7611,8 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   #### Extras Outputs ####
   
   output$news <- renderUI({
-    HTML("<li> 02.17.2022 - v0.1.0 release </li>
+    HTML("<li> 05.11.2022 - v0.1.1 release </li>
+    <li> 02.17.2022 - v0.1.0 release </li>
     <li> 09.17.2021 - gmShiny v0.0.1 launch! </li>")
   })
   
@@ -7607,7 +7628,14 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   })
   
   output$server_capacity <- renderUI({
-    HTML("We are currently changing servers. Here is where we will update the info on server capacity and limitations.")
+    HTML("<p>Server specifications:<br>
+    <li> Limit of 100 concurrent users</li>
+    <li> Session will automatically terminate after 60 idle minutes</li>
+    <li> App does not accept files greater than 10 MB</li>
+    <li> 2D TPS data on 2,000+ specimens, 3D TPS data on 500+ specimens, and 
+         Stereomorph files of 300+ specimens will cause substantial slow-downs in processsing. 
+         Use of geomorph directly in R or R Studio is recommended in these cases.</li>
+         </p>")
   })
   
   output$citation_info <- renderText({
