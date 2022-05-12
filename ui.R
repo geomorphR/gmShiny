@@ -41,7 +41,7 @@ options(shiny.maxRequestSize = 30*1024^2, # sets file limit size
 
 ui <- fillPage(
   navbarPage(
-    title = "gmShiny v0.1.1",
+    title = "gmShiny v0.1.2",
     id = "navbar",
     theme = shinytheme("flatly"),
     footer = div(style = "position: absolute; bottom:0; padding: 12px; height: 50px; width: 100%;

@@ -5331,7 +5331,7 @@ names(vals$csize) <- dimnames(gpa_coords)[[3]]'
         
         for (i in 1:length(selected_trait)) {
           this_col <- selected_trait[i]
-          tip_col_fac <- as.character(vals$trait_rx[match(dimnames(gpa_coords)[[3]], vals$trait_rx[,1]),this_col])
+          tip_col_fac <- as.character(vals$trait_rx[match(dimnames(gpa_coords_rx())[[3]], vals$trait_rx[,1]),this_col])
           lev <- length(unique(tip_col_fac))
           lev_options <- unique(tip_col_fac)
           col_mat <- unlist(col_list_modified[[i]]) 
@@ -5365,7 +5365,7 @@ names(vals$csize) <- dimnames(gpa_coords)[[3]]'
       phy_rx <- phy_rx() 
       if(!is.null(vals$go_run_gpa)) {
         gpa_coords <- gpa_coords_rx()
-      } else {  gpa_coords <- vals$lms_rx}
+      } else {  gpa_coords <- vals$lms_rx }
       trait_rx <- trait_rx() 
       
       pca_rx <- pca_rx() 
@@ -7611,7 +7611,9 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   #### Extras Outputs ####
   
   output$news <- renderUI({
-    HTML("<li> 05.11.2022 - v0.1.1 release </li>
+    HTML("
+    <li> 05.13.2022 - v0.1.2 release </li>
+    <li> 05.11.2022 - v0.1.1 release </li>
     <li> 02.17.2022 - v0.1.0 release </li>
     <li> 09.17.2021 - gmShiny v0.0.1 launch! </li>")
   })

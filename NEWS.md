@@ -1,3 +1,7 @@
+# v0.1.2 (released 5/13/22)
+Changes:
+1) Bug fix regarding Export Plot option for Morphospace with convex hulls 
+
 # v0.1.1 (released 5/11/22)
 Changes:
 1) Stereomorph file inputs can now have greater than 6 curves
