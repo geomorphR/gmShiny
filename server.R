@@ -30,32 +30,32 @@ colnames(symmetry_landpairs_manual_matrix) <- c("Side 1", "Side 2")
 server <- function(input, output, session) {  
   
   #### Instructions ####
-  tryObserveEvent(input$navbar, {
-    if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
-      shinyalert(
-        title = "Welcome!",
-        inputId = "keep_alerts_on_tf",
-        text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
-            
-            Would you like to keep these Instructions on?",
-        size = "s", 
-        closeOnEsc = F,
-        closeOnClickOutside = F,
-        html = FALSE,
-        type = "success",
-        showConfirmButton = TRUE,
-        showCancelButton = TRUE,
-        confirmButtonText = "Yes",
-        confirmButtonCol = "#AEDEF4",
-        cancelButtonText = "No",
-        timer = 0,
-        imageUrl = "",
-        animation = TRUE
-      )
-      alert_vals$navbar_datainput_welcomealertdone <- "yes"
-    }
-  }
-  )
+  #tryObserveEvent(input$navbar, {
+  #  if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
+  #    shinyalert(
+  #      title = "Welcome!",
+  #      inputId = "keep_alerts_on_tf",
+  #      text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
+  #          
+  #          Would you like to keep these Instructions on?",
+  #      size = "s", 
+  #      closeOnEsc = F,
+  #      closeOnClickOutside = F,
+  #      html = FALSE,
+  #      type = "success",
+  #      showConfirmButton = TRUE,
+  #      showCancelButton = TRUE,
+  #      confirmButtonText = "Yes",
+  #      confirmButtonCol = "#AEDEF4",
+  #      cancelButtonText = "No",
+  #      timer = 0,
+  #      imageUrl = "",
+  #      animation = TRUE
+  #    )
+  #    alert_vals$navbar_datainput_welcomealertdone <- "yes"
+  #  }
+  #}
+  #)
   
   tryObserveEvent(input$alert_on_off, ignoreInit = T, priority = -10,  {
     if(input$alert_on_off == F) { 
@@ -1357,21 +1357,21 @@ server <- function(input, output, session) {
   
   bilat_metaO2 <- tryMetaObserve2({ # this doesn't export the code properly. not all tryMetaObserve2s fail !!!!
     metaExpr({
-     if(!is.null(vals$run_symmetry_go)) {
-      if(is.null(vals$run_symmetry_go_tracker)) { vals$run_symmetry_go_tracker <- 0 } # set it up
-      if(vals$run_symmetry_go != vals$run_symmetry_go_tracker) { # this (and the above line in tryObserveEvent( for running symmetry)) is basically changing this into a observeEvent
-        vals$run_symmetry_go_tracker <- vals$run_symmetry_go
-        req(isolate(gpa_coords_rx()))
-        gpa_coords <- isolate(gpa_coords_rx())
-        vals$sym_def_df <- as.data.frame(isolate(input$symmetry_definitions))
-        vals$symmetry_land_pairs <- isolate(input$symmetry_landpairs_definitions)
-        
-      
+      if(!is.null(vals$run_symmetry_go)) {
+        if(is.null(vals$run_symmetry_go_tracker)) { vals$run_symmetry_go_tracker <- 0 } # set it up
+        if(vals$run_symmetry_go != vals$run_symmetry_go_tracker) { # this (and the above line in tryObserveEvent( for running symmetry)) is basically changing this into a observeEvent
+          vals$run_symmetry_go_tracker <- vals$run_symmetry_go
+          req(isolate(gpa_coords_rx()))
+          gpa_coords <- isolate(gpa_coords_rx())
+          vals$sym_def_df <- as.data.frame(isolate(input$symmetry_definitions))
+          vals$symmetry_land_pairs <- isolate(input$symmetry_landpairs_definitions)
+          
+          
           symmetry_replicate <- isolate(vals$sym_def_df$Rep)
           if(length(which(symmetry_replicate == ""))>0) { symmetry_replicate <- symmetry_replicate[-which(symmetry_replicate == "")] }
           symmetry_ind <- isolate(vals$sym_def_df$Indiv)
           if(length(which(symmetry_ind == ""))>0) { symmetry_ind <- symmetry_ind[-which(symmetry_ind == "")]}
-
+          
           if(isolate(vals$sym_def_df)[nrow(isolate(vals$sym_def_df)),1] == "") { 
             vals$sym_def_df <- isolate(vals$sym_def_df)[-nrow(isolate(vals$sym_def_df)),]}
           
@@ -1383,7 +1383,7 @@ server <- function(input, output, session) {
             error2_df <- paste(isolate(vals$sym_def_df$Indiv), isolate(vals$sym_def_df$Rep), isolate(vals$sym_def_df$Side))
             error2 <- length(unique(error2_df)) != length(error2_df)
           }
-
+          
           error3 <- anyNA(match(dimnames(gpa_coords)[[3]], rownames(isolate(vals$sym_def_df)))) # this compares the new shape to the old shape. obviously gonna throw an error
           error4 <- anyNA(match(rownames(isolate(vals$sym_def_df)), dimnames(gpa_coords)[[3]]))
           
@@ -1499,11 +1499,11 @@ server <- function(input, output, session) {
             }
           } 
           
-        
-      } 
+          
+        } 
       } else { vals$bilat_symmetry <- NULL  }
-       
-     })
+      
+    })
   })
   
   #### Input Data Reactives ####
@@ -1532,11 +1532,11 @@ server <- function(input, output, session) {
       
       if(length(shapes$curves.control[[1]]) > 0 & !is.null(vals$go_run_stereomorph_curves)) { # if there are curves
         curve_n_vec <- c(isolate(input$stereomorph_curve1_n), 
-                              isolate(input$stereomorph_curve2_n), # create a vector the length of how many curves there are
-                              isolate(input$stereomorph_curve3_n), 
-                              isolate(input$stereomorph_curve4_n),
-                              isolate(input$stereomorph_curve5_n), 
-                              isolate(input$stereomorph_curve6_n))
+                         isolate(input$stereomorph_curve2_n), # create a vector the length of how many curves there are
+                         isolate(input$stereomorph_curve3_n), 
+                         isolate(input$stereomorph_curve4_n),
+                         isolate(input$stereomorph_curve5_n), 
+                         isolate(input$stereomorph_curve6_n))
         min_val <- min(length(shapes$curves.control[[1]]), 6)
         curve_n_vec <- curve_n_vec[1:min_val] # take all the curve data up to 6 curves, but no more
         if(length(shapes$curves.control[[1]]) > 6) {
@@ -1548,8 +1548,8 @@ server <- function(input, output, session) {
         vals$curve_n_vec <- NULL # otherwise replace with NULL
       }
       shapesGM <- readland.shapes(shapes, nCurvePts = vals$curve_n_vec, continuous.curve = input$cont_curve) # will throw error if asked for 2LMs on a curve where the start and end LM are the same (pup fish eye)
-          # Error in `rownames<-`(`*tmp*`, value = curve.mat.nms) : 
-          # attempt to set 'rownames' on an object with no dimensions
+      # Error in `rownames<-`(`*tmp*`, value = curve.mat.nms) : 
+      # attempt to set 'rownames' on an object with no dimensions
       
       lm_mat <- matrix(NA, ncol = length(shapesGM$landmarks[[1]]), nrow = length(shapesGM$landmarks))
       for(i in 1:length(shapesGM$landmarks)) {
@@ -1687,7 +1687,7 @@ server <- function(input, output, session) {
   
   trait_rx <- reactive({
     trait_table <- NULL
-    dd <- input$go_remove_outlier_specimen_reset #trigger dddd
+    dd <- input$go_remove_outlier_specimen_reset #trigger, keep
     trait_column <- as.numeric(input$trait_column)
     
     if(is.null(vals$go_example_1)){ # if the example button has not been pressed
@@ -1703,18 +1703,12 @@ server <- function(input, output, session) {
         
         trait_raw[,1] <- str_replace_all(trait_raw[,1], " ", "_") # make the labels spaced with _ to match other data types
         trait_table <- as.matrix(trait_raw[,c(1,trait_column)]) # include the selected trait columns 
-        
-        #if(!is.null(isolate(vals$outlier_removed_names))){ # necessary for bookmarking if more than one trait_column selected and something was dropped
-        #  trait_table <- trait_table[-match(isolate(vals$outlier_removed_names), trait_table[,1]),]
-        #}
       }
     }
     if(!is.null(vals$go_example_1)){
       vals$trait_rx_upload_state <- 'example'
       trait_table <- as.matrix(example_mat[,c(1,trait_column)])
-      #if(!is.null(isolate(vals$outlier_removed_names))){ # necessary for bookmarking if more than one trait_column selected and something was dropped
-      #  trait_table <- trait_table[-match(isolate(vals$outlier_removed_names), trait_table[,1]),]
-      #}
+
     }
     if(!is.null(trait_table)) {
       if(ncol(trait_table) > 1) {
@@ -2124,7 +2118,7 @@ server <- function(input, output, session) {
   output$file_trait_selected <- reactive({return(!is.null(vals$trait_rx))})
   outputOptions(output, 'file_trait_selected', suspendWhenHidden=FALSE)
   
-  output$any_traits_selected <- reactive({return(!is.null(trait_rx()))}) # here we go. 
+  output$any_traits_selected <- reactive({return(!is.null(trait_rx()))}) 
   outputOptions(output, 'any_traits_selected', suspendWhenHidden=FALSE)
   
   output$two_traits_selected <- reactive({return(length(input$trait_column) > 1)})
@@ -2251,13 +2245,14 @@ server <- function(input, output, session) {
   })
   outputOptions(output, 'anova_initiated', suspendWhenHidden=FALSE)
   
-  output$allometry_color_nlev <- reactive({
-    this_color <- (1:4)[c(input$allometry_color == "all_one_color", 
-                          input$allometry_color == "by_trait_1", 
-                          input$allometry_color == "by_trait_2", 
-                          input$allometry_color == "by_trait_3")]
+  output$allometry_color_nlev <- reactive({ 
+    this_color <- NULL
+    this_color <- (2:4)[c(input$allometry_color == "by_trait_1" | input$show_allometry_convex_hull_1, 
+                          input$allometry_color == "by_trait_2" | input$show_allometry_convex_hull_2, 
+                          input$allometry_color == "by_trait_3" | input$show_allometry_convex_hull_3)]
+    vals$allometry_color_lev_names <- unique(as.vector(vals$trait_rx[,this_color]))
     out <- nlevels(as.factor(vals$trait_rx[,this_color]))
-    if(this_color != 1) {return(out)} else { return(0)}
+    return(out)
   })
   outputOptions(output, 'allometry_color_nlev', suspendWhenHidden=FALSE)
   
@@ -2968,7 +2963,7 @@ server <- function(input, output, session) {
       }
     }
   })
-
+  
   stereomorph_curve_error_listen <- reactive({list(input$stereomorph_curve_not_applied_recently, input$stereomorph_curve_not_applied)})
   tryObserveEvent(stereomorph_curve_error_listen() , ignoreInit = T, {
     updateNavbarPage(session, "navbar", selected = "Data Input") # doesnt need a bookmarking workaround
@@ -3130,7 +3125,7 @@ server <- function(input, output, session) {
   tryObserveEvent(input$outlier_selected, ignoreInit = T, { 
     
     if(!is.null(input$outlier_selected)) {
-
+      
       grouping <- NULL
       req(gpa_coords_rx())
       
@@ -3153,8 +3148,8 @@ server <- function(input, output, session) {
       vals$outlier_row <- nearPoints(outlier_df, input$outlier_selected, xvar = "x", yvar = "y",
                                      threshold = 15, maxpoints = 1) 
       if(nrow(vals$outlier_row)>0) { # only scroll if a point is successfully selected
-      delay(300, session$sendCustomMessage(type = "scrollCallback_outlier", 1))
-    }
+        delay(300, session$sendCustomMessage(type = "scrollCallback_outlier", 1))
+      }
     }
   })
   
@@ -3444,7 +3439,7 @@ server <- function(input, output, session) {
                            choices = choice_list_disc_plus_none, selected = choice_list_disc_plus_none[1] )
         
         
-        choice_list_disc_allcol <- c("all_one_color", choice_list_disc)
+        choice_list_disc_allcol <- c("all_1_col", choice_list_disc)
         names(choice_list_disc_allcol) <- c("All One Color", names(choice_list_disc))
         
         updateSelectInput(session, "allometry_color", label = "Color Points:", 
@@ -3471,10 +3466,18 @@ server <- function(input, output, session) {
                           choices = choice_list_shape, selected = choice_list_shape[1])
         
         
-        updateCheckboxInput(session, inputId = "show_convex_hull_1", label = replacement_chull_name[c(input$trait_1_treatment == "disc", 
-                                                                                                      input$trait_2_treatment == "disc", 
-                                                                                                      input$trait_3_treatment == "disc")][1],
+        updateCheckboxInput(session, inputId = "show_convex_hull_1", 
+                            label = replacement_chull_name[c(input$trait_1_treatment == "disc", 
+                                                             input$trait_2_treatment == "disc", 
+                                                             input$trait_3_treatment == "disc")][1],
                             value = F) 
+        
+        
+        updateCheckboxInput(session, "show_allometry_convex_hull_1", 
+                            label = paste("Show ", replacement_chull_name[c(input$trait_1_treatment == "disc", 
+                                                                            input$trait_2_treatment == "disc", 
+                                                                            input$trait_3_treatment == "disc")][1], sep = ""),
+                            value = F)
         
         two_hulls_dependencies <- (length(which(c(input$trait_1_treatment == "disc", 
                                                   input$trait_2_treatment == "disc", 
@@ -3485,12 +3488,22 @@ server <- function(input, output, session) {
                                                                                                         input$trait_2_treatment == "disc", 
                                                                                                         input$trait_3_treatment == "disc")][2],
                               value = F)  # display a second convex hull option
+          updateCheckboxInput(session, "show_allometry_convex_hull_2", 
+                              label = paste("Show ", replacement_chull_name[c(input$trait_1_treatment == "disc", 
+                                                                              input$trait_2_treatment == "disc", 
+                                                                              input$trait_3_treatment == "disc")][2], sep = ""),
+                              value = F)
           if(input$trait_1_treatment == "disc" & 
              input$trait_2_treatment == "disc" & 
              input$trait_3_treatment == "disc") { # display an option for a third hull
             
             updateCheckboxInput(session, inputId = "show_convex_hull_3", label = replacement_chull_name[3], 
                                 value = F) 
+            updateCheckboxInput(session, "show_allometry_convex_hull_3", 
+                                label = paste("Show ", replacement_chull_name[c(input$trait_1_treatment == "disc", 
+                                                                                input$trait_2_treatment == "disc", 
+                                                                                input$trait_3_treatment == "disc")][3], sep = ""),
+                                value = F)
           }
         }
       }  
@@ -4693,54 +4706,54 @@ gpa_coords <- gpa_coords$coords # ***
   output$outlier_selected_lms <- metaRender2(renderPlot, bg = "transparent", {
     req(vals$outlier_row)
     if(nrow(vals$outlier_row)>0) {
-    gpa_coords <- gpa_coords_rx()
-    
-    
-    grouping <- NULL
-    column <- (2:4)[c("by_trait_1", "by_trait_2", "by_trait_3") %in% input$outlier_group]
-    if(length(column) > 0 & input$outlier_group_tf) { 
-      grouping <- as.factor(vals$trait_rx[,column]) 
-      grouping <- grouping[match(dimnames(gpa_coords)[[3]], vals$trait_rx[,1])]
-    } else {grouping <- NULL}
-    if(input$outlier_group_tf) {
-      which_group_new <- as.numeric(input$outlier_group_level_plotted)
-    } else { which_group_new <- 1 }
-    
-    x1 <- plotOutliers.ekb1(gpa_coords, groups = grouping)
-    vals$x <- plotOutliers.ekb2(x1, gpa_coords, groups = grouping, 
-                                which_group = which_group_new, pt_cex = as.numeric(input$outlier_plot_pt_cex),
-                                produce_plot = F, txt_cex = as.numeric(input$outlier_plot_txt_cex), 
-                                show_point_names = input$outlier_plot_show_point_names_tf)
-    y <- x[order(vals$x, decreasing = TRUE)]
-    outlier_df <- data.frame("x" = order(y, decreasing = TRUE), "y" = y)
-    
-    metaExpr({
+      gpa_coords <- gpa_coords_rx()
       
-      selected_outlier <- match(row.names(vals$outlier_row), names(vals$x))
-      lm_col <- rep(..(input$vis_outliers_color_other), dim(gpa_coords)[1])
-      if(!is.null(vals$curves_final)) {
-        temp_mat <- matrix(vals$curves_final, ncol = 3, byrow = T)
-        if(!anyNA(temp_mat[,2])){ 
-          lm_col[as.numeric(unlist(vals$curves_final[,1]))] <- ..(input$vis_outliers_color_brackets)
-          lm_col[as.numeric(unlist(vals$curves_final[,3]))] <- ..(input$vis_outliers_color_brackets)
-          lm_col[as.numeric(unlist(vals$curves_final[,2]))] <- ..(input$vis_outliers_color)
-        }
-      }
       
-      par(mar = c(0,2,4,0))
-      plot(gpa_coords[,,selected_outlier], col = lm_col, pch = 19, cex = 2,
-           main = paste("Selected Specimen: ", row.names(vals$outlier_row), sep = ""), 
-           asp = 1, axes = F) # displays the selected specimen landmark placement
-      text(x = gpa_coords[,,selected_outlier][,1]-0.01, y = gpa_coords[,,selected_outlier][,2] - 0.01, 
-           labels = 1:(nrow(gpa_coords[,,selected_outlier])), col = ..(input$vis_outliers_color_labels)) # adds labels to the landmarks
-      if(!is.null(vals$links_df)){
-        for (i in 1:nrow(vals$links_df)) {
-          seg_df <- gpa_coords[,,selected_outlier]
-          xys <- seg_df[vals$links_df[i,],]
-          segments(x0 = xys[1], y0 = xys[3],x1 = xys[2], y1 = xys[4], col = ..(input$vis_outliers_color_links))
+      grouping <- NULL
+      column <- (2:4)[c("by_trait_1", "by_trait_2", "by_trait_3") %in% input$outlier_group]
+      if(length(column) > 0 & input$outlier_group_tf) { 
+        grouping <- as.factor(vals$trait_rx[,column]) 
+        grouping <- grouping[match(dimnames(gpa_coords)[[3]], vals$trait_rx[,1])]
+      } else {grouping <- NULL}
+      if(input$outlier_group_tf) {
+        which_group_new <- as.numeric(input$outlier_group_level_plotted)
+      } else { which_group_new <- 1 }
+      
+      x1 <- plotOutliers.ekb1(gpa_coords, groups = grouping)
+      vals$x <- plotOutliers.ekb2(x1, gpa_coords, groups = grouping, 
+                                  which_group = which_group_new, pt_cex = as.numeric(input$outlier_plot_pt_cex),
+                                  produce_plot = F, txt_cex = as.numeric(input$outlier_plot_txt_cex), 
+                                  show_point_names = input$outlier_plot_show_point_names_tf)
+      y <- x[order(vals$x, decreasing = TRUE)]
+      outlier_df <- data.frame("x" = order(y, decreasing = TRUE), "y" = y)
+      
+      metaExpr({
+        
+        selected_outlier <- match(row.names(vals$outlier_row), names(vals$x))
+        lm_col <- rep(..(input$vis_outliers_color_other), dim(gpa_coords)[1])
+        if(!is.null(vals$curves_final)) {
+          temp_mat <- matrix(vals$curves_final, ncol = 3, byrow = T)
+          if(!anyNA(temp_mat[,2])){ 
+            lm_col[as.numeric(unlist(vals$curves_final[,1]))] <- ..(input$vis_outliers_color_brackets)
+            lm_col[as.numeric(unlist(vals$curves_final[,3]))] <- ..(input$vis_outliers_color_brackets)
+            lm_col[as.numeric(unlist(vals$curves_final[,2]))] <- ..(input$vis_outliers_color)
+          }
         }
-      }
-    })
+        
+        par(mar = c(0,2,4,0))
+        plot(gpa_coords[,,selected_outlier], col = lm_col, pch = 19, cex = 2,
+             main = paste("Selected Specimen: ", row.names(vals$outlier_row), sep = ""), 
+             asp = 1, axes = F) # displays the selected specimen landmark placement
+        text(x = gpa_coords[,,selected_outlier][,1]-0.01, y = gpa_coords[,,selected_outlier][,2] - 0.01, 
+             labels = 1:(nrow(gpa_coords[,,selected_outlier])), col = ..(input$vis_outliers_color_labels)) # adds labels to the landmarks
+        if(!is.null(vals$links_df)){
+          for (i in 1:nrow(vals$links_df)) {
+            seg_df <- gpa_coords[,,selected_outlier]
+            xys <- seg_df[vals$links_df[i,],]
+            segments(x0 = xys[1], y0 = xys[3],x1 = xys[2], y1 = xys[4], col = ..(input$vis_outliers_color_links))
+          }
+        }
+      })
     }
   })
   
@@ -6387,19 +6400,19 @@ print(text) } # This function turns the pop up messages available in gmShiny int
 summary(vals$bilat_symmetry)
 vals$bilat_symmetry$signed.AI
 vals$bilat_symmetry$unsigned.AI') 
-
+      
       ### copied from output$export_data_current_state
       phy_rx <- phy_rx() 
       if(!is.null(vals$go_run_gpa)) {
         gpa_coords <- gpa_coords_rx()
       } else {  gpa_coords <- vals$lms_rx}
       trait_rx <- trait_rx() 
-     
+      
       pca_rx <- pca_rx() 
       ref_rx <- ref_rx()
       if(!is.null(vals$warp_initiated)){ targ_rx <- targ_rx()  } else { targ_rx <- NULL } # necessary to protect a failed download
       gridPar_vals <- gridPar_vals()
-
+      
       if(is.null(vals$go_example_1)) {tpsnts_file <- input$file_tps } else { tpsnts_file <- "plethspecies$land"}
       
       if(input$shape_file_type == "TPSorNTS") {
@@ -6410,7 +6423,7 @@ vals$bilat_symmetry$unsigned.AI')
       if(input$shape_file_type == "StereoMorph") {
         shape_input_args <- list("nCurvePts" = vals$curve_n_vec)
       } 
-
+      
       vals2 <- list()
       for(i in names(vals)) vals2[[i]] <- vals[[i]]
       
@@ -6418,7 +6431,7 @@ vals$bilat_symmetry$unsigned.AI')
       # creating a temporary directory to write things in
       temp_directory <- file.path(tempdir(), as.integer(Sys.time()))
       dir.create(temp_directory)
-
+      
       # writing both the RData file and the code file in this temp directory
       save(gpa_coords, phy_rx, trait_rx, 
            pca_rx,  
@@ -6428,7 +6441,7 @@ vals$bilat_symmetry$unsigned.AI')
            shape_input_args, vals2,
            file = file.path(temp_directory, "data_current_state.RData")
       )
-
+      
       writeLines(as.character(code), file.path(temp_directory, "symmetry_code.R"))
       file.copy("support.functions.R", file.path(temp_directory, "support.functions.R"), overwrite = T)
       
@@ -6958,6 +6971,79 @@ if(exists("out")){
     }
   )
   
+  tryObserve({
+    if(input$allometry_color != "all_1_col" | input$show_allometry_convex_hull_1 | 
+       input$show_allometry_convex_hull_2 | input$show_allometry_convex_hull_3) {
+      color_options_all <- c(input$allom_color_1, input$allom_color_2, input$allom_color_3,
+                             input$allom_color_4, input$allom_color_5, input$allom_color_6)
+      i <- 0
+      if(input$allometry_color == "by_trait_1") { i <- 1 }
+      if(input$allometry_color == "by_trait_2") { i <- 2 }
+      if(input$allometry_color == "by_trait_3") { i <- 3 }
+      all_treatments <- c(input$trait_1_treatment, input$trait_2_treatment, input$trait_3_treatment)
+      hulls <- (1:3)[c(input$show_allometry_convex_hull_1, 
+                       input$show_allometry_convex_hull_2, 
+                       input$show_allometry_convex_hull_3)] # the last part of this is a placeholder so that hull exists as an item for if 
+      tip_col_options <- NULL
+      hull_1_col_options <- NULL
+      hull_2_col_options <- NULL
+      hull_3_col_options <- NULL
+      
+      if(i > 0){
+        if("cont" == all_treatments[i]) { used_cols <- 2 } else {
+          levs <- levels(as.factor(vals$trait_rx[,(i+1)]))
+          used_cols <- length(levs)
+        }
+        tip_col_options <- color_options_all[1:used_cols]
+        tip_col_options_left <- color_options_all[(used_cols+1):length(color_options_all)]
+      } else { 
+        tip_col_options <- NULL 
+        tip_col_options_left <- color_options_all
+      }
+      
+      if(input$show_allometry_convex_hull_1 |
+         input$show_allometry_convex_hull_2 | 
+         input$show_allometry_convex_hull_3) {
+        if(hulls[1] != i) {
+          levs <- levels(as.factor(vals$trait_rx[,(hulls[1]+1)]))
+          used_cols <- length(levs)
+          hull_1_col_options <- tip_col_options_left[1:used_cols]
+          tip_col_options_left <- tip_col_options_left[(used_cols+1):length(tip_col_options_left)]
+        }
+        if(length(hulls) > 1) {
+          if(hulls[1] != i & hulls[2] != i) {
+            levs <- levels(as.factor(vals$trait_rx[,(hulls[2]+1)]))
+            used_cols <- length(levs)
+            hull_2_col_options <- tip_col_options_left[1:used_cols]
+          } 
+          if(hulls[1] == i & hulls[2] != i) {
+            levs <- levels(as.factor(vals$trait_rx[,(hulls[2]+1)]))
+            used_cols <- length(levs)
+            hull_1_col_options <- tip_col_options_left[1:used_cols]
+          }
+          if(length(hulls) == 3) {
+            if(hulls[3] != i) {
+              levs <- levels(as.factor(vals$trait_rx[,(hulls[3]+1)]))
+              used_cols_hull_3 <- length(levs)
+              hull_3_col_options <- tip_col_options_left[1:used_cols_hull_3]
+            } 
+            if(hulls[2] == i) {
+              levs <- levels(as.factor(vals$trait_rx[,(hulls[3]+1)]))
+              used_cols <- length(levs)
+              hull_2_col_options <- tip_col_options_left[1:used_cols]
+            }
+          }
+        }
+      }
+      
+      vals$allometry_color_options_list <- list("tips" = tip_col_options, 
+                                                "hull1" = hull_1_col_options, 
+                                                "hull2" = hull_2_col_options, 
+                                                "hull3" = hull_3_col_options)
+      
+    }
+  })
+  
   output$allometry_plot <- metaRender2(renderPlot, bg = "transparent", {
     req(input$allometry_predictor)
     gpa_coords <- gpa_coords_rx()
@@ -6972,22 +7058,27 @@ if(exists("out")){
           if(this_trait == 5) { 
             if(!is.null(vals$csize)){
               if(..(input$allometry_log_csize)) {
+                xlab_overwrite <- "Centroid Size (log transformed)"
                 predictor <- log(vals$csize)
-              } else { predictor <- vals$csize }
+              } else { predictor <- vals$csize 
+              xlab_overwrite <- "Centroid Size"}
+              
             } 
           } else { 
             if(!is.null(vals$trait_rx)){
               predictor <- vals$trait_rx[,this_trait]
+              xlab_overwrite <- colnames(vals$trait_rx)[this_trait]
             }
           }
           
-          this_color <- (1:4)[c(..(input$allometry_color) == "all_one_color", 
+          this_color <- (1:4)[c(..(input$allometry_color) == "all_1_col", 
                                 ..(input$allometry_color) == "by_trait_1", 
                                 ..(input$allometry_color) == "by_trait_2", 
                                 ..(input$allometry_color) == "by_trait_3")]
+          
           if(this_color == 1) { color <- rep("black", dim(gpa_coords)[3])} else {
             color <- as.character(vals$trait_rx[,this_color])
-            levs <- levels(as.factor(vals$trait_rx[,this_color]))
+            levs <- unique(vals$trait_rx[,this_color])
             color[which(color == levs[1])] <- ..(input$allom_color_1)
             color[which(color == levs[2])] <- ..(input$allom_color_2)
             if(length(levs)>2){
@@ -7004,60 +7095,122 @@ if(exists("out")){
             }
           }
           
-          geomorph:::plot.procD.lm(vals$fit, type = ..(input$allometry_type), reg.type = ..(input$allometry_reg_type), 
-                                   logsz = ..(input$allometry_log_csize),
-                                   predictor = predictor, col = color, 
-                                   pch = 19, cex = ..(input$allometry_pt_size))
+          out <- geomorph:::plot.procD.lm(vals$fit, type = ..(input$allometry_type), 
+                                          reg.type = ..(input$allometry_reg_type), 
+                                          predictor = predictor, 
+                                          col = color, xlab = xlab_overwrite,
+                                          pch = 19, cex = ..(input$allometry_pt_size) )
           
+          if(..(input$show_allometry_tip_label)) { 
+            if(input$allometry_predictor == "csize") {
+              labels_overwrite <- names(out$plot.args$x)
+            } else { 
+              if(input$allometry_reg_type == "RegScore") { 
+                labels_overwrite <- rownames(out$plot.args$y) 
+              } else { labels_overwrite <- names(out$plot.args$y) }
+            } # labels_overwrite are necessary because of the naming scheme of the plot.procD.lm output
+            if(input$allometry_reg_type == "PredLine") { ys_for_text <- out$PredLine } else { 
+              ys_for_text <- out$RegScore } 
+            if(class(out$plot.args$x) == "character") { out$plot.args$x <- as.numeric(out$plot.args$x) } # necessary when predictor = continuous variable
+            range_x <- max(out$plot.args$x)-min(out$plot.args$x)
+            range_y <- max(ys_for_text)-min(ys_for_text)
+            adj_x <- (..(input$allometry_pt_size)-1)*range_x/275
+            adj_y <- (..(input$allometry_pt_size)-1)*range_y/275
+            text(x = out$plot.args$x + adj_x, 
+                 y = ys_for_text,
+                 pos = 4, cex = sqrt(..(input$allometry_pt_size)),
+                 labels = labels_overwrite) 
+          }
+          
+          if(..(input$show_allometry_convex_hull_1) | 
+             ..(input$show_allometry_convex_hull_2) | 
+             ..(input$show_allometry_convex_hull_3)) {
+            selected_trait <- (2:4)[c(..(input$show_allometry_convex_hull_1), 
+                                      ..(input$show_allometry_convex_hull_2), 
+                                      ..(input$show_allometry_convex_hull_3))]
+            colored_tips <- (2:4)[c(..(input$allometry_color) == "by_trait_1",  
+                                    ..(input$allometry_color) == "by_trait_2", 
+                                    ..(input$allometry_color) == "by_trait_3")]
+            
+            col_list_modified <- list(vals$allometry_color_options_list$hull1, 
+                                      vals$allometry_color_options_list$hull2, 
+                                      vals$allometry_color_options_list$tips)
+            
+            if(length(colored_tips) == 0) {
+              col_list_modified <-  list(vals$allometry_color_options_list$hull1, 
+                                         vals$allometry_color_options_list$hull2, 
+                                         vals$allometry_color_options_list$hull3)
+            }
+            if(length(colored_tips) > 0) { 
+              if(colored_tips == selected_trait[1]) {
+                col_list_modified <- list(vals$allometry_color_options_list$tips, 
+                                          vals$allometry_color_options_list$hull1, 
+                                          vals$allometry_color_options_list$hull2)
+              } else {
+                if(length(selected_trait) > 1) {
+                  if(colored_tips == selected_trait[2]) { 
+                    col_list_modified <- list(vals$allometry_color_options_list$hull1, 
+                                              vals$allometry_color_options_list$tips, 
+                                              vals$allometry_color_options_list$hull2 )
+                  }
+                }
+              }
+            }
+            for (i in 1:length(selected_trait)) {
+              this_col <- selected_trait[i]
+              tip_col_fac <- as.character(vals$trait_rx[,this_col]) 
+              lev <- length(unique(tip_col_fac))
+              lev_options <- unique(tip_col_fac)
+              col_mat <- unlist(col_list_modified[[i]]) 
+              
+              if(input$allometry_reg_type == "PredLine") {
+                for(j in 1:length(unique(tip_col_fac))) {
+                  selected_edges <- chull(x = out$plot.args$x[which(tip_col_fac == lev_options[j])], 
+                                          y = out$PredLine[which(tip_col_fac == lev_options[j])])
+                  polygon(x = out$plot.args$x[which(tip_col_fac == lev_options[j])][selected_edges], 
+                          y = out$PredLine[which(tip_col_fac == lev_options[j])][selected_edges], 
+                          col = adjustcolor(col_mat[j],alpha.f = .5), 
+                          border = col_mat[j])
+                }
+              } else {
+                for(j in 1:length(unique(tip_col_fac))) {
+                  selected_edges <- chull(x = out$plot.args$x[which(tip_col_fac == lev_options[j])], 
+                                          y = out$RegScore[which(tip_col_fac == lev_options[j])])
+                  polygon(x = out$plot.args$x[which(tip_col_fac == lev_options[j])][selected_edges],
+                          y = out$RegScore[which(tip_col_fac == lev_options[j])][selected_edges], 
+                          col = adjustcolor(col_mat[j],alpha.f = .5), 
+                          border = col_mat[j])
+                }
+              } 
+            }
+          }
         }
       }
     })
   })
   
   output$allometry_lev_1 <- renderText({ 
-    this_color <- (1:4)[c(input$allometry_color == "all_one_color", input$allometry_color == "by_trait_1", input$allometry_color == "by_trait_2", input$allometry_color == "by_trait_3")]
-    if(this_color > 1) {levels(as.factor(vals$trait_rx[,this_color]))[1] } else { NULL }
+    if(length(vals$allometry_color_lev_names)>0) { vals$allometry_color_lev_names[1] } else { NULL }
   })
   
   output$allometry_lev_2 <- renderText({ 
-    this_color <- (1:4)[c(input$allometry_color == "all_one_color", input$allometry_color == "by_trait_1", input$allometry_color == "by_trait_2", input$allometry_color == "by_trait_3")]
-    if(this_color > 1) {levels(as.factor(vals$trait_rx[,this_color]))[2] } else { NULL }
+    if(length(vals$allometry_color_lev_names)>1) { vals$allometry_color_lev_names[2] } else { NULL }
   })
   
   output$allometry_lev_3 <- renderText({ 
-    this_color <- (1:4)[c(input$allometry_color == "all_one_color", input$allometry_color == "by_trait_1", input$allometry_color == "by_trait_2", input$allometry_color == "by_trait_3")]
-    if(this_color > 1) {
-      col <- as.factor(vals$trait_rx[,this_color])
-      if(nlevels(col)>2) {
-        levels(col)[3] } else { NULL } 
-    } else { NULL }
+    if(length(vals$allometry_color_lev_names)>2) { vals$allometry_color_lev_names[3] } else { NULL }
   })
   
   output$allometry_lev_4 <- renderText({ 
-    this_color <- (1:4)[c(input$allometry_color == "all_one_color", input$allometry_color == "by_trait_1", input$allometry_color == "by_trait_2", input$allometry_color == "by_trait_3")]
-    if(this_color > 1) {
-      col <- as.factor(vals$trait_rx[,this_color])
-      if(nlevels(col)>3) {
-        levels(col)[4] } else { NULL } 
-    } else { NULL }
+    if(length(vals$allometry_color_lev_names)>3) { vals$allometry_color_lev_names[4] } else { NULL }
   })
   
   output$allometry_lev_5 <- renderText({ 
-    this_color <- (1:4)[c(input$allometry_color == "all_one_color", input$allometry_color == "by_trait_1", input$allometry_color == "by_trait_2", input$allometry_color == "by_trait_3")]
-    if(this_color > 1) {
-      col <- as.factor(vals$trait_rx[,this_color])
-      if(nlevels(col)>4) {
-        levels(col)[5] } else { NULL } 
-    } else { NULL }
+    if(length(vals$allometry_color_lev_names)>4) { vals$allometry_color_lev_names[5] } else { NULL }
   })
   
   output$allometry_lev_6 <- renderText({ 
-    this_color <- (1:4)[c(input$allometry_color == "all_one_color", input$allometry_color == "by_trait_1", input$allometry_color == "by_trait_2", input$allometry_color == "by_trait_3")]
-    if(this_color > 1) {
-      col <- as.factor(vals$trait_rx[,this_color])
-      if(nlevels(col)>5) {
-        levels(col)[6] } else { NULL } 
-    } else { NULL }
+    if(length(vals$allometry_color_lev_names)>5) { vals$allometry_color_lev_names[6] } else { NULL }
   })
   
   output$export_allometry_plot <- downloadHandler(
@@ -7066,23 +7219,147 @@ if(exists("out")){
       if(!is.null(input$allometry_predictor)) {
         pdf(file, width = 10, height = 6, pointsize = 8)
         req(vals$fit) 
-        
-        
-        this_trait <- (2:5)[c(input$allometry_predictor == "by_trait_1", input$allometry_predictor == "by_trait_2", input$allometry_predictor == "by_trait_3", input$allometry_predictor == "csize" )]
-        if(this_trait == 5) { 
-          if(input$allometry_log_csize) {
-            predictor <- log(vals$csize)
-          } else { predictor <- vals$csize }
-        } else { predictor <- vals$trait_rx[,this_trait] }
-        this_color <- (1:4)[c(input$allometry_color == "all_one_color", input$allometry_color == "by_trait_1", input$allometry_color == "by_trait_2", input$allometry_color == "by_trait_3")]
-        if(this_color == 1) { color <- rep("black", dim(gpa_coords_rx())[3])} else {
-          color <- as.factor(vals$trait_rx[,this_color])
-        }
-        geomorph:::plot.procD.lm(vals$fit, type = input$allometry_type, reg.type = input$allometry_reg_type, 
-                                 logsz = input$allometry_log_csize,
-                                 predictor = predictor, col = color, 
-                                 pch = 19, cex = as.numeric(input$allometry_pt_size))
-        
+
+        gpa_coords <- gpa_coords_rx()
+
+          if(!is.null(input$allometry_predictor)) {
+            this_trait <- (2:6)[c(input$allometry_predictor == "by_trait_1", 
+                                  input$allometry_predictor == "by_trait_2", 
+                                  input$allometry_predictor == "by_trait_3", 
+                                  input$allometry_predictor == "csize",
+                                  input$allometry_predictor == "none")]
+            if(this_trait != 6) {
+              if(this_trait == 5) { 
+                if(!is.null(vals$csize)){
+                  if(input$allometry_log_csize) {
+                    xlab_overwrite <- "Centroid Size (log transformed)"
+                    predictor <- log(vals$csize)
+                  } else { predictor <- vals$csize 
+                  xlab_overwrite <- "Centroid Size"}
+                  
+                } 
+              } else { 
+                if(!is.null(vals$trait_rx)){
+                  predictor <- vals$trait_rx[,this_trait]
+                  xlab_overwrite <- colnames(vals$trait_rx)[this_trait]
+                }
+              }
+              
+              this_color <- (1:4)[c(input$allometry_color == "all_1_col", 
+                                    input$allometry_color == "by_trait_1", 
+                                    input$allometry_color == "by_trait_2", 
+                                    input$allometry_color == "by_trait_3")]
+              
+              if(this_color == 1) { color <- rep("black", dim(gpa_coords)[3])} else {
+                color <- as.character(vals$trait_rx[,this_color])
+                levs <- unique(vals$trait_rx[,this_color])
+                color[which(color == levs[1])] <- input$allom_color_1
+                color[which(color == levs[2])] <- input$allom_color_2
+                if(length(levs)>2){
+                  color[which(color == levs[3])] <- input$allom_color_3
+                  if(length(levs)>3){
+                    color[which(color == levs[4])] <- input$allom_color_4
+                    if(length(levs)>4){
+                      color[which(color == levs[5])] <- input$allom_color_5
+                      if(length(levs)>5){
+                        color[which(color == levs[6])] <- input$allom_color_6
+                      }
+                    }
+                  }
+                }
+              }
+              
+              out <- geomorph:::plot.procD.lm(vals$fit, type = input$allometry_type, 
+                                              reg.type = input$allometry_reg_type, 
+                                              predictor = predictor, 
+                                              col = color, xlab = xlab_overwrite,
+                                              pch = 19, cex = input$allometry_pt_size )
+              
+              if(input$show_allometry_tip_label) { 
+                if(input$allometry_predictor == "csize") {
+                  labels_overwrite <- names(out$plot.args$x)
+                } else { 
+                  if(input$allometry_reg_type == "RegScore") { 
+                    labels_overwrite <- rownames(out$plot.args$y) 
+                  } else { labels_overwrite <- names(out$plot.args$y) }
+                } # labels_overwrite are necessary because of the naming scheme of the plot.procD.lm output
+                if(input$allometry_reg_type == "PredLine") { ys_for_text <- out$PredLine } else { 
+                  ys_for_text <- out$RegScore } 
+                if(class(out$plot.args$x) == "character") { out$plot.args$x <- as.numeric(out$plot.args$x) } # necessary when predictor = continuous variable
+                range_x <- max(out$plot.args$x)-min(out$plot.args$x)
+                range_y <- max(ys_for_text)-min(ys_for_text)
+                adj_x <- (input$allometry_pt_size-1)*range_x/275
+                adj_y <- (input$allometry_pt_size-1)*range_y/275
+                text(x = out$plot.args$x + adj_x, 
+                     y = ys_for_text,
+                     pos = 4, cex = sqrt(input$allometry_pt_size),
+                     labels = labels_overwrite) 
+              }
+              
+              if(input$show_allometry_convex_hull_1 | 
+                 input$show_allometry_convex_hull_2 | 
+                 input$show_allometry_convex_hull_3) {
+                selected_trait <- (2:4)[c(input$show_allometry_convex_hull_1, 
+                                          input$show_allometry_convex_hull_2, 
+                                          input$show_allometry_convex_hull_3)]
+                colored_tips <- (2:4)[c(input$allometry_color == "by_trait_1",  
+                                        input$allometry_color == "by_trait_2", 
+                                        input$allometry_color == "by_trait_3")]
+                
+                col_list_modified <- list(vals$allometry_color_options_list$hull1, 
+                                          vals$allometry_color_options_list$hull2, 
+                                          vals$allometry_color_options_list$tips)
+                
+                if(length(colored_tips) == 0) {
+                  col_list_modified <-  list(vals$allometry_color_options_list$hull1, 
+                                             vals$allometry_color_options_list$hull2, 
+                                             vals$allometry_color_options_list$hull3)
+                }
+                if(length(colored_tips) > 0) { 
+                  if(colored_tips == selected_trait[1]) {
+                    col_list_modified <- list(vals$allometry_color_options_list$tips, 
+                                              vals$allometry_color_options_list$hull1, 
+                                              vals$allometry_color_options_list$hull2)
+                  } else {
+                    if(length(selected_trait) > 1) {
+                      if(colored_tips == selected_trait[2]) { 
+                        col_list_modified <- list(vals$allometry_color_options_list$hull1, 
+                                                  vals$allometry_color_options_list$tips, 
+                                                  vals$allometry_color_options_list$hull2 )
+                      }
+                    }
+                  }
+                }
+                for (i in 1:length(selected_trait)) {
+                  this_col <- selected_trait[i]
+                  tip_col_fac <- as.character(vals$trait_rx[,this_col]) 
+                  lev <- length(unique(tip_col_fac))
+                  lev_options <- unique(tip_col_fac)
+                  col_mat <- unlist(col_list_modified[[i]]) 
+                  
+                  if(input$allometry_reg_type == "PredLine") {
+                    for(j in 1:length(unique(tip_col_fac))) {
+                      selected_edges <- chull(x = out$plot.args$x[which(tip_col_fac == lev_options[j])], 
+                                              y = out$PredLine[which(tip_col_fac == lev_options[j])])
+                      polygon(x = out$plot.args$x[which(tip_col_fac == lev_options[j])][selected_edges], 
+                              y = out$PredLine[which(tip_col_fac == lev_options[j])][selected_edges], 
+                              col = adjustcolor(col_mat[j],alpha.f = .5), 
+                              border = col_mat[j])
+                    }
+                  } else {
+                    for(j in 1:length(unique(tip_col_fac))) {
+                      selected_edges <- chull(x = out$plot.args$x[which(tip_col_fac == lev_options[j])], 
+                                              y = out$RegScore[which(tip_col_fac == lev_options[j])])
+                      polygon(x = out$plot.args$x[which(tip_col_fac == lev_options[j])][selected_edges],
+                              y = out$RegScore[which(tip_col_fac == lev_options[j])][selected_edges], 
+                              col = adjustcolor(col_mat[j],alpha.f = .5), 
+                              border = col_mat[j])
+                    }
+                  }
+                }
+              }
+            }
+          }
         dev.off()
       }
     }
@@ -7612,6 +7889,7 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   
   output$news <- renderUI({
     HTML("
+    <li> 06.13.2022 - v0.1.3 release </li>
     <li> 05.13.2022 - v0.1.2 release </li>
     <li> 05.11.2022 - v0.1.1 release </li>
     <li> 02.17.2022 - v0.1.0 release </li>

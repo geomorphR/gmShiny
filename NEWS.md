@@ -1,3 +1,11 @@
+# v0.1.3 (released 5/19/22)
+Features:
+- Added convex hull plots for Allometry tab
+
+Bug Fixes:
+- Export Plot for Allometry tab
+- log(CS) error message (plot and math were correct, error message no longer appears)
+
 # v0.1.2 (released 5/13/22)
 Changes:
 1) Bug fix regarding Export Plot option for Morphospace with convex hulls 
