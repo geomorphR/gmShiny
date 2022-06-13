@@ -7,9 +7,7 @@ library(shinyalert); library(shinyMatrix); library(shinyjqui); library(shinymeta
 library(geomorph); library(ape); library(stringr); library(stringi); library(RColorBrewer);
 library(reactlog); library(StereoMorph); library(shinybusy)
 
-#source("support.functions.R")
-source("/srv/shiny-server/gmshiny/support.functions.R")
-
+source("support.functions.R")
 rm(list = ls())
 
 # defining elements upon startup
@@ -43,7 +41,7 @@ options(shiny.maxRequestSize = 30*1024^2, # sets file limit size
 
 ui <- fillPage(
   navbarPage(
-    title = "gmShiny v0.1.0",
+    title = "gmShiny v0.1.3",
     id = "navbar",
     theme = shinytheme("flatly"),
     footer = div(style = "position: absolute; bottom:0; padding: 12px; height: 50px; width: 100%;
@@ -1306,9 +1304,9 @@ ui <- fillPage(
                 column(6, align = 'left',
                        downloadButton('export_allometry_code', "Export Code", icon = shiny::icon("registered"),
                                       style='width: 200px; padding:6px; font-size:80%; background-color: #337ab7; border-color: #337ab7;'))
-              )),
+              ), br(), br()),
             sidebarPanel(
-              width = 3, 
+              width = 3, style = "overflow: hidden; overflow-y: scroll; max-height: calc(100vh - 140px); position:relative;",
               hr(style="border-color: purple;"),
               fluidRow(align = "center", h4(strong("Settings"))), 
               hr(style="border-color: purple;"),
@@ -1318,10 +1316,20 @@ ui <- fillPage(
               radioButtons("allometry_predictor", "Predictor Variable:", choices = c("Upload Trait Data" = "none")),
               conditionalPanel(
                 "input.allometry_predictor == 'csize'",
-                radioButtons("allometry_log_csize", "Log Transform Centroid Size:", choices = c(TRUE, FALSE))),
-              selectInput("allometry_color", "Color Points:", choices = c("All One Color" = "all_one_color")),
+                radioButtons("allometry_log_csize", "Log Transform Centroid Size:", choices = c("True" = TRUE, "False" = FALSE))),
+              checkboxInput("show_allometry_tip_label", strong("Show Tip Labels")),
+              selectInput("allometry_color", "Color Points:", choices = c("All One Color" = "all_1_col")),
               conditionalPanel(
-                "input.allometry_color != 'all_one_color'",
+                condition = "(input.trait_1_treatment == 'disc' || input.trait_2_treatment == 'disc' || input.trait_3_treatment == 'disc') && output.file_trait_selected", 
+                checkboxInput("show_allometry_convex_hull_1", "Show Convex Hulls Around Trait 1")),
+              conditionalPanel(
+                condition = "output.two_disc_traits_selected && output.file_trait_selected",
+                checkboxInput("show_allometry_convex_hull_2", "Show Convex Hulls Around Trait 2")),
+              conditionalPanel(
+                condition = "output.three_disc_traits_selected && output.file_trait_selected",
+                checkboxInput("show_allometry_convex_hull_3", "Show Convex Hulls Around Trait 3")),
+              conditionalPanel(
+                "output.allometry_color_nlev > 1",
                 fluidRow(
                   column(2, align = "center", textOutput("allometry_lev_1", container = h6)),
                   column(2, align = "center", textOutput("allometry_lev_2", container = h6)),
@@ -1339,7 +1347,7 @@ ui <- fillPage(
                           column(2, align = "center", textOutput("allometry_lev_6", container = h6))))))),
                 fluidRow(
                   column(2, align = "center", colorSelectorDrop.ekb("allom_color_1", "Lev 1", selected = all_color_options[1])),
-                  column(2, align = "center",colorSelectorDrop.ekb("allom_color_2", "Lev 2", selected = all_color_options[5])),
+                  column(2, align = "center", colorSelectorDrop.ekb("allom_color_2", "Lev 2", selected = all_color_options[5])),
                   conditionalPanel(
                     "output.allometry_color_nlev > 2",
                     column(2, align = "center",colorSelectorDrop.ekb("allom_color_3", "Lev 3", selected = all_color_options[6])),
@@ -1356,7 +1364,7 @@ ui <- fillPage(
                     ))
                 ), br()
               ),
-              sliderInput("allometry_pt_size", "Point Size:", min = 0.1, max = 5, value = 1)
+              sliderInput("allometry_pt_size", "Point Size:", min = 0.1, max = 5, value = 1), br()
             ))),
         tabPanel(
           "Model Comparison",
@@ -1549,7 +1557,7 @@ ui <- fillPage(
             br(),
             fluidRow(
               column(9, offset = 1,
-              HTML('<h5>Updates since tutorial recording:</h5>
+                     HTML('<h5>Updates since tutorial recording:</h5>
                    <li>Demo files available for all file uploads (see buttons above)</li>
                    <li>Download code buttons now pull all necessary info; no extra step needed to download data in current state</li>
                    <li>Instructions differ slightly, more information on various pages</li>
@@ -1590,7 +1598,7 @@ ui <- fillPage(
                     br(),
                     fluidRow(
                       column(9, offset = 1,
-                      HTML('<h5>Updates since tutorial recording:</h5>
+                             HTML('<h5>Updates since tutorial recording:</h5>
                    <li>Various bugs fixed</li>
                    <li>Certain options only available after Calculate is pressed</li>
                    <li>Clear Symmetry Settings button now available</li>')))
@@ -1602,7 +1610,13 @@ ui <- fillPage(
                         11,
                         HTML('<iframe src="https://player.vimeo.com/video/530980333?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
                              width="900" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen 
-                             title="Linear_Models.mov"></iframe>')))
+                             title="Linear_Models.mov"></iframe>'))),
+                    br(),
+                    fluidRow(
+                      column(9, offset = 1,
+                             HTML('<h5>Updates since tutorial recording:</h5>
+                   <li>Various bugs fixed</li>
+                   <li>Convex Hulls available for Allometry Tab plot</li>')))
           ), 
           wellPanel(style = "align: center; border-color: white; background-color: rgba(255,250,250, .25) ;",
                     fluidRow(column(9, offset = 1, h4("Part 6: Extras"))),hr(),
