@@ -1,4 +1,7 @@
-# v0.1.3 (released 5/19/22)
+# v0.1.4 (released 3/7/23)
+Bug fixed: Modularity tab - selecting LMs for modules when app run through R Studio 
+
+# v0.1.3 (released 6/13/22)
 Features:
 - Added convex hull plots for Allometry tab
 

@@ -30,32 +30,32 @@ colnames(symmetry_landpairs_manual_matrix) <- c("Side 1", "Side 2")
 server <- function(input, output, session) {  
   
   #### Instructions ####
-  #tryObserveEvent(input$navbar, {
-  #  if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
-  #    shinyalert(
-  #      title = "Welcome!",
-  #      inputId = "keep_alerts_on_tf",
-  #      text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
-  #          
-  #          Would you like to keep these Instructions on?",
-  #      size = "s", 
-  #      closeOnEsc = F,
-  #      closeOnClickOutside = F,
-  #      html = FALSE,
-  #      type = "success",
-  #      showConfirmButton = TRUE,
-  #      showCancelButton = TRUE,
-  #      confirmButtonText = "Yes",
-  #      confirmButtonCol = "#AEDEF4",
-  #      cancelButtonText = "No",
-  #      timer = 0,
-  #      imageUrl = "",
-  #      animation = TRUE
-  #    )
-  #    alert_vals$navbar_datainput_welcomealertdone <- "yes"
-  #  }
-  #}
-  #)
+  tryObserveEvent(input$navbar, {
+    if(is.null(bookmark_vals$adjust_updates) & is.null(alert_vals$navbar_datainput_welcomealertdone)) { # silences this alert if coming from a bookmarked state or if this already ran once
+      shinyalert(
+        title = "Welcome!",
+        inputId = "keep_alerts_on_tf",
+        text = "Alerts like this are available throughout this App to help explain all the functionalities available to you. 
+            
+            Would you like to keep these Instructions on?",
+        size = "s", 
+        closeOnEsc = F,
+        closeOnClickOutside = F,
+        html = FALSE,
+        type = "success",
+        showConfirmButton = TRUE,
+        showCancelButton = TRUE,
+        confirmButtonText = "Yes",
+        confirmButtonCol = "#AEDEF4",
+        cancelButtonText = "No",
+        timer = 0,
+        imageUrl = "",
+        animation = TRUE
+      )
+      alert_vals$navbar_datainput_welcomealertdone <- "yes"
+    }
+  }
+  )
   
   tryObserveEvent(input$alert_on_off, ignoreInit = T, priority = -10,  {
     if(input$alert_on_off == F) { 
@@ -7889,6 +7889,7 @@ print(text) } # This function turns the pop up messages available in gmShiny int
   
   output$news <- renderUI({
     HTML("
+    <li> 03.07.2023 - v0.1.4 release </li>
     <li> 06.13.2022 - v0.1.3 release </li>
     <li> 05.13.2022 - v0.1.2 release </li>
     <li> 05.11.2022 - v0.1.1 release </li>

@@ -1320,7 +1320,7 @@ updateOrderInput <- function (session, inputId, label = NULL,
                            "info", "warning", "danger"))
   if(!is.null(items)) {items <- digestItems(items)}
   if(!is.null(connect)){
-    if(connect == FALSE) {
+    if(connect[1] == FALSE) { 
       connect <- "false"
     } else {
       connect <- paste0("#", connect, collapse = ", ")
@@ -1333,6 +1333,7 @@ updateOrderInput <- function (session, inputId, label = NULL,
   message <- Filter(Negate(is.null), message)
   session$sendInputMessage(inputId, message)
 } # copied verbatim from https://github.com/Yang-Tang/shinyjqui/blob/master/R/orderInput.R on 11/8/20
+    # edited line to: if(connect[1] == FALSE) { # I added the [1] on 3/7/23
 
 digestItems <- function(items) {
   if (length(items) == 0 || (!is.vector(items) && !is.factor(items))) {
@@ -1424,85 +1425,86 @@ pruning_script_function <- function(vals.lms_rx, vals.phy_rx, vals.trait_rx, val
       }
     }
     
-  }'
+  }
+  '
 }
 
-orderInput <- function(inputId, label, items,
-                       as_source = FALSE, connect = NULL,
-                       item_class = c("default", "primary", "success",
-                                      "info", "warning", "danger"),
-                       placeholder = NULL, width = "500px",
-                       legacy = FALSE, ...) {
-  
-  if(legacy) {
-    return(orderInputLegacy(inputId, label, items, as_source, connect,
-                            item_class, placeholder, width, ...))
-  }
-  
-  connect <- `if`(is.null(connect),
-                  "false", paste0("#", connect, collapse = ", "))
-  
-  item_class <- sprintf("btn btn-%s", match.arg(item_class))
-  
-  width <- shiny::validateCssUnit(width)
-  
-  
-  dep <- htmltools::htmlDependency(
-    name    = "orderInputBinding",
-    version = "0.3.3",
-    package = "shinyjqui",
-    src     = "www",
-    script  = "orderInputBinding.js"
-  )
-  
-  placeholder <- sprintf('#%s:empty:before{content: "%s"; font-size: 14px; opacity: 0.5;}',
-                         inputId, placeholder)
-  placeholder <- shiny::singleton(shiny::tags$head(shiny::tags$style(shiny::HTML(placeholder))))
-  
-  
-  label <- shiny::tags$label(label, `for` = inputId)
-  
-  items <- digestItems(items)
-  
-  tagsBuilder <- function(value, label) {
-    tag <- shiny::tags$div(
-      `data-value` = value,
-      class = item_class,
-      style = "margin: 1px",
-      label
-    )
-    if (as_source) {
-      options <- list(connectToSortable = connect,
-                      helper            = "clone",
-                      cancel            = "")
-      tag <- jqui_draggable(tag, options = options)
-    }
-    return(tag)
-  }
-  item_tags <- mapply(tagsBuilder, items$values, items$labels,
-                      SIMPLIFY = FALSE, USE.NAMES = FALSE)
-  
-  style <- sprintf("width: %s; font-size: 0px; min-height: 25px;", width)
-  container <- shiny::tags$div(
-    id    = inputId,
-    style = style,
-    # `data-order` = list(a = 1, b = 2),
-    class = ifelse(as_source,
-                   "jqui-orderInput-source",
-                   "jqui-orderInput"),
-    ...
-  )
-  container <- shiny::tagSetChildren(container, list = item_tags)
-  if (!as_source) {
-    cb <- "function(e, ui){if(!$(e.target).children().length)$(e.target).empty();}"
-    options <- list(connectWith = connect,
-                    remove      = htmlwidgets::JS(cb))
-    container <- jqui_sortable(container, options = options)
-  }
-  
-  return(shiny::tagList(dep, placeholder, label, container))
-  
-}
+#orderInput <- function(inputId, label, items,
+#                       as_source = FALSE, connect = NULL,
+#                       item_class = c("default", "primary", "success",
+#                                      "info", "warning", "danger"),
+#                       placeholder = NULL, width = "500px",
+#                       legacy = FALSE, ...) {
+#  
+#  if(legacy) {
+#    return(orderInputLegacy(inputId, label, items, as_source, connect,
+#                            item_class, placeholder, width, ...))
+#  }
+#  
+#  connect <- `if`(is.null(connect),
+#                  "false", paste0("#", connect, collapse = ", "))
+#  
+#  item_class <- sprintf("btn btn-%s", match.arg(item_class))
+#  
+#  width <- shiny::validateCssUnit(width)
+#  
+#  
+#  dep <- htmltools::htmlDependency(
+#    name    = "orderInputBinding",
+#    version = "0.3.3",
+#    package = "shinyjqui",
+#    src     = "www",
+#    script  = "orderInputBinding.js"
+#  )
+#  
+#  placeholder <- sprintf('#%s:empty:before{content: "%s"; font-size: 14px; opacity: 0.5;}',
+#                         inputId, placeholder)
+#  placeholder <- shiny::singleton(shiny::tags$head(shiny::tags$style(shiny::HTML(placeholder))))
+#  
+#  
+#  label <- shiny::tags$label(label, `for` = inputId)
+#  
+#  items <- digestItems(items)
+#  
+#  tagsBuilder <- function(value, label) {
+#    tag <- shiny::tags$div(
+#      `data-value` = value,
+#      class = item_class,
+#      style = "margin: 1px",
+#      label
+#    )
+#    if (as_source) {
+#      options <- list(connectToSortable = connect,
+#                      helper            = "clone",
+#                      cancel            = "")
+#      tag <- jqui_draggable(tag, options = options)
+#    }
+#    return(tag)
+#  }
+#  item_tags <- mapply(tagsBuilder, items$values, items$labels,
+#                      SIMPLIFY = FALSE, USE.NAMES = FALSE)
+#  
+#  style <- sprintf("width: %s; font-size: 0px; min-height: 25px;", width)
+#  container <- shiny::tags$div(
+#    id    = inputId,
+#    style = style,
+#    # `data-order` = list(a = 1, b = 2),
+#    class = ifelse(as_source,
+#                   "jqui-orderInput-source",
+#                   "jqui-orderInput"),
+#    ...
+#  )
+#  container <- shiny::tagSetChildren(container, list = item_tags)
+#  if (!as_source) {
+#    cb <- "function(e, ui){if(!$(e.target).children().length)$(e.target).empty();}"
+#    options <- list(connectWith = connect,
+#                    remove      = htmlwidgets::JS(cb))
+#    container <- jqui_sortable(container, options = options)
+#  }
+#  
+#  return(shiny::tagList(dep, placeholder, label, container))
+#  
+#}
 
 orderInputLegacy <- function(inputId, label, items,
                              as_source = FALSE, connect = NULL,

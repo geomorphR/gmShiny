@@ -7,7 +7,7 @@ library(shinyalert); library(shinyMatrix); library(shinyjqui); library(shinymeta
 library(geomorph); library(ape); library(stringr); library(stringi); library(RColorBrewer);
 library(reactlog); library(StereoMorph); library(shinybusy)
 
-source("support.functions.R")
+source("support.functions.R") 
 rm(list = ls())
 
 # defining elements upon startup
@@ -41,7 +41,7 @@ options(shiny.maxRequestSize = 30*1024^2, # sets file limit size
 
 ui <- fillPage(
   navbarPage(
-    title = "gmShiny v0.1.3",
+    title = "gmShiny v0.1.4",
     id = "navbar",
     theme = shinytheme("flatly"),
     footer = div(style = "position: absolute; bottom:0; padding: 12px; height: 50px; width: 100%;
@@ -919,49 +919,55 @@ ui <- fillPage(
               fluidRow(align = "center", h4(strong("Settings"))), 
               hr(style="border-color: purple;"),
               radioButtons("modularity_n_groups", "Number of Modules:", 
-                           choices = 2:8, inline = T), br(),
+                           choices = 2:8, inline = T, selected = 2), br(), 
               fluidRow(column(7,div(style = "height:10px;", h5(strong("Module 1 Landmarks:")))), 
                        column(5, div(style = "height:10px;", 
                                      colorSelectorDrop.ekb("module_1_col", label = NULL, dropdownside = "right")))), 
-              orderInput('modularity_group_1', NULL, items = NULL, width = "300px",
+              orderInput(inputId = 'modularity_group_1', label = NULL, items = NULL, width = "300px",
                          connect = c('modularity_group_2', 'modularity_group_3', 'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')), br(),
               fluidRow(column(7,div(style = "height:10px;", h5(strong("Module 2 Landmarks:")))), 
                        column(5, div(style = "height:10px;", colorSelectorDrop.ekb("module_2_col", label = NULL, dropdownside = "right", selected = all_color_options[1])))),
-              orderInput('modularity_group_2', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px",
+              orderInput(inputId = 'modularity_group_2', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px",
                          connect = c('modularity_group_1', 'modularity_group_3', 'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')), br(),
               conditionalPanel(
                 "input.modularity_n_groups > 2",
                 fluidRow(column(7,div(style = "height:10px;", h5(strong("Module 3 Landmarks:")))), column(5, div(style = "height:10px;", colorSelectorDrop.ekb("module_3_col", label = NULL, selected = all_color_options[4], dropdownside = "right")))),
-                orderInput('modularity_group_3', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px", 
-                           connect = c( 'modularity_group_1','modularity_group_2','modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')), br()),
+                orderInput(inputId = 'modularity_group_3', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px", 
+                           connect = c( 'modularity_group_1','modularity_group_2','modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')), 
+               br()),
               conditionalPanel(
                 "input.modularity_n_groups > 3",
                 fluidRow(column(7,div(style = "height:10px;", h5(strong("Module 4 Landmarks:")))), column(5, div(style = "height:10px;", colorSelectorDrop.ekb("module_4_col", label = NULL, selected = all_color_options[6], dropdownside = "right")))),
-                orderInput('modularity_group_4', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px", 
-                           connect = c( 'modularity_group_1','modularity_group_2','modularity_group_3',  'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')), br()),
+                orderInput(inputId = 'modularity_group_4', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px", 
+                           connect = c( 'modularity_group_1','modularity_group_2','modularity_group_3',  'modularity_group_5', 'modularity_group_6', 'modularity_group_7', 'modularity_group_8')), 
+               br()),
               conditionalPanel(
                 "input.modularity_n_groups > 4",
                 fluidRow(column(7, div(style = "height:10px;", h5(strong("Module 5 Landmarks:")))), column(5, div(style = "height:10px;", colorSelectorDrop.ekb("module_5_col", label = NULL, selected = all_color_options[11]), dropdownside = "right"))),
-                orderInput('modularity_group_5', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px",
-                           connect = c('modularity_group_1','modularity_group_2','modularity_group_3','modularity_group_4', 'modularity_group_6',  'modularity_group_7', 'modularity_group_8')), br()),
+                orderInput(inputId = 'modularity_group_5', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px",
+                           connect = c('modularity_group_1','modularity_group_2','modularity_group_3','modularity_group_4', 'modularity_group_6',  'modularity_group_7', 'modularity_group_8')), 
+               br()),
               conditionalPanel(
                 "input.modularity_n_groups > 5",
                 fluidRow(column(7, div(style = "height:10px;", h5(strong("Module 6 Landmarks:")))), column(5, div(style = "height:10px;", colorSelectorDrop.ekb("module_6_col", label = NULL, selected = all_color_options[34], dropdownside = "right")))),
-                orderInput('modularity_group_6', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px",
-                           connect = c('modularity_group_1','modularity_group_2','modularity_group_3','modularity_group_4', 'modularity_group_5','modularity_group_7',  'modularity_group_8')), br()),
+                orderInput(inputId = 'modularity_group_6', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px",
+                           connect = c('modularity_group_1','modularity_group_2','modularity_group_3','modularity_group_4', 'modularity_group_5','modularity_group_7',  'modularity_group_8')), 
+               br()),
               conditionalPanel(
                 "input.modularity_n_groups > 6",
                 fluidRow(column(7, div(style = "height:10px;", h5(strong("Module 7 Landmarks:")))), column(5, div(style = "height:10px;", colorSelectorDrop.ekb("module_7_col", label = NULL, selected = all_color_options[44], dropdownside = "right")))),
-                orderInput('modularity_group_7', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px",
-                           connect = c( 'modularity_group_8', 'modularity_group_1', 'modularity_group_2', 'modularity_group_3', 'modularity_group_4', 'modularity_group_5', 'modularity_group_6')), br()),
+                orderInput(inputId = 'modularity_group_7', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px",
+                           connect = c( 'modularity_group_8', 'modularity_group_1', 'modularity_group_2', 'modularity_group_3', 'modularity_group_4', 'modularity_group_5', 'modularity_group_6')), 
+               br()),
               conditionalPanel(
                 "input.modularity_n_groups > 7",
                 fluidRow(column(7,div(style = "height:10px;", h5(strong("Module 8 Landmarks:")))), column(5, div(style = "height:10px;", colorSelectorDrop.ekb("module_8_col", label = NULL, selected = all_color_options[53], dropdownside = "right")))),
-                orderInput('modularity_group_8', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px",
-                           connect = c('modularity_group_1', 'modularity_group_2', 'modularity_group_3', 'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_7'))),
+                orderInput(inputId = 'modularity_group_8', NULL, items = NULL, placeholder = 'Drag landmarks here...', width = "300px",
+                           connect = c('modularity_group_1', 'modularity_group_2', 'modularity_group_3', 'modularity_group_4', 'modularity_group_5', 'modularity_group_6', 'modularity_group_7'))
+               ),
               br(),
               fluidRow(column(12, align = "center", 
-                              actionButton("apply_modular_groups_go", label = "Assign LMs to Modules", width = '100%', 
+                              actionButton(inputId = "apply_modular_groups_go", label = "Assign LMs to Modules", width = '100%', 
                                            style='padding:6px; font-size:85%; background-color: #003366; border-color: #003366;'))),
               hr(),
               fluidRow(column(12, sliderInput("plot_modularity_visualization_cex", label= "Landmark Size:", min = 0, max = 4, value = 1, step = .1))),
@@ -1679,7 +1685,6 @@ ui <- fillPage(
                 });'
     ),
     useShinyjs(), 
-    useShinyalert(), 
     setBackgroundColor(color = c("#ceecf0", "#3579b5"), gradient = "linear", direction = "top")
   )
   
